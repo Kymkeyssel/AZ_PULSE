@@ -1,0 +1,122 @@
+/* Subtle custom scrollbar for Access Request Form */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Direction inverse des rayons lumineux : voyageant de bas-gauche vers haut-droite */
+@keyframes beamSweepReverse {
+  0% {
+    transform: translate(-100%, 150%) rotate(-45deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.85;
+  }
+  75% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(160%, -130%) rotate(-45deg);
+    opacity: 0;
+  }
+}
+
+.beam-reverse-wide {
+  position: absolute;
+  width: 140%;
+  height: 85px;
+  background: linear-gradient(90deg, transparent 0%, rgba(29,99,255,0.25) 20%, rgba(255,255,255,0.85) 50%, rgba(255,184,0,0.5) 75%, transparent 100%);
+  filter: blur(16px);
+  pointer-events: none;
+  animation: beamSweepReverse 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.beam-reverse-thin {
+  position: absolute;
+  width: 150%;
+  height: 3.5px;
+  background: linear-gradient(90deg, transparent 0%, rgba(29,99,255,0.7) 25%, #ffffff 50%, #ffb800 75%, transparent 100%);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(29, 99, 255, 0.7);
+  pointer-events: none;
+  animation: beamSweepReverse 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 0.08s;
+}
+
+/* Trait fixe stylisé identique à la référence Arcana coupant le haut droit */
+.arcana-fixed-beam {
+  position: absolute;
+  width: 150%;
+  height: 1px;
+  background: linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.7) 70%, rgba(255,184,0,0.6) 85%, transparent 100%);
+  transform: rotate(-38deg);
+  top: 25%;
+  right: -25%;
+  pointer-events: none;
+}
+
+/* Form transition sliding states */
+.form-pane {
+  transition: opacity 380ms cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 400ms;
+  will-change: transform, opacity;
+}
+
+.form-pane-active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  visibility: visible;
+  pointer-events: auto;
+  position: relative;
+}
+
+.form-pane-hidden-left {
+  opacity: 0;
+  transform: translateX(-35px) scale(0.98);
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+.form-pane-hidden-right {
+  opacity: 0;
+  transform: translateX(35px) scale(0.98);
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+/* Reproduction exacte au millimètre du cutout cranté asymétrique d'Arcana (Notched Step Top-Right) */
+.arcana-notched-card {
+  background: #2b2b2b;
+  position: relative;
+  /* Coin gauche plus haut, transition incurvée vers la marche basse droite */
+  clip-path: url(#arcanaCardClip);
+  -webkit-clip-path: url(#arcanaCardClip);
+}
+
+/* Pulse wave subtle glow */
+@keyframes pulseAura {
+  0%, 100% {
+    filter: drop-shadow(0 0 16px rgba(29, 99, 255, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 26px rgba(255, 184, 0, 0.45));
+  }
+}
+.pulse-glow-anim {
+  animation: pulseAura 5.5s ease-in-out infinite;
+}

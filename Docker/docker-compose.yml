@@ -1,0 +1,269 @@
+services:
+
+  # =========================================================
+  # PostgreSQL
+  # Base de données principale AZ PULSE
+  # + base dédiée à n8n
+  # =========================================================
+  postgres:
+    image: postgres:18.4
+    container_name: azpulse-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: azpulse
+      POSTGRES_USER: azpulse
+      POSTGRES_PASSWORD: azpulse_dev_password
+
+      TZ: Africa/Douala
+      PGTZ: Africa/Douala
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - azpulse_postgres_data:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U azpulse -d azpulse"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+    networks:
+      - azpulse
+
+
+  # =========================================================
+  # pgAdmin
+  # Administration PostgreSQL
+  # =========================================================
+  pgadmin:
+    image: dpage/pgadmin4:9.16
+    container_name: azpulse-pgadmin
+    restart: unless-stopped
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@azpulse.dev
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+
+      TZ: Africa/Douala
+
+    ports:
+      - "5050:80"
+
+    volumes:
+      - azpulse_pgadmin_data:/var/lib/pgadmin
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - azpulse
+
+
+  # =========================================================
+  # Redis
+  # Cache / données temporaires / support applicatif
+  # =========================================================
+  redis:
+    image: redis:8.8.1-alpine
+    container_name: azpulse-redis
+    restart: unless-stopped
+
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes"
+      ]
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - azpulse_redis_data:/data
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - azpulse
+
+
+  # =========================================================
+  # n8n
+  # Moteur d'automatisation AZ PULSE
+  # =========================================================
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:2.32.7
+    container_name: azpulse-n8n
+    restart: unless-stopped
+
+    environment:
+
+      # -----------------------------------------------------
+      # Général
+      # -----------------------------------------------------
+      TZ: Africa/Douala
+      GENERIC_TIMEZONE: Africa/Douala
+
+      N8N_HOST: 0.0.0.0
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+
+      N8N_EDITOR_BASE_URL: http://localhost:5678
+      WEBHOOK_URL: http://localhost:5678/
+
+      N8N_SECURE_COOKIE: "false"
+
+      # -----------------------------------------------------
+      # Base PostgreSQL
+      # -----------------------------------------------------
+      DB_TYPE: postgresdb
+
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: azpulse_n8n
+      DB_POSTGRESDB_PASSWORD: n8n_dev_password
+
+      # -----------------------------------------------------
+      # Clé de chiffrement n8n
+      # -----------------------------------------------------
+      N8N_ENCRYPTION_KEY: azpulse_n8n_dev_encryption_key_change_me
+
+      # -----------------------------------------------------
+      # Désactivation de fonctionnalités inutiles en dev
+      # -----------------------------------------------------
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+
+    ports:
+      - "5678:5678"
+
+    volumes:
+      - azpulse_n8n_data:/home/node/.n8n
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - azpulse
+
+
+  # =========================================================
+  # Mailpit
+  # Capture des emails envoyés en développement
+  # =========================================================
+  mailpit:
+    image: axllent/mailpit:v1.30.6
+    container_name: azpulse-mailpit
+    restart: unless-stopped
+
+    environment:
+      TZ: Africa/Douala
+
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+    volumes:
+      - azpulse_mailpit_data:/data
+
+    networks:
+      - azpulse
+
+  # =========================================================
+  # MariaDB (Base de données dédiée pour GLPI)
+  # =========================================================
+  mariadb_glpi:
+    image: mariadb:10.11
+    container_name: azpulse-mariadb-glpi
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: glpi_root_password
+      MARIADB_DATABASE: glpidb
+      MARIADB_USER: glpiuser
+      MARIADB_PASSWORD: glpipassword
+      TZ: Africa/Douala
+    volumes:
+      - azpulse_glpi_db_data:/var/lib/mysql
+    networks:
+      - azpulse
+
+  # =========================================================
+  # GLPI (Gestion de parc automatisée)
+  # =========================================================
+  glpi:
+    image: diouxx/glpi
+    container_name: azpulse-glpi
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      TIMEZONE: "Africa/Douala"
+    volumes:
+      - azpulse_glpi_data:/var/www/html/glpi
+    depends_on:
+      - mariadb_glpi
+    networks:
+      - azpulse
+
+
+# ===========================================================
+# Volumes persistants
+# ===========================================================
+volumes:
+
+  azpulse_postgres_data:
+    name: azpulse_postgres_data
+
+  azpulse_pgadmin_data:
+    name: azpulse_pgadmin_data
+
+  azpulse_redis_data:
+    name: azpulse_redis_data
+
+  azpulse_n8n_data:
+    name: azpulse_n8n_data
+
+  azpulse_mailpit_data:
+    name: azpulse_mailpit_data
+
+  azpulse_glpi_db_data:
+    name: azpulse_glpi_db_data
+
+  azpulse_glpi_data:
+    name: azpulse_glpi_data
+
+
+# ===========================================================
+# Réseau interne
+# ===========================================================
+networks:
+
+  azpulse:
+    name: azpulse_network
+    driver: bridge

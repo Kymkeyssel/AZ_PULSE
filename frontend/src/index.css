@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-display: "Syne", sans-serif;
+
+  --color-navy-deep: #0B2545;
+  --color-navy-core: #003366;
+  --color-pulse-blue: #1D63FF;
+  --color-pulse-electric: #0052CC;
+  --color-pulse-gold: #FFB800;
+  --color-pulse-amber: #F5A623;
+  --color-brand-dark: #0B2545;
+  --color-brand-card: #314769;
+  --color-brand-blue-pill: #8ec5fc;
+  --color-brand-slate: #495f82;
+
+  --color-az-navy: #0b2545;
+  --color-az-dark: #071326;
+  --color-az-deep: #040914;
+  --color-az-blue: #1d63ff;
+  --color-az-gold: #ffb800;
+  --color-az-accent: #38bdf8;
+
+  --shadow-glow-blue: 0 0 30px -5px rgba(29, 99, 255, 0.45);
+  --shadow-glow-gold: 0 0 25px -4px rgba(255, 184, 0, 0.4);
+  --shadow-card-elevated: 0 25px 60px -15px rgba(11, 37, 69, 0.10);
+}
+
+body {
+  @apply font-sans antialiased bg-[#f4f7fb] text-[#0f1d29] selection:bg-[#1D63FF] selection:text-white;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.font-syne {
+  font-family: 'Syne', sans-serif;
+}
+.hero-title-shadow {
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.35);
+}
+.glass-pill {
+  background: rgba(11, 37, 69, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.glass-card-dark {
+  background: rgba(11, 37, 69, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}

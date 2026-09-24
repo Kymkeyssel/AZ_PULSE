@@ -1,0 +1,25 @@
+# Notes locales & documents d'audit personnel (non versionnés)
+SECURITY_NOTES.md
+*.local.md
+.venv
+.env
+.env.*
+!.env.example
+
+front/node_modules/
+front/dist/
+front/.vite/
+
+back/var/
+back/.env.local
+back/.env.local.php
+
+AI_Service/.venv/
+AI_Service/__pycache__/
+AI_Service/.env
+
+*.log
+.vscode/
+.idea/
+AI_Service/venv
+Ai_Service/.venv

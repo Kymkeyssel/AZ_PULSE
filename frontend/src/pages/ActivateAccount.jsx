@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/api';
+import { toast } from 'sonner';
 import './Auth.css';
 
 const ActivateAccount = () => {
@@ -33,7 +34,7 @@ const ActivateAccount = () => {
 
     try {
       await authService.activate(email, password);
-      alert("Compte activé avec succès ! Vous pouvez maintenant vous connecter.");
+      toast.success("Compte activé avec succès ! Vous pouvez maintenant vous connecter.");
       navigate('/?mode=login');
     } catch (err) {
       setErrorMsg(err.message || "Erreur lors de l'activation du compte.");
@@ -43,11 +44,34 @@ const ActivateAccount = () => {
   };
 
   const handleContactSupport = () => {
-    alert("Support Informatique AZ Corporation\nEmail : support-it@azcorporation.net\nTéléphone : +33 1 00 00 00 00");
+    toast.info("Support Informatique AZ Corporation\nEmail : support-it@azcorporation.net\nTéléphone : +33 1 00 00 00 00");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-3 sm:p-6 lg:p-8 selection:bg-az-blue selection:text-white bg-[#f4f5f8]">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-6 lg:p-8 selection:bg-az-blue selection:text-white relative overflow-hidden">
+      {/* Background Image with Blur */}
+      <div 
+        className="absolute -inset-4 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url('/AZ facade.jpg')`, filter: 'blur(8px)' }}
+      ></div>
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 z-0 bg-slate-900/50"></div>
+
+      {/* Return to Home Button */}
+      <button 
+        onClick={() => navigate('/')} 
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 z-50 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/20 transition-all duration-300 hover:scale-105 shadow-lg group flex items-center justify-center"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        
+        {/* Custom Tooltip */}
+        <span className="absolute left-full ml-4 px-3.5 py-2 bg-slate-900/90 backdrop-blur-md text-white text-xs font-medium rounded-lg whitespace-nowrap opacity-0 translate-x-2 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none border border-white/10 shadow-xl">
+          Retour à la page d'accueil
+        </span>
+      </button>
+
       <svg aria-hidden="true" className="absolute w-0 h-0 pointer-events-none">
         <defs>
           <clipPath clipPathUnits="objectBoundingBox" id="arcanaCardClip">
@@ -69,7 +93,7 @@ const ActivateAccount = () => {
         </defs>
       </svg>
 
-      <main className="w-full max-w-[1240px] bg-white rounded-[44px] shadow-card-elevated border border-slate-200/70 p-3.5 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 min-h-[820px] relative transition-all duration-300">
+      <main className="w-full max-w-[1240px] bg-white rounded-[44px] shadow-card-elevated border border-slate-200/70 p-3.5 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 min-h-[820px] relative transition-all duration-300 z-10">
         <section className="lg:col-span-6 xl:col-span-5 flex flex-col justify-between p-6 sm:p-8 xl:p-10 bg-white relative z-10" data-purpose="auth-panel-container">
           <header className="flex items-center justify-between mb-4 sm:mb-6" data-purpose="brand-header">
             <a className="inline-flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-az-blue/40 rounded-xl p-1 -m-1" href="/">

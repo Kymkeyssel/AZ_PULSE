@@ -50,16 +50,71 @@ class DashboardController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function adminStats(EntityManagerInterface $em): JsonResponse
     {
-        // Admin stats can be similar or focused on security/users
-        $activeUsers = $em->getRepository(User::class)->count(['status' => 'ACTIVE']);
-        $pendingUsers = $em->getRepository(User::class)->count(['status' => 'PENDING_APPROVAL']);
-        
+        // ── Utilisateurs ──────────────────────────────────────────────────
+        $activeUsers   = $em->getRepository(User::class)->count(['status' => 'ACTIVE']);
+        $pendingUsers  = $em->getRepository(User::class)->count(['status' => 'PENDING_APPROVAL']);
+        $rejectedUsers = $em->getRepository(User::class)->count(['status' => 'REJECTED']);
+        $blockedUsers  = $em->getRepository(User::class)->count(['status' => 'BLOCKED']);
+        $totalUsers    = $em->getRepository(User::class)->count([]);
+
+        // ── Demandes d'accès ──────────────────────────────────────────────
+        $conn = $em->getConnection();
+
+        $reqPending  = (int) $conn->fetchOne('SELECT COUNT(*) FROM access_requests WHERE status = ?', ['PENDING']);
+        $reqApproved = (int) $conn->fetchOne('SELECT COUNT(*) FROM access_requests WHERE status = ?', ['APPROVED']);
+        $reqRejected = (int) $conn->fetchOne('SELECT COUNT(*) FROM access_requests WHERE status = ?', ['REJECTED']);
+        $totalReqs   = $reqPending + $reqApproved + $reqRejected;
+
+        // ── Dernières demandes récentes (5 max) ───────────────────────────
+        $recentRows = $conn->fetchAllAssociative(
+            'SELECT ar.id, ar.requested_domain, ar.status, ar.created_at,
+                    u.first_name, u.last_name, u.email
+             FROM access_requests ar
+             JOIN users u ON u.id = ar.user_id
+             ORDER BY ar.created_at DESC
+             LIMIT 5'
+        );
+
+        $recentRequests = array_map(fn($row) => [
+            'id'              => $row['id'],
+            'requestedDomain' => $row['requested_domain'],
+            'status'          => $row['status'],
+            'createdAt'       => $row['created_at'],
+            'user'            => [
+                'fullName' => trim($row['first_name'] . ' ' . $row['last_name']),
+                'email'    => $row['email'],
+            ],
+        ], $recentRows);
+
+        // ── Taux d'approbation ────────────────────────────────────────────
+        $approvalRate = $totalReqs > 0
+            ? round(($reqApproved / $totalReqs) * 100, 1)
+            : 0;
+
         return $this->json([
             'success' => true,
             'data' => [
-                'activeUsers' => $activeUsers,
-                'pendingRequests' => $pendingUsers,
-                'systemStatus' => 'OK', // placeholder
+                // Utilisateurs
+                'totalUsers'    => $totalUsers,
+                'activeUsers'   => $activeUsers,
+                'pendingUsers'  => $pendingUsers,
+                'rejectedUsers' => $rejectedUsers,
+                'blockedUsers'  => $blockedUsers,
+
+                // Demandes d'accès
+                'requests' => [
+                    'total'        => $totalReqs,
+                    'pending'      => $reqPending,
+                    'approved'     => $reqApproved,
+                    'rejected'     => $reqRejected,
+                    'approvalRate' => $approvalRate,
+                ],
+
+                // Activité récente
+                'recentRequests' => $recentRequests,
+
+                // Système
+                'systemStatus' => 'OK',
             ]
         ]);
     }

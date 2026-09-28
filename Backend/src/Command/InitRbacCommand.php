@@ -161,6 +161,21 @@ class InitRbacCommand extends Command
                 ],
             ],
             [
+                'code' => 'COLLABORATEUR',
+                'label' => 'Collaborateur',
+                'desc' => 'Rôle générique multi-vocations. La spécialisation (Commercial, Formateur, Support IT...) est choisie à la validation et détermine l\'interface affichée. Droits de lecture étendus granted par la spécialisation retenue.',
+                'is_system' => true,
+                'permissions' => [
+                    // Socle de lecture commun à tous les collaborateurs
+                    'crm.read',
+                    'workspace.read',
+                    'knowledge.read',
+                    'analytics.read',
+                    'ai.read',
+                    'formation.read',
+                ],
+            ],
+            [
                 'code' => 'APPRENANT',
                 'label' => 'Apprenant / Étudiant',
                 'desc' => 'Accès aux formations et espaces collaboratifs étudiants',

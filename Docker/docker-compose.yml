@@ -1,3 +1,5 @@
+name: az_pulse
+
 services:
 
   # =========================================================
@@ -170,66 +172,7 @@ services:
       - azpulse
 
 
-  # =========================================================
-  # Mailpit
-  # Capture des emails envoyés en développement
-  # =========================================================
-  mailpit:
-    image: axllent/mailpit:v1.30.6
-    container_name: azpulse-mailpit
-    restart: unless-stopped
 
-    environment:
-      TZ: Africa/Douala
-
-      MP_MAX_MESSAGES: 5000
-      MP_DATABASE: /data/mailpit.db
-
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-
-    volumes:
-      - azpulse_mailpit_data:/data
-
-    networks:
-      - azpulse
-
-  # =========================================================
-  # MariaDB (Base de données dédiée pour GLPI)
-  # =========================================================
-  mariadb_glpi:
-    image: mariadb:10.11
-    container_name: azpulse-mariadb-glpi
-    restart: unless-stopped
-    environment:
-      MARIADB_ROOT_PASSWORD: glpi_root_password
-      MARIADB_DATABASE: glpidb
-      MARIADB_USER: glpiuser
-      MARIADB_PASSWORD: glpipassword
-      TZ: Africa/Douala
-    volumes:
-      - azpulse_glpi_db_data:/var/lib/mysql
-    networks:
-      - azpulse
-
-  # =========================================================
-  # GLPI (Gestion de parc automatisée)
-  # =========================================================
-  glpi:
-    image: diouxx/glpi
-    container_name: azpulse-glpi
-    restart: unless-stopped
-    ports:
-      - "8080:80"
-    environment:
-      TIMEZONE: "Africa/Douala"
-    volumes:
-      - azpulse_glpi_data:/var/www/html/glpi
-    depends_on:
-      - mariadb_glpi
-    networks:
-      - azpulse
 
 
 # ===========================================================
@@ -249,14 +192,7 @@ volumes:
   azpulse_n8n_data:
     name: azpulse_n8n_data
 
-  azpulse_mailpit_data:
-    name: azpulse_mailpit_data
 
-  azpulse_glpi_db_data:
-    name: azpulse_glpi_db_data
-
-  azpulse_glpi_data:
-    name: azpulse_glpi_data
 
 
 # ===========================================================

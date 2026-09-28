@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
+use App\Repository\OpportunityRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: OpportunityRepository::class)]
 #[ORM\Table(name: 'opportunities')]
 class Opportunity
 {
@@ -38,6 +39,28 @@ class Opportunity
     #[ORM\OneToMany(mappedBy: 'opportunity', targetEntity: Activity::class, cascade: ['persist', 'remove'])]
     private Collection $activities;
 
+    #[ORM\OneToMany(mappedBy: 'opportunity', targetEntity: Reminder::class, cascade: ['persist', 'remove'])]
+    private Collection $reminders;
+
+    /**
+     * Projet né de la signature de cette affaire. Côté inverse de
+     * `Project#opportunity`, qui est un OneToOne : une affaire gagnée donne
+     * au plus un projet.
+     */
+    #[ORM\OneToOne(mappedBy: 'opportunity', targetEntity: Project::class, cascade: ['remove'])]
+    private ?Project $project = null;
+
+    /**
+     * Date de closing souhaitée. Sans elle, une colonne « échéance » du
+     * pipeline est vide.
+     *
+     * Type `date_immutable` et non `date` : le type `date` de DBAL n'accepte
+     * qu'un `\DateTime` mutable, alors que tout le projet manipule des
+     * `\DateTimeImmutable`. Le SQL généré est identique (DATE).
+     */
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeInterface $expectedCloseDate = null;
+
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -47,6 +70,7 @@ class Opportunity
     public function __construct()
     {
         $this->activities = new ArrayCollection();
+        $this->reminders = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -72,6 +96,17 @@ class Opportunity
     public function setOwner(?User $owner): self { $this->owner = $owner; return $this; }
 
     public function getActivities(): Collection { return $this->activities; }
+    public function getReminders(): Collection { return $this->reminders; }
+
+    /** Le projet créé automatiquement quand l'affaire a été gagnée, s'il y en a un. */
+    public function getProject(): ?Project { return $this->project; }
+
+    public function getExpectedCloseDate(): ?\DateTimeInterface { return $this->expectedCloseDate; }
+    public function setExpectedCloseDate(?\DateTimeInterface $expectedCloseDate): self
+    {
+        $this->expectedCloseDate = $expectedCloseDate;
+        return $this;
+    }
 
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
     

@@ -21,30 +21,28 @@ class CrmOpportunityController extends AbstractController
     {
         $stage = $request->query->get('stage');
         $customerId = $request->query->get('customer');
+        $ownerId = $request->query->get('owner');
 
         $criteria = [];
         if ($stage) $criteria['stage'] = $stage;
-        if ($customerId) $criteria['customer'] = $customerId;
+        if ($customerId) $criteria['customer'] = (int) $customerId;
+
+        // `owner` est un identifiant public (UUID) : il faut résoudre l'entité,
+        // Doctrine n'accepte pas la chaîne telle quelle sur une association.
+        if ($ownerId) {
+            $owner = $em->getRepository(\App\Entity\User::class)->find($ownerId);
+            if ($owner) $criteria['owner'] = $owner;
+        }
 
         $opportunities = $em->getRepository(Opportunity::class)->findBy($criteria);
 
-        $data = array_map(fn($o) => [
-            'id' => $o->getId(),
-            'title' => $o->getTitle(),
-            'amount' => $o->getAmount(),
-            'stage' => $o->getStage(),
-            'probability' => $o->getProbability(),
-            'customer_id' => $o->getCustomer()?->getId(),
-            'owner_id' => $o->getOwner()?->getId(),
-            'createdAt' => $o->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            'closedAt' => $o->getClosedAt()?->format(\DateTimeInterface::ATOM)
-        ], $opportunities);
+        $data = array_map(fn($o) => $this->format($o), $opportunities);
 
         return $this->json(['success' => true, 'data' => $data]);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
-    #[IsGranted('opportunity.create')]
+    #[IsGranted('crm.create')]
     public function create(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
@@ -62,8 +60,11 @@ class CrmOpportunityController extends AbstractController
         $opportunity->setTitle($payload['title']);
         $opportunity->setCustomer($customer);
         if (isset($payload['amount'])) $opportunity->setAmount($payload['amount']);
-        if (isset($payload['probability'])) $opportunity->setProbability($payload['probability']);
+        if (isset($payload['probability'])) $opportunity->setProbability((int) $payload['probability']);
         if (isset($payload['stage'])) $opportunity->setStage($payload['stage']);
+        if (isset($payload['expectedCloseDate'])) {
+            $opportunity->setExpectedCloseDate($this->parseDate($payload['expectedCloseDate']));
+        }
 
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
@@ -87,29 +88,22 @@ class CrmOpportunityController extends AbstractController
     {
         return $this->json([
             'success' => true,
-            'data' => [
-                'id' => $opportunity->getId(),
-                'title' => $opportunity->getTitle(),
-                'amount' => $opportunity->getAmount(),
-                'stage' => $opportunity->getStage(),
-                'probability' => $opportunity->getProbability(),
-                'customer_id' => $opportunity->getCustomer()?->getId(),
-                'owner_id' => $opportunity->getOwner()?->getId(),
-                'createdAt' => $opportunity->getCreatedAt()->format(\DateTimeInterface::ATOM),
-                'closedAt' => $opportunity->getClosedAt()?->format(\DateTimeInterface::ATOM)
-            ]
+            'data' => $this->format($opportunity),
         ]);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PATCH'])]
-    #[IsGranted('opportunity.update')]
+    #[IsGranted('crm.update')]
     public function update(Opportunity $opportunity, Request $request, EntityManagerInterface $em): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
 
         if (isset($payload['title'])) $opportunity->setTitle($payload['title']);
         if (isset($payload['amount'])) $opportunity->setAmount($payload['amount']);
-        if (isset($payload['probability'])) $opportunity->setProbability($payload['probability']);
+        if (isset($payload['probability'])) $opportunity->setProbability((int) $payload['probability']);
+        if (array_key_exists('expectedCloseDate', $payload)) {
+            $opportunity->setExpectedCloseDate($this->parseDate($payload['expectedCloseDate']));
+        }
 
         $em->flush();
 
@@ -123,7 +117,7 @@ class CrmOpportunityController extends AbstractController
     }
 
     #[Route('/{id}/stage', name: 'update_stage', methods: ['PATCH'])]
-    #[IsGranted('opportunity.update')]
+    #[IsGranted('crm.update')]
     public function updateStage(Opportunity $opportunity, Request $request, OpportunityService $opportunityService): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
@@ -147,5 +141,46 @@ class CrmOpportunityController extends AbstractController
                 'customer_status' => $opportunity->getCustomer()?->getStatus()
             ]
         ]);
+    }
+
+    /**
+     * Sérialise une opportunité.
+     *
+     * @return array<string, mixed>
+     */
+    private function format(Opportunity $opportunity): array
+    {
+        return [
+            'id' => $opportunity->getId(),
+            'title' => $opportunity->getTitle(),
+            'amount' => $opportunity->getAmount(),
+            'stage' => $opportunity->getStage(),
+            'probability' => $opportunity->getProbability(),
+            'expectedCloseDate' => $opportunity->getExpectedCloseDate()?->format('Y-m-d'),
+            'customer_id' => $opportunity->getCustomer()?->getId(),
+            'customer_name' => $opportunity->getCustomer()?->getName(),
+            'owner_id' => $opportunity->getOwner()?->getId()->toRfc4122(),
+            'createdAt' => $opportunity->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'closedAt' => $opportunity->getClosedAt()?->format(\DateTimeInterface::ATOM),
+        ];
+    }
+
+    /**
+     * Convertit une date reçue en objet, ou renvoie null si elle est absente.
+     *
+     * Une date illisible ne doit pas faire échouer l'enregistrement : on
+     * préfère une échéance vide à une opportunity perdue.
+     */
+    private function parseDate(mixed $value): ?\DateTimeInterface
+    {
+        if (!is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return new \DateTimeImmutable(trim($value));
+        } catch (\Exception) {
+            return null;
+        }
     }
 }

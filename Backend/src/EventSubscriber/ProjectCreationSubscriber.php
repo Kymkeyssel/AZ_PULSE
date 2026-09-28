@@ -36,12 +36,17 @@ class ProjectCreationSubscriber implements EventSubscriberInterface
         $project = new Project();
         $project->setName('PROJET : ' . $opportunity->getTitle());
         $project->setDescription('Projet généré automatiquement suite à la signature de l\'opportunité : ' . $opportunity->getTitle());
-        $project->setBudget($opportunity->getExpectedValue());
+
+        // `getAmount()` porte la valeur en euros ; `Project::setBudget()`
+        // attend un float, d'où la conversion explicite (montant décimal
+        // stocké en chaîne).
+        $amount = $opportunity->getAmount();
+        $project->setBudget($amount === null ? null : (float) $amount);
+
         $project->setCustomer($opportunity->getCustomer());
         $project->setOpportunity($opportunity);
-        
-        // Par défaut, le manager de l'opportunité devient le chef de projet,
-        // ou on peut l'assigner à l'utilisateur courant si l'opportunity owner est nul.
+
+        // Par défaut, le manager de l'opportunité devient le chef de projet.
         if ($opportunity->getOwner()) {
             $project->setManager($opportunity->getOwner());
             $project->addMember($opportunity->getOwner());

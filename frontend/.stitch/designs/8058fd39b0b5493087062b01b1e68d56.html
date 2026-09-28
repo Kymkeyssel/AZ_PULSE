@@ -1,0 +1,534 @@
+<!DOCTYPE html><html class="h-full" lang="fr" style="width: 1280px; height: 955px; overflow: hidden; position: relative;"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Demande d'accès refusée | AZ Pulse - Portail Unifié d'Entreprise</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            az: {
+              navy: '#0b2545',
+              dark: '#071326',
+              deep: '#040914',
+              blue: '#1d63ff',
+              gold: '#ffb800',
+              accent: '#38bdf8'
+            }
+          },
+          boxShadow: {
+            'glow-blue': '0 0 30px -5px rgba(29, 99, 255, 0.45)',
+            'glow-gold': '0 0 25px -4px rgba(255, 184, 0, 0.4)',
+            'card-elevated': '0 25px 60px -15px rgba(11, 37, 69, 0.10)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Typography & Base Reset -->
+<style data-purpose="typography">
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f4f5f8;
+      color: #1e293b;
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+<!-- Transitions, Animations and Exact Arcana Geometries -->
+<style data-purpose="animations-and-fx">
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    @keyframes beamSweepReverse {
+      0% {
+        transform: translate(-100%, 150%) rotate(-45deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.85;
+      }
+      75% {
+        opacity: 0.85;
+      }
+      100% {
+        transform: translate(160%, -130%) rotate(-45deg);
+        opacity: 0;
+      }
+    }
+
+    .beam-reverse-wide {
+      position: absolute;
+      width: 140%;
+      height: 85px;
+      background: linear-gradient(90deg, transparent 0%, rgba(29,99,255,0.25) 20%, rgba(255,255,255,0.85) 50%, rgba(255,184,0,0.5) 75%, transparent 100%);
+      filter: blur(16px);
+      pointer-events: none;
+      animation: beamSweepReverse 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .beam-reverse-thin {
+      position: absolute;
+      width: 150%;
+      height: 3.5px;
+      background: linear-gradient(90deg, transparent 0%, rgba(29,99,255,0.7) 25%, #ffffff 50%, #ffb800 75%, transparent 100%);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(29, 99, 255, 0.7);
+      pointer-events: none;
+      animation: beamSweepReverse 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      animation-delay: 0.08s;
+    }
+
+    .arcana-fixed-beam {
+      position: absolute;
+      width: 150%;
+      height: 1px;
+      background: linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.7) 70%, rgba(255,184,0,0.6) 85%, transparent 100%);
+      transform: rotate(-38deg);
+      top: 25%;
+      right: -25%;
+      pointer-events: none;
+    }
+
+    .form-pane {
+      transition: opacity 380ms cubic-bezier(0.16, 1, 0.3, 1), 
+                  transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 400ms;
+      will-change: transform, opacity;
+    }
+
+    .form-pane-active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      visibility: visible;
+      pointer-events: auto;
+      position: relative;
+    }
+
+    .form-pane-hidden-left {
+      opacity: 0;
+      transform: translateX(-35px) scale(0.98);
+      visibility: hidden;
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+    }
+
+    .form-pane-hidden-right {
+      opacity: 0;
+      transform: translateX(35px) scale(0.98);
+      visibility: hidden;
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+    }
+
+    .arcana-notched-card {
+      background: #2b2b2b;
+      position: relative;
+      clip-path: url(#arcanaCardClip);
+      -webkit-clip-path: url(#arcanaCardClip);
+    }
+
+    @keyframes pulseAura {
+      0%, 100% {
+        filter: drop-shadow(0 0 16px rgba(29, 99, 255, 0.35));
+      }
+      50% {
+        filter: drop-shadow(0 0 26px rgba(255, 184, 0, 0.45));
+      }
+    }
+    .pulse-glow-anim {
+      animation: pulseAura 5.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 sm:p-6 lg:p-8 selection:bg-az-blue selection:text-white">
+<!-- SVG CLIP-PATH FOR THE BOTTOM CARD ARCANA -->
+<svg aria-hidden="true" class="absolute w-0 h-0 pointer-events-none">
+<defs>
+<clipPath clipPathUnits="objectBoundingBox" id="arcanaCardClip">
+<path d="
+        M 0, 0.14
+        C 0, 0.06 0.025, 0 0.06, 0
+        L 0.68, 0
+        C 0.72, 0 0.74, 0.05 0.75, 0.12
+        C 0.765, 0.26 0.79, 0.34 0.84, 0.34
+        L 0.94, 0.34
+        C 0.975, 0.34 1, 0.40 1, 0.47
+        L 1, 0.86
+        C 1, 0.94 0.975, 1 0.94, 1
+        L 0.06, 1
+        C 0.025, 1 0, 0.94 0, 0.86
+        Z
+      "></path>
+</clipPath>
+</defs>
+</svg>
+<!-- BEGIN: MainApplicationContainer -->
+<main class="w-full max-w-[900px] bg-white rounded-[32px] shadow-card-elevated border border-slate-200/70 p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-12 min-h-[540px] relative transition-all duration-300 my-auto">
+<!-- ========================================================================= -->
+<!-- LEFT PANEL: Rejected Access Request View & Re-submission Action            -->
+<!-- ========================================================================= -->
+<!-- BEGIN: LeftPanel -->
+<section class="lg:col-span-7 flex flex-col justify-between p-4 sm:p-6 bg-white relative z-10" data-purpose="auth-panel-container">
+<!-- Top Brand Header with AZ Pulse Logo & System Status -->
+<header class="flex items-center justify-between mb-4 sm:mb-6" data-purpose="brand-header">
+<a class="inline-flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-az-blue/40 rounded-xl p-1 -m-1" href="#">
+<img alt="AZ Pulse Logo" class="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLbstbGzYfCoW74wz0IXhh8Iz_Wq0s-67TMD0GQPJu9WzOUY0OwCHbkDZ9t1CF9gdqhDvuFxUbI50-HAq4QdqBE8idGCM3THsj-iYNUI8FBlWUfr-wopV4IDwXmkmWdnDkfMRAmgXnrJFvUo07qXPWprDOItqw_VNAr-5FMZuji9EOY0SF6pei_rsYvaN0aWytOPXkG8drtekSJxOamqkmbR6uZR_1yHUeiEytbEH-LsTMrSYzVzCfRC20GFGMbmaN_w">
+<div class="flex flex-col">
+<span class="text-xs font-bold uppercase tracking-widest text-az-blue">Internal Portal</span>
+<span class="text-sm font-semibold text-slate-800 -mt-0.5">AZ Corporation</span>
+</div>
+</a>
+<!-- Status badge -->
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+  Système Actif
+</span>
+</header>
+<!-- Dynamic Form / Message Container -->
+<div class="relative flex-1 flex flex-col justify-center my-auto min-h-[380px]">
+<!-- ===================================================================== -->
+<!-- STATE: Demande d'accès non validée / Rejetée                          -->
+<!-- ===================================================================== -->
+<div class="form-pane form-pane-active w-full flex flex-col justify-center" data-purpose="rejected-access-pane" id="rejectedPane">
+<!-- Status pill badge -->
+<div class="mb-3">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/80">
+<span class="h-2 w-2 rounded-full bg-rose-500"></span>
+    Demande non aboutie
+  </span>
+</div>
+<!-- Header Titre & Message clair -->
+<div class="mb-3"><h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Demande d'accès refusée</h1><p class="text-xs text-slate-500 mt-1 font-normal leading-relaxed">L'examen de votre demande d'accès au portail sécurisé AZ Pulse n'a pas pu aboutir favorablement suite aux vérifications internes de sécurité.</p></div>
+<!-- Encadré explicatif du Motif du rejet -->
+<div class="mb-3 rounded-xl bg-rose-50/60 border border-rose-200/80 p-3 transition-all">
+<div class="flex items-center gap-2 mb-1.5 text-rose-900 font-bold text-xs uppercase tracking-wider">
+<svg class="w-4 h-4 text-rose-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="">Motif communiqué par l'administrateur :</span>
+</div>
+<p class="text-xs text-slate-700 leading-relaxed pl-6">
+    « L'adresse email soumise ou la justification fournie ne correspondent pas aux identifiants d'accréditation du registre interne AZ Corporation (ou justificatif de mission manquant pour les consultants externes). »
+  </p>
+<div class="mt-3 pt-2.5 border-t border-rose-200/60 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+<span class="">Réf. dossier : REF-AZP-2025-0849</span>
+<span class="font-sans text-slate-400">Décision du 04/09/2025</span>
+</div>
+</div>
+<!-- Ce que vous pouvez faire (Guide d'aide) -->
+<div class="mb-4 rounded-xl bg-slate-50 border border-slate-200/70 p-3">
+<h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-az-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+    Ce que vous pouvez faire :
+  </h2>
+<ul class="space-y-2 text-xs text-slate-600">
+<li class="flex items-start gap-2">
+<span class="text-az-blue font-bold text-sm leading-none mt-0.5">•</span>
+<span class="">Vérifier l'orthographe de votre adresse email professionnelle (<code class="text-az-navy bg-slate-200/60 px-1 py-0.5 rounded text-[11px] font-mono">@azcorporation.net</code> ou partenaire habilité).</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-az-blue font-bold text-sm leading-none mt-0.5">•</span>
+<span class="">Préciser votre rattachement hiérarchique ou référence de contrat de projet dans la justification.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-az-blue font-bold text-sm leading-none mt-0.5">•</span>
+<span class="">Contacter votre responsable d'équipe ou sponsor interne si votre intégration est récente.</span>
+</li>
+</ul>
+</div>
+<!-- Actions (CTA Principal & Secondaires) -->
+<div class="space-y-2.5">
+<button class="w-full py-2.5 px-5 rounded-xl font-semibold text-sm text-white bg-[#191919] hover:bg-black active:scale-[0.99] transition-all duration-200 shadow-md flex items-center justify-center gap-2 group" id="btnReapply" type="button">
+<span class="">Refaire une nouvelle demande</span>
+<svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="flex items-center justify-center gap-4 pt-1">
+<button class="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1.5" id="btnBackToLogin" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+      Retour à la connexion
+    </button>
+<span class="text-slate-300">•</span>
+<a class="text-xs font-semibold text-az-blue hover:text-az-navy transition-colors flex items-center gap-1" href="mailto:support@azcorporation.net?subject=Assistance%20Acc%C3%A8s%20AZ%20Pulse%20-%20R%C3%A9f%20REF-AZP-2025-0849">
+      Contacter l'assistance sécurité
+    </a>
+</div>
+</div>
+</div>
+<!-- ===================================================================== -->
+<!-- FORM 2: Access Request (Demande d'accès réactivable au clic)          -->
+<!-- ===================================================================== -->
+<div class="form-pane form-pane-hidden-right w-full flex flex-col justify-between" data-purpose="access-request-pane" id="registerPane">
+<!-- Form Header -->
+<div class="mb-4">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Nouvelle demande</h2>
+<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+  Protocole AZ-04
+</span>
+</div>
+<!-- Explanatory note badge -->
+<div class="mt-2 p-2.5 bg-blue-50/70 border border-blue-100 rounded-xl flex items-start gap-2.5">
+<svg class="w-4 h-4 text-az-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<p class="text-xs text-slate-600 leading-snug">
+<strong class="text-slate-800 font-medium">Recommandation :</strong> Veuillez renseigner avec exactitude votre adresse professionnelle et vos rattachements pour faciliter l'approbation.
+</p>
+</div>
+</div>
+<!-- Access Request Form Fields -->
+<form class="space-y-3 max-h-[430px] overflow-y-auto pr-1.5 custom-scrollbar" id="accessRequestForm" onsubmit="event.preventDefault(); handleRegisterSubmit();">
+<!-- Grid: Nom & Prénom -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<div class="space-y-1">
+<label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider" for="reqLastName">
+  Nom <span class="text-rose-500">*</span>
+</label>
+<input class="w-full px-3.5 py-2.5 bg-[#f8fafc] focus:bg-white text-slate-800 text-xs sm:text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none" id="reqLastName" placeholder="Ex: Dupont" required="" type="text">
+</div>
+<div class="space-y-1">
+<label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider" for="reqFirstName">
+  Prénom <span class="text-rose-500">*</span>
+</label>
+<input class="w-full px-3.5 py-2.5 bg-[#f8fafc] focus:bg-white text-slate-800 text-xs sm:text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none" id="reqFirstName" placeholder="Ex: Jean-Paul" required="" type="text">
+</div>
+</div>
+<!-- Email professionnel -->
+<div class="space-y-1">
+<label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider" for="reqEmail">
+  Email Professionnel <span class="text-rose-500">*</span>
+</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<input class="w-full pl-9 pr-3.5 py-2.5 bg-[#f8fafc] focus:bg-white text-slate-800 text-xs sm:text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none" id="reqEmail" placeholder="nom.prenom@azcorporation.net" required="" type="email">
+</div>
+</div>
+<!-- Numéro de Téléphone -->
+<div class="space-y-1">
+<label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider" for="reqPhone">
+  Numéro de Téléphone <span class="text-rose-500">*</span>
+</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<input class="w-full pl-9 pr-3.5 py-2.5 bg-[#f8fafc] focus:bg-white text-slate-800 text-xs sm:text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none" id="reqPhone" placeholder="+237 6XX XX XX XX / +33 6 XX XX XX XX" required="" type="tel">
+</div>
+</div>
+<!-- Situation (Dropdown Select) -->
+<div class="space-y-1">
+<label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider" for="reqRole">
+  Situation / Statut dans la structure <span class="text-rose-500">*</span>
+</label>
+<div class="relative">
+<select class="w-full px-3.5 py-2.5 bg-[#f8fafc] focus:bg-white text-slate-800 text-xs sm:text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none appearance-none cursor-pointer" id="reqRole" required="">
+<option disabled="" selected="" value="">Sélectionnez votre situation...</option>
+<option value="employee">Employé AZ Corporation</option>
+<option value="manager">Chef de Projet / Manager</option>
+<option value="exec">Direction &amp; Administration</option>
+<option value="consultant">Consultant / Prestataire externe</option>
+<option value="trainee">Apprenant IFP AZ (MINEFOP)</option>
+</select>
+<div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Justification / Motif de la demande -->
+<div class="space-y-1">
+<label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider" for="reqReason">
+  Justification / Motif de la demande
+</label>
+<textarea class="w-full px-3.5 py-2 bg-[#f8fafc] focus:bg-white text-slate-800 text-xs sm:text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none resize-none" id="reqReason" placeholder="Précisez votre unité, rattachement managérial ou référence de contrat..." rows="2"></textarea>
+</div>
+<!-- Submit Button -->
+<button class="w-full py-3 px-6 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-[#191919] via-[#0b2545] to-[#1d63ff] hover:opacity-95 active:scale-[0.99] transition-all duration-200 shadow-md flex items-center justify-center gap-2" type="submit">
+<span class="">Soumettre la nouvelle demande</span>
+<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</form>
+<!-- Toggle Back to Decision View -->
+<div class="mt-4 pt-3 border-t border-slate-100 text-center text-xs text-slate-600">
+<span class="">Consulter le statut précédent ? </span>
+<button class="font-bold text-az-blue hover:text-az-navy hover:underline transition-colors focus:outline-none" id="switchToDecisionBtn" type="button">
+  Voir la notification de rejet
+</button>
+</div>
+</div>
+</div>
+<!-- Legal / Footer info AZ Corporation -->
+<footer class="mt-4 pt-3 text-center lg:text-left text-[11px] text-slate-400 border-t border-slate-100/80 flex items-center justify-between">
+<span class="">© 2025 AZ Corporation. Tous droits réservés.</span>
+<span class="hover:text-slate-600 transition-colors">v3.4.2 Enterprise</span>
+</footer>
+</section>
+<!-- END: LeftPanel -->
+<!-- ========================================================================= -->
+<!-- RIGHT PANEL: Identique Arcana avec Emblème AZ Pulse https://lh3.googleusercontent.com/aida-public/AB6AXuAynkgV77bmsUIIdVDgDDbWqeGvKpmWKx5O2nCNn81ayTSFz5JZ7wA0YD0P_wkaFW6_UHHF8UA0MXk6FRMrpH0BvldE9bR3xhQSr5kyOEE0ZuqqEnvFDs9hrzahEIF3h2qaNNpbT2JYKPNwogi0J51ntic0GLbqicO0JylYIemAWpZ_OSUJD7nnve4zWxSTuB0HGPUDr9qBJs16YkT_AQDhL9G-9_BWLF50PMScNn8ksNyxg99rPP0-liknQkJOJO94Kg  -->
+<!-- ========================================================================= -->
+<!-- BEGIN: RightPanel -->
+<section class="hidden lg:flex lg:col-span-5 relative p-1" data-purpose="brand-showcase-panel">
+<!-- Conteneur noir avec coins très arrondis [42px] -->
+<div class="w-full h-full rounded-[28px] bg-gradient-to-b from-[#07152b] via-[#0b1f3a] to-[#050e1c] p-6 flex flex-col justify-between relative overflow-hidden text-white shadow-2xl border border-white/[0.08]">
+<!-- RAYONS LUMINEUX EN SENS INVERSE (Bas-gauche vers haut-droite) -->
+<div class="beam-reverse-wide bottom-10 -left-20 pointer-events-none"></div>
+<div class="beam-reverse-thin bottom-10 -left-20 pointer-events-none"></div>
+<div class="arcana-fixed-beam"></div>
+<!-- TOP SECTION: Monogramme 3D "A" / "AZ" tridimensionnel avec onde cardio dorée -->
+<div class="relative z-10 flex flex-col items-start pt-3 select-none" data-purpose="3d-emblem-visual">
+<div class="w-full flex items-center justify-center -mt-2 mb-2">
+<div class="relative w-48 h-36 flex items-center justify-center pulse-glow-anim">
+<div class="relative flex items-center justify-center w-full h-full">
+<div class="absolute inset-0 bg-az-blue/20 blur-2xl rounded-full scale-90 pointer-events-none"></div>
+<img alt="AZ Pulse Official 3D Emblem" class="max-h-28 w-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.8)] filter transition-transform duration-500 hover:scale-105 relative z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXfn4WjSxIVEU9Wy4FaltJLe9OnoQut0Jo3fW02v1xgu-7lknem__FI7eVDbc0PBNhiqYoWa9394r3l_n_Pn2y-PvwkqQ9-KAEFhkbZG3S-zvSMJTa2kGY1q5SAaJz4t-z_T8JInznEdXbA3EYJG2UtdNLwJOnGAouy1vZyOPf1131vNmg0ZGkpaNRU3nYNrt0IUgOtklDtMZ_VNIPkgwe0eqxMyL046UQhCKlYo6zyl5f-ri5tITpmCvgb-l5uozb6A">
+</div>
+</div>
+</div>
+<!-- Logo Brand Mark -->
+<div class="flex items-center gap-2 mb-3">
+<span class="text-white text-xs sm:text-sm font-semibold tracking-wide">AZ Pulse</span>
+</div>
+<!-- MIDDLE SECTION: Hero Copy & Description -->
+<div class="max-w-md" data-purpose="hero-copy">
+<h2 class="text-3xl xl:text-4xl font-extrabold tracking-tight text-white leading-tight">
+    Welcome to <span class="text-white">AZ Pulse</span>
+</h2>
+<p class="text-neutral-400 text-xs sm:text-sm mt-3 leading-relaxed font-normal">
+    AZ Pulse helps developers &amp; operational teams to build unified enterprise workflows, cloud networks, MINEFOP certifications, and smart dashboards full of beautiful, automated tools.
+</p>
+<p class="text-neutral-400 text-xs mt-2 font-light">
+    More than 17k people joined us, it's your turn
+</p>
+</div>
+</div>
+<!-- BOTTOM SECTION: COMPOSANT INTERNE FLOTTANT AVEC DÉCOUPE CRANTÉE ASYMÉTRIQUE EXACTE -->
+<div class="relative z-10 mt-6 w-full pt-4">
+<div class="arcana-notched-card w-full p-4 sm:p-5 relative transition-all duration-300" style="background: linear-gradient(135deg, rgba(14, 36, 69, 0.92) 0%, rgba(9, 24, 48, 0.95) 100%); border-top: 1px solid rgba(255, 255, 255, 0.12);">
+<div class="flex flex-col justify-between min-h-[110px]">
+<!-- Titre principal de la bottom card -->
+<div class="max-w-[70%]">
+<h3 class="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug">
+  Get your right job and right place apply now
+</h3>
+</div>
+<!-- Description et groupe d'avatars -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-3">
+<p class="text-xs text-neutral-300/85 max-w-[62%] leading-relaxed">
+  Be among the first founders to experience the easiest way to start and scale operations.
+</p>
+<!-- Avatars cluster -->
+<div class="flex items-center -space-x-2 self-end flex-shrink-0" data-purpose="avatar-pile">
+<img alt="Collaborateur 1" class="w-7 h-7 rounded-full ring-2 ring-[#2b2b2b] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwq-PPptavpYgvzgLK4q2bc46moyICH7hemMEC7cTvCAmNVheyHuA_O8eXraktfxMp2FkrpCi1ptkUBCRp6nOvbio-C-oJSIZz1EnA5ihvcivNhHHntceNrT6cap0X_SzFQmPxhN6r4FYjfyLHeNklE2TS2e5nXd445LBVDzkZLCSMOdwU5HVQ37mkSfZsxKVy87EV2RKAic5jmwmse0aNxUyoS6aVjisXvYfmFcHdPR4aS1PC4SZM">
+<img alt="Collaborateur 2" class="w-7 h-7 rounded-full ring-2 ring-[#2b2b2b] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh3EFs_6vIT4esGGadfdKjJ6zi6Kx-TGgeYvjbO9xIWWI26EK_8hnrs5gfqZWkxzwPTMZVkugtvjGc2CD-hFuFvbOUgh0mmRQaoxlvqccQzceeHgnFsiRyQFJkSQJUdHG0f8c_FQMaCfIf3mx7wAiHlEaZ6cM1M9Tuaa4sF8nIEoJwHBHMEXH80NhS6abWQ6va1tIoEaQJFGL2CmL1RnbKXe4YiuRh4gvDNL0_T20bf03DwKJxFABg">
+<img alt="Collaborateur 3" class="w-7 h-7 rounded-full ring-2 ring-[#2b2b2b] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbvCphUBiJPW_QE6zoq2G20l3MhDIGADUeXMq0TIZlGybRYvGf-LJzyv6jTjGu4Db0MyZsJx8tp7_b0XcHeZOdhmQXXzGzIq5B3J6e_w64axXrThCfcoMdwYDOQbwXvBvm3H4QJpPQLn8gTgt3gVee3O5fFWxLS2xwuwqVBoZd1mHufCpb5msWUqzr4k8GSMvXZwhHQwfuHYkVx875x_Ffk2beEs1FTa50K-HorLhlVMAkuwWSOQT4">
+<div class="w-7 h-7 rounded-full ring-2 ring-[#2b2b2b] bg-[#111111] text-white flex items-center justify-center text-[10px] font-bold tracking-tight">
+  +2
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: RightPanel -->
+</main>
+<!-- END: MainApplicationContainer -->
+<!-- ========================================================================= -->
+<!-- JAVASCRIPT: Interactivity for Reapply & Navigation                         -->
+<!-- ========================================================================= -->
+<script data-purpose="view-switcher">
+    const rejectedPane = document.getElementById('rejectedPane');
+    const registerPane = document.getElementById('registerPane');
+    const btnReapply = document.getElementById('btnReapply');
+    const switchToDecisionBtn = document.getElementById('switchToDecisionBtn');
+    const btnBackToLogin = document.getElementById('btnBackToLogin');
+
+    function showRegisterForm() {
+      rejectedPane.classList.remove('form-pane-active');
+      rejectedPane.classList.add('form-pane-hidden-left');
+
+      registerPane.classList.remove('form-pane-hidden-right');
+      registerPane.classList.add('form-pane-active');
+    }
+
+    function showRejectedDecision() {
+      registerPane.classList.remove('form-pane-active');
+      registerPane.classList.add('form-pane-hidden-right');
+
+      rejectedPane.classList.remove('form-pane-hidden-left');
+      rejectedPane.classList.add('form-pane-active');
+    }
+
+    if (btnReapply) {
+      btnReapply.addEventListener('click', (e) => {
+        e.preventDefault();
+        showRegisterForm();
+      });
+    }
+
+    if (switchToDecisionBtn) {
+      switchToDecisionBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showRejectedDecision();
+      });
+    }
+
+    if (btnBackToLogin) {
+      btnBackToLogin.addEventListener('click', () => {
+        alert("Redirection vers le formulaire d'authentification principale AZ Pulse.");
+      });
+    }
+
+    function handleRegisterSubmit() {
+      const nom = document.getElementById('reqLastName').value;
+      const prenom = document.getElementById('reqFirstName').value;
+      const email = document.getElementById('reqEmail').value;
+
+      alert(`Merci ${prenom} ${nom} !\nVotre nouvelle demande d'accès (${email}) a été enregistrée avec succès sous une nouvelle référence d'audit.\nNos administrateurs sécurité réexamineront vos pièces justificatives sous 24h.`);
+      
+      document.getElementById('accessRequestForm').reset();
+      showRejectedDecision();
+    }
+</script>
+<div id="snapdom-sandbox" data-snapdom-sandbox="true" aria-hidden="true" style="position: absolute; left: -9999px; top: -9999px; width: 0px; height: 0px; overflow: hidden;"></div>
+
+</body></html>

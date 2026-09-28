@@ -1,0 +1,15 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block body %}
+    <h2>Bonjour {{ fullName }},</h2>
+    <p>Votre demande de création de compte a bien été reçue par notre administration.</p>
+    <p>Elle est actuellement <strong>en cours de traitement</strong>.</p>
+    <p>Votre référence unique de suivi est la suivante :</p>
+    <div style="background-color: #f0f4f8; padding: 15px; border-radius: 5px; font-family: monospace; text-align: center; font-size: 18px; letter-spacing: 1px;">
+        {{ uuid }}
+    </div>
+    <p style="text-align: center; margin-top: 30px;">
+        <a href="{{ statusUrl }}" class="btn">Suivre ma demande</a>
+    </p>
+    <p>Veuillez conserver précieusement cette référence, elle est nécessaire pour vérifier l'état de votre demande.</p>
+{% endblock %}

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-secondary":"#ffffff","on-surface":"#181c1f","secondary-fixed":"#dce1ff","on-primary":"#ffffff","surface-container":"#eaeef2","on-error":"#ffffff","background":"#f6fafe","primary-fixed":"#d5e3ff","on-tertiary-fixed-variant":"#5e4200","surface-variant":"#dfe3e7","on-secondary-container":"#f3f3ff","error-container":"#ffdad6","on-secondary-fixed-variant":"#003cac","surface-container-high":"#e5e9ed","outline-variant":"#c4c6cf","primary-fixed-dim":"#b1c7f0","surface-bright":"#f6fafe","on-tertiary-container":"#b78300","secondary-container":"#1a62fe","surface-dim":"#d7dade","secondary-fixed-dim":"#b5c4ff","on-error-container":"#93000a","surface-container-low":"#f0f4f8","tertiary-fixed-dim":"#ffba20","surface-container-lowest":"#ffffff","on-surface-variant":"#44474e","on-primary-container":"#778db2","primary-container":"#0b2545","surface-container-highest":"#dfe3e7","tertiary":"#180e00","on-background":"#181c1f","on-primary-fixed":"#001c3b","inverse-surface":"#2c3134","secondary":"#004ad1","on-tertiary-fixed":"#271900","on-secondary-fixed":"#00164d","on-primary-fixed-variant":"#314769","tertiary-fixed":"#ffdea8","on-tertiary":"#ffffff","error":"#ba1a1a","primary":"#001026","outline":"#74777f","inverse-on-surface":"#edf1f5","surface-tint":"#495f82","tertiary-container":"#332200","inverse-primary":"#b1c7f0","surface":"#f6fafe"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xl":"2.5rem","space-xs":"0.25rem","margin-lg":"3rem","space-sm":"0.5rem","space-md":"1rem","margin":"2rem","space-lg":"1.5rem","gutter-sm":"1rem","gutter":"1.5rem","gutter-lg":"2rem","margin-sm":"1rem"},"fontFamily":{"display-hero-mobile":["Plus Jakarta Sans"],"display-hero":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"]},"fontSize":{"display-hero-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"800"}],"display-hero":["48px",{"lineHeight":"56px","letterSpacing":"-0.03em","fontWeight":"800"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"700"}],"headline-xl-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"700"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between"><div class="flex flex-col flex-1 min-h-0"><div class="px-6 py-5 bg-surface-container-low flex items-center gap-3"><img alt="AZ PULSE_logo.png" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VXU8x8AYY6nvMSHjr_AwE1w1dFSBn1xxV21Ysg6LjwgtAjNR9yrtOzsyT38d-2UV3OzvIJXy9-miwoBbemvySwRV-olLibM_BFxCxtGnzrW-sAYdGel-a-a2wUd3L7FzwJjYj8IUwulMtFQf0LMNOeQ2sCzBuoIgom1SAhZCy8MqaH4SpAoBwov-npT_1WJFTLz6wCGEB5kAvc4C20zzq5hk8G8ghAi7kTBrtVJgLZjTXH4vd3c4GgXcjObtJPhJR4IkB1wlJx"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5"><span class="font-headline-sm text-headline-sm text-primary-container font-bold tracking-tight truncate">AZ PULSE</span><span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed-variant px-1.5 py-0.5 rounded">ACADÉMIE</span></div><span class="font-label-sm text-label-sm text-on-surface-variant truncate uppercase">MINEFOP • AZ Corp SARL</span></div></div><div class="px-4 py-3"><span class="font-label-sm text-label-sm text-on-surface-variant font-bold tracking-wider px-3 uppercase">Espace Étudiant</span></div><nav class="flex-1 px-4 space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary font-headline-sm rounded-lg"><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard-apprenant" href="#"><span class="material-symbols-outlined text-[20px]">space_dashboard</span><span class="font-label-lg text-label-lg">Dashboard Apprenant</span></a><a aria-current="page" class="flex items-center gap-3 px-3 py-2.5 transition-colors bg-primary-container text-on-primary font-headline-sm rounded-lg" data-path="mes-formations" href="#"><span class="material-symbols-outlined text-[20px]">school</span><span class="font-label-lg text-label-lg">Mes formations</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="mon-planning" href="#"><span class="material-symbols-outlined text-[20px]">calendar_today</span><span class="font-label-lg text-label-lg">Mon planning</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="mes-evaluations-notes" href="#"><span class="material-symbols-outlined text-[20px]">fact_check</span><span class="font-label-lg text-label-lg">Mes évaluations &amp; Notes</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="mes-paiements" href="#"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span class="font-label-lg text-label-lg">Mes paiements</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="documents-de-cours" href="#"><span class="material-symbols-outlined text-[20px]">folder_shared</span><span class="font-label-lg text-label-lg">Documents de cours</span></a></nav></div><div class="p-4 bg-surface-container-low"><div class="flex items-center gap-3 p-2 rounded-lg bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] mb-2"><div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0">JM</div><div class="flex flex-col min-w-0 flex-1"><span class="font-label-lg text-label-lg text-on-surface font-semibold truncate">Jean-Marc E.</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Fullstack &amp; IA • 2025</span></div></div><div class="flex items-center justify-between px-2 pt-1"><a class="flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" data-path="parametres-compte" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Paramètres</span></a><a class="flex items-center gap-1 text-error hover:text-on-error-container transition-colors font-label-md text-label-md" data-path="deconnexion" href="#"><span class="material-symbols-outlined text-[18px]">logout</span><span>Quitter</span></a></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-8 gap-4"><div class="flex items-center gap-4 flex-1 max-w-xl"><div class="relative w-full"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span><input class="w-full h-10 pl-10 pr-4 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-secondary" placeholder="Rechercher cours, devoirs, notes, justificatifs..." type="text"/></div></div><div class="flex items-center gap-5"><div class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-pulse"></span><span>Pôle Académie &amp; Institut (MINEFOP)</span></div><div class="hidden md:flex items-center gap-2 px-3 py-1 rounded-lg bg-surface-container font-label-md text-label-md text-on-surface-variant"><span class="material-symbols-outlined text-[18px] text-secondary">supervisor_account</span><div class="flex flex-col text-left"><span class="font-label-sm text-label-sm text-on-surface-variant">Tuteur Référent</span><span class="font-label-md text-label-md text-on-surface font-semibold">Dr. M. Kamga</span></div></div><div class="flex items-center gap-2"><button class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" title="Centre d'aide" type="button"><span class="material-symbols-outlined text-[20px]">help_outline</span></button><div class="relative"><button class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" title="Notifications" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span></button><span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-secondary-container rounded-full"></span></div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Interactive Style Scoped Hooks -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Synchronize Sidebar Active Link to "Mes formations"
+      const navLinks = document.querySelectorAll('aside nav a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('data-path') === 'mes-formations') {
+          link.className = "flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary-container text-on-primary font-headline-sm shadow-sm transition-all";
+          const icon = link.querySelector('span.material-symbols-outlined');
+          if (icon) icon.className = "material-symbols-outlined text-[20px] text-tertiary-fixed-dim";
+        } else {
+          link.classList.remove('bg-primary-container', 'text-on-primary', 'font-headline-sm');
+        }
+      });
+    });
+
+    function filterModules(category) {
+      const cards = document.querySelectorAll('.module-card');
+      const tabs = document.querySelectorAll('.tab-btn');
+      
+      tabs.forEach(tab => {
+        if (tab.getAttribute('data-tab') === category) {
+          tab.className = "tab-btn px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md transition-all shadow-sm";
+        } else {
+          tab.className = "tab-btn px-4 py-2 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all";
+        }
+      });
+
+      cards.forEach(card => {
+        const status = card.getAttribute('data-status');
+        if (category === 'all' || status === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function searchModules(query) {
+      const term = query.toLowerCase();
+      const cards = document.querySelectorAll('.module-card');
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(term)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+<div class="px-8 py-8 space-y-8 max-w-[1720px] mx-auto w-full">
+<!-- 1. En-tête de section académique -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
+<div class="space-y-1.5">
+<div class="flex items-center gap-3">
+<div class="w-2.5 h-8 bg-secondary rounded-full"></div>
+<h1 class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">
+            Mes Formations &amp; Parcours Certifiants
+          </h1>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant pl-5">
+          Suivi pédagogique, compétences visées et avancement modulaire agréé <span class="font-semibold text-primary">MINEFOP</span> • AZ Corporation SARL
+        </p>
+</div>
+<!-- Action buttons -->
+<div class="flex flex-wrap items-center gap-3">
+<a class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-lg text-label-lg shadow-sm transition-all duration-200" href="#syllabus">
+<span class="material-symbols-outlined text-[19px] text-on-surface-variant">description</span>
+<span>Syllabus Officiel MINEFOP</span>
+</a>
+<a class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-lg text-label-lg shadow-sm transition-all duration-200" href="mailto:tuteur.kamga@azpulse.cm">
+<span class="material-symbols-outlined text-[19px] text-secondary">contact_support</span>
+<span>Contacter mon tuteur</span>
+</a>
+<a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-secondary hover:bg-on-secondary-fixed-variant text-on-primary font-label-lg text-label-lg shadow-md transition-all duration-200" href="#cours-actif">
+<span class="material-symbols-outlined text-[20px]">play_circle</span>
+<span>Continuer le cours actuel</span>
+</a>
+</div>
+</div>
+<!-- 2. Bannière du Programme Principal Actif -->
+<div class="relative overflow-hidden rounded-2xl bg-primary-container text-on-primary shadow-xl">
+<!-- Ambient light effect -->
+<div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-secondary-container opacity-20 blur-3xl pointer-events-none"></div>
+<div class="absolute right-1/3 -bottom-24 w-80 h-80 rounded-full bg-tertiary-fixed-dim opacity-10 blur-3xl pointer-events-none"></div>
+<div class="relative p-8 md:p-10 flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
+<div class="space-y-4 max-w-3xl flex-1">
+<div class="flex flex-wrap items-center gap-3">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-fixed-variant animate-ping"></span>
+              Programme Actif Certifié
+            </span>
+<span class="font-label-sm text-label-sm text-primary-fixed-dim bg-on-primary/10 px-3 py-1 rounded-full uppercase tracking-wider">
+              N° Accréditation : MINEFOP/DFOP/SDGS/024-2024
+            </span>
+<span class="font-label-sm text-label-sm text-tertiary-fixed-dim font-medium">
+              Promotion 2025 / 2026
+            </span>
+</div>
+<div>
+<h2 class="font-headline-xl text-headline-xl text-on-primary font-extrabold tracking-tight">
+              Parcours Grande École Développeur Fullstack &amp; Data / IA
+            </h2>
+<p class="font-body-md text-body-md text-primary-fixed-dim mt-1">
+              Formation d'élite en génie logiciel, architectures réparties, ingénierie de données temps réel et intégration d'intelligences artificielles génératives.
+            </p>
+</div>
+<!-- Metadata grid inside banner -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+<div class="bg-primary/40 rounded-xl p-3 backdrop-blur-sm">
+<span class="font-label-sm text-label-sm text-primary-fixed-dim block uppercase">Statut Cursus</span>
+<span class="font-headline-sm text-headline-sm text-on-primary font-bold flex items-center gap-1 mt-0.5">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+                Semestre 02
+              </span>
+</div>
+<div class="bg-primary/40 rounded-xl p-3 backdrop-blur-sm">
+<span class="font-label-sm text-label-sm text-primary-fixed-dim block uppercase">Directeur Pédagogique</span>
+<span class="font-headline-sm text-headline-sm text-on-primary font-bold mt-0.5 truncate block" title="Dr. Paulin T. (PhD)">
+                Dr. Paulin T.
+              </span>
+</div>
+<div class="bg-primary/40 rounded-xl p-3 backdrop-blur-sm">
+<span class="font-label-sm text-label-sm text-primary-fixed-dim block uppercase">Charge Globale</span>
+<span class="font-headline-sm text-headline-sm text-on-primary font-bold mt-0.5">
+                960h <span class="font-body-sm text-body-sm font-normal text-primary-fixed-dim">(450h TP/Hack)</span>
+</span>
+</div>
+<div class="bg-primary/40 rounded-xl p-3 backdrop-blur-sm">
+<span class="font-label-sm text-label-sm text-primary-fixed-dim block uppercase">Prochain Grand Jalon</span>
+<span class="font-headline-sm text-headline-sm text-tertiary-fixed-dim font-bold mt-0.5">
+                Soutenance Juin 2026
+              </span>
+</div>
+</div>
+</div>
+<!-- Banner Right Gauge / Progression Metric -->
+<div class="bg-surface-container-lowest/10 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center justify-center min-w-[280px] w-full lg:w-auto shadow-inner">
+<div class="relative w-36 h-36 flex items-center justify-center">
+<!-- Inline SVG Circular Progress -->
+<svg class="w-full h-full -rotate-90" viewbox="0 0 120 120">
+<circle class="stroke-primary/40" cx="60" cy="60" fill="none" r="50" stroke-width="10"></circle>
+<circle class="stroke-tertiary-fixed-dim" cx="60" cy="60" fill="none" r="50" stroke-dasharray="314.15" stroke-dashoffset="87.96" stroke-linecap="round" stroke-width="10"></circle>
+</svg>
+<div class="absolute flex flex-col items-center justify-center text-center">
+<span class="font-headline-xl text-headline-xl font-extrabold text-on-primary">72%</span>
+<span class="font-label-sm text-label-sm text-primary-fixed-dim uppercase tracking-wider">Avancement</span>
+</div>
+</div>
+<div class="mt-4 text-center">
+<span class="font-label-lg text-label-lg font-bold text-on-primary">18 / 25 Modules Validés</span>
+<span class="block font-body-sm text-body-sm text-primary-fixed-dim mt-0.5">7 modules restants pour diplomation</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Workspace Layout : 8 cols content + 4 cols sidebar reference -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+<!-- LEFT / MAIN COLUMN: Modules list and controllers (8 cols) -->
+<div class="xl:col-span-8 space-y-6">
+<!-- 3. Filtres et sélecteur de modules -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm space-y-4">
+<div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+<!-- Category Tabs -->
+<div class="flex flex-wrap items-center gap-1.5">
+<button class="tab-btn px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md transition-all shadow-sm" data-tab="all" onclick="filterModules('all')">
+                Tous les modules <span class="ml-1 opacity-75 font-normal">(25)</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-tab="encours" onclick="filterModules('encours')">
+                En cours <span class="ml-1 text-secondary-container font-bold">(3)</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-tab="valide" onclick="filterModules('valide')">
+                Validés <span class="ml-1 text-on-tertiary-container font-bold">(18)</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-tab="avenir" onclick="filterModules('avenir')">
+                À venir <span class="ml-1 opacity-75">(4)</span>
+</button>
+</div>
+<!-- Module Search input -->
+<div class="relative w-full md:w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest transition-colors shadow-inner" oninput="searchModules(this.value)" placeholder="Filtrer un module..." type="text"/>
+</div>
+</div>
+<!-- Technologies quick filters tags -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="font-bold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">tune</span> Pôles :
+            </span>
+<button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface transition-colors" onclick="searchModules('Python')">Python</button>
+<button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface transition-colors" onclick="searchModules('FastAPI')">FastAPI &amp; Symfony</button>
+<button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface transition-colors" onclick="searchModules('Docker')">Docker &amp; Cloud</button>
+<button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface transition-colors" onclick="searchModules('Qdrant')">Qdrant &amp; RAG</button>
+<button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface transition-colors" onclick="searchModules('Tailwind')">React &amp; Tailwind</button>
+<button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface transition-colors" onclick="searchModules('Sécurité')">Cybersécurité</button>
+</div>
+</div>
+<!-- 4. Grille des Modules de Formation -->
+<div class="space-y-4" id="modules-container">
+<!-- MODULE 1 : En cours (85%) -->
+<div class="module-card flex flex-col md:flex-row bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200" data-status="encours" id="cours-actif">
+<!-- Left accent strip -->
+<div class="w-full md:w-3 bg-secondary-container"></div>
+<div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded bg-secondary-container/10 text-secondary font-bold uppercase tracking-wider">
+                      Module 14 • En cours
+                    </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-error-container text-on-error-container font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> TP à rendre dans 48h
+                    </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                    Architecture Micro-services &amp; API REST FastAPI / Symfony
+                  </h3>
+<div class="flex flex-wrap items-center gap-4 text-on-surface-variant font-label-md text-label-md pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">person_pin</span> Dr. Paulin T.
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">schedule</span> Volume : 45h
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">database</span> 12 Chapitres • 4 Labs
+                    </span>
+</div>
+</div>
+<!-- Progression Badge -->
+<div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1">
+<span class="font-headline-md text-headline-md font-extrabold text-secondary">85%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Avancement</span>
+</div>
+</div>
+<!-- Progress bar -->
+<div class="space-y-1.5">
+<div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 85%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Dernière leçon : <em>Patterns d'authentification OAuth2 &amp; FastAPI Middlewares</em></span>
+<span>10 / 12 unités achevées</span>
+</div>
+</div>
+<!-- Footer interactive buttons -->
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">FastAPI</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Symfony 7</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">JWT</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span>Déposer TP final</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-secondary hover:bg-on-secondary-fixed-variant text-on-primary font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+<span>Accéder aux cours</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- MODULE 2 : En cours (40%) -->
+<div class="module-card flex flex-col md:flex-row bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200" data-status="encours">
+<div class="w-full md:w-3 bg-secondary"></div>
+<div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded bg-secondary/10 text-secondary font-bold uppercase tracking-wider">
+                      Module 15 • En cours
+                    </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed-variant font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">videocam</span> Live Mercredi 14h00
+                    </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                    Conteneurisation Docker, CI/CD &amp; Orchestration Cloud
+                  </h3>
+<div class="flex flex-wrap items-center gap-4 text-on-surface-variant font-label-md text-label-md pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">person_pin</span> M. Alain Nguekam
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">schedule</span> Volume : 35h
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">deployed_code</span> GitHub Actions • Kubernetes
+                    </span>
+</div>
+</div>
+<div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1">
+<span class="font-headline-md text-headline-md font-extrabold text-secondary">40%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Avancement</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 40%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Prochaine session : <em>Docker Compose multi-conteneurs &amp; Volumes partagés</em></span>
+<span>4 / 10 unités achevées</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Docker</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">CI/CD Pipeline</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Linux Alpine</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-primary hover:bg-on-primary-fixed text-on-primary font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+<span>Rejoindre le Lab Virtuel</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- MODULE 3 : En cours (15%) -->
+<div class="module-card flex flex-col md:flex-row bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200" data-status="encours">
+<div class="w-full md:w-3 bg-tertiary-fixed-dim"></div>
+<div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant font-bold uppercase tracking-wider">
+                      Module 16 • Démarré
+                    </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-container">hub</span> TP d'expérimentation ouvert
+                    </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                    Bases Vectorielles Qdrant &amp; Intégration RAG / LLM
+                  </h3>
+<div class="flex flex-wrap items-center gap-4 text-on-surface-variant font-label-md text-label-md pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">person_pin</span> Dr. M. Kamga
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">schedule</span> Volume : 40h
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">psychology</span> Embeddings • LangChain
+                    </span>
+</div>
+</div>
+<div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1">
+<span class="font-headline-md text-headline-md font-extrabold text-on-tertiary-container">15%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Avancement</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-tertiary-fixed-dim rounded-full" style="width: 15%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>En cours : <em>Indexation HNSW &amp; Vector Embeddings avec sentence-transformers</em></span>
+<span>2 / 9 chapitres explorés</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Qdrant DB</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Python Embeddings</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">RAG Pipeline</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-secondary hover:bg-on-secondary-fixed-variant text-on-primary font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">science</span>
+<span>Ouvrir le Notebook Jupyter</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- MODULE 4 : Validé (100%) -->
+<div class="module-card flex flex-col md:flex-row bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200" data-status="valide">
+<div class="w-full md:w-3 bg-surface-tint"></div>
+<div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded bg-surface-container-high text-on-surface font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-secondary">check_circle</span> Module 08 • Validé
+                    </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant font-bold">
+                      Mention : Excellent
+                    </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                    Algorithmique Avancée &amp; Structures de Données Complexes
+                  </h3>
+<div class="flex flex-wrap items-center gap-4 text-on-surface-variant font-label-md text-label-md pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">military_tech</span> Note : <strong class="text-primary font-bold">18.5 / 20</strong> (Coeff. 4)
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">calendar_today</span> Validé le 12 Janv. 2026
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">verified_user</span> Contrôle Continu + Épreuve MINEFOP
+                    </span>
+</div>
+</div>
+<div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1">
+<span class="font-headline-md text-headline-md font-extrabold text-primary">100%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Validé</span>
+</div>
+</div>
+<!-- Footer interactive buttons -->
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Arbres AVL</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Graphes Dijkstra</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Complexité Big-O</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">download</span>
+<span>Attestation Modulaire (PDF)</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+<span>Revoir les corrections</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- MODULE 5 : Validé (100%) -->
+<div class="module-card flex flex-col md:flex-row bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200" data-status="valide">
+<div class="w-full md:w-3 bg-surface-tint"></div>
+<div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded bg-surface-container-high text-on-surface font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-secondary">check_circle</span> Module 09 • Validé
+                    </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed-variant font-bold">
+                      Mention : Très Bien
+                    </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                    Front-end TailwindCSS &amp; Architecture Composants UI
+                  </h3>
+<div class="flex flex-wrap items-center gap-4 text-on-surface-variant font-label-md text-label-md pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">military_tech</span> Note : <strong class="text-primary font-bold">16.0 / 20</strong> (Coeff. 3)
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">calendar_today</span> Validé le 28 Janv. 2026
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-secondary">palette</span> Design Systems &amp; Tokens
+                    </span>
+</div>
+</div>
+<div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1">
+<span class="font-headline-md text-headline-md font-extrabold text-primary">100%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Validé</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Tailwind v3.4</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Accessibility A11y</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Responsive UX</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">download</span>
+<span>Attestation Modulaire</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+<span>Voir le Projet Evalué</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- MODULE 6 : À venir (0%) -->
+<div class="module-card flex flex-col md:flex-row bg-surface-container-lowest/80 rounded-2xl overflow-hidden shadow-sm transition-all duration-200 opacity-90" data-status="avenir">
+<div class="w-full md:w-3 bg-outline-variant"></div>
+<div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold uppercase tracking-wider">
+                      Module 17 • Prochainement
+                    </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">event</span> Début : 02 Mars 2026
+                    </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                    Cybersécurité Appliquée &amp; Sécurisation des API JWT / OAuth2
+                  </h3>
+<div class="flex flex-wrap items-center gap-4 text-on-surface-variant font-label-md text-label-md pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-outline">shield</span> OWASP Top 10 • Pentesting API
+                    </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[17px] text-outline">schedule</span> Durée : 30h
+                    </span>
+</div>
+</div>
+<div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1">
+<span class="font-headline-md text-headline-md font-bold text-on-surface-variant">0%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Programmé</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">OWASP</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">Keycloak</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded bg-surface-container font-mono text-on-surface-variant">PenTest</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark_add</span>
+<span>Consulter les pré-requis</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Practical project highlight card -->
+<div class="bg-gradient-to-r from-primary-container to-secondary p-6 rounded-2xl text-on-primary shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="space-y-2 max-w-xl">
+<span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed-variant px-2.5 py-0.5 rounded font-bold uppercase">
+              Hackathon Pédagogique MINEFOP • 72H
+            </span>
+<h4 class="font-headline-md text-headline-md font-bold">
+              Challenge Grand Jury AZ Corporation : Système RAG pour la Santé
+            </h4>
+<p class="font-body-md text-body-md text-primary-fixed-dim">
+              Votre groupe (Escouade Alpha-4) est classé 1er provisoire. Dépôt final du code source GitHub &amp; démonstration vidéo avant le 20 Février.
+            </p>
+</div>
+<button class="px-5 py-3 rounded-lg bg-surface-container-lowest text-primary hover:bg-surface-bright font-label-lg text-label-lg font-bold whitespace-nowrap shadow transition-all" type="button">
+            Espace Hackathon →
+          </button>
+</div>
+</div>
+<!-- RIGHT / SIDEBAR COLUMN: MINEFOP Compliance, Competencies & Calendar (4 cols) -->
+<div class="xl:col-span-4 space-y-6">
+<!-- 5. Bloc Compétences & Référentiel MINEFOP -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[24px]">workspace_premium</span>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                Compétences Référentiel
+              </h3>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed-variant font-bold">
+              MINEFOP v2
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Indice d'acquisition des blocs de compétences requis pour la validation du titre professionnel national.
+          </p>
+<!-- Competencies progress gauges -->
+<div class="space-y-4">
+<!-- Backend -->
+<div class="space-y-1.5">
+<div class="flex justify-between font-label-md text-label-md">
+<span class="text-on-surface font-semibold">Backend, Micro-services &amp; Données</span>
+<span class="text-primary font-bold">88%</span>
+</div>
+<div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 88%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Seuil requis MINEFOP : 70% (Atteint)</span>
+</div>
+<!-- UI/UX -->
+<div class="space-y-1.5">
+<div class="flex justify-between font-label-md text-label-md">
+<span class="text-on-surface font-semibold">Front-end, UI/UX &amp; Composants Web</span>
+<span class="text-primary font-bold">75%</span>
+</div>
+<div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 75%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Seuil requis MINEFOP : 65% (Atteint)</span>
+</div>
+<!-- Cloud & DevOps -->
+<div class="space-y-1.5">
+<div class="flex justify-between font-label-md text-label-md">
+<span class="text-on-surface font-semibold">Architecture Cloud, Docker &amp; CI/CD</span>
+<span class="text-primary font-bold">70%</span>
+</div>
+<div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 70%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Seuil requis MINEFOP : 60% (Atteint)</span>
+</div>
+<!-- IA & Vector -->
+<div class="space-y-1.5">
+<div class="flex justify-between font-label-md text-label-md">
+<span class="text-on-surface font-semibold">Intelligence Artificielle &amp; Vector Search</span>
+<span class="text-primary font-bold">65%</span>
+</div>
+<div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-tertiary-fixed-dim rounded-full" style="width: 65%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Seuil requis MINEFOP : 60% (Atteint)</span>
+</div>
+</div>
+<div class="pt-4 border-t border-surface-container">
+<button class="w-full py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+<span>Générer le Bilan de Compétences Officiel</span>
+</button>
+</div>
+</div>
+<!-- Certifications intermédiaires eIDAS & Badges -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[24px]">verified</span>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                Certificats Débloqués
+              </h3>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container px-2 py-0.5 rounded text-on-surface font-mono">
+              2 Délivrés
+            </span>
+</div>
+<div class="space-y-3">
+<!-- Cert 1 -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[20px] text-tertiary-fixed-dim">code</span>
+</div>
+<div class="min-w-0 flex-1">
+<h5 class="font-label-lg text-label-lg font-bold text-on-surface truncate">Certificat Développeur Backend</h5>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 font-mono">
+<span class="material-symbols-outlined text-[13px] text-secondary">qr_code_2</span> Hash: 9e4f..bc18
+                  </span>
+</div>
+</div>
+<button class="p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors flex-shrink-0" title="Télécharger le certificat" type="button">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+</button>
+</div>
+<!-- Cert 2 -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[20px] text-secondary-container">database</span>
+</div>
+<div class="min-w-0 flex-1">
+<h5 class="font-label-lg text-label-lg font-bold text-on-surface truncate">Certificat Base de Données SQL/NoSQL</h5>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 font-mono">
+<span class="material-symbols-outlined text-[13px] text-secondary">qr_code_2</span> Hash: 4a12..ee90
+                  </span>
+</div>
+</div>
+<button class="p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors flex-shrink-0" title="Télécharger le certificat" type="button">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+</button>
+</div>
+</div>
+<div class="p-3 rounded-lg bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary flex-shrink-0">info</span>
+<span>Les certificats AZ Pulse sont numériquement scellés et directement vérifiables par les recruteurs via l'annuaire public MINEFOP.</span>
+</div>
+</div>
+<!-- Calendrier officiel des épreuves -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm space-y-5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[24px]">event_upcoming</span>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+                Calendrier Examens
+              </h3>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-bold">Session 2026</span>
+</div>
+<div class="space-y-4">
+<!-- Event 1 -->
+<div class="flex items-start gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-surface-container text-primary flex-shrink-0 text-center">
+<span class="font-label-sm text-label-sm uppercase font-bold text-secondary">Fév</span>
+<span class="font-headline-sm text-headline-sm font-bold -mt-1">18</span>
+</div>
+<div class="min-w-0 flex-1">
+<h5 class="font-label-lg text-label-lg font-bold text-on-surface">Évaluation Pratique Micro-services</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">FastAPI, TDD &amp; Déploiement automatisé</p>
+<span class="font-label-sm text-label-sm text-error font-medium">Épreuve en salle machine 03 (08h - 12h)</span>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="flex items-start gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-surface-container text-primary flex-shrink-0 text-center">
+<span class="font-label-sm text-label-sm uppercase font-bold text-secondary">Avr</span>
+<span class="font-headline-sm text-headline-sm font-bold -mt-1">10</span>
+</div>
+<div class="min-w-0 flex-1">
+<h5 class="font-label-lg text-label-lg font-bold text-on-surface">Examen Blanc National MINEFOP</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Épreuve théorique commune nationale</p>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Amphithéâtre Cheikh Anta Diop</span>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="flex items-start gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-primary-container text-on-primary flex-shrink-0 text-center">
+<span class="font-label-sm text-label-sm uppercase font-bold text-tertiary-fixed-dim">Juin</span>
+<span class="font-headline-sm text-headline-sm font-bold -mt-1">15</span>
+</div>
+<div class="min-w-0 flex-1">
+<h5 class="font-label-lg text-label-lg font-bold text-primary">Grand Jury de Soutenance Finale</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Présentation du Projet d'Intégration d'Entreprise</p>
+<span class="font-label-sm text-label-sm font-bold text-secondary">Devant Inspecteurs d'État MINEFOP</span>
+</div>
+</div>
+</div>
+<!-- Academic support contacts widget -->
+<div class="p-4 rounded-xl bg-surface-container-low space-y-2 mt-4">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-bold tracking-wider block">Assistance Académique</span>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-label-sm">
+                AZ
+              </div>
+<div class="text-left flex-1 min-w-0">
+<p class="font-label-md text-label-md text-on-surface font-semibold truncate">Secrétariat Pédagogique AZ Corp</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">pole.academique@azpulse.cm</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Footer Academic Notice -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 border-t border-surface-container text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-secondary">verified_user</span>
+<span>Établissement Agréé N° 000214/MINEFOP/DFOP/SDGS du Cameroun • Système Pédagogique AZ Pulse v4.2</span>
+</div>
+<div class="flex items-center gap-4">
+<a class="hover:text-primary transition-colors" href="#">Règlement Intérieur</a>
+<a class="hover:text-primary transition-colors" href="#">Charte Éthique &amp; IA</a>
+<a class="hover:text-primary transition-colors" href="#">Support Étudiant</a>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

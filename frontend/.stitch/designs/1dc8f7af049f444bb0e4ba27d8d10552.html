@@ -1,0 +1,455 @@
+<!DOCTYPE html><html class="h-full" lang="fr" style="width: 1280px; height: 984px; overflow: hidden; position: relative;"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>AZ Pulse | Demande d'accès en attente de validation</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            az: {
+              navy: '#0b2545',
+              dark: '#071326',
+              deep: '#040914',
+              blue: '#1d63ff',
+              gold: '#ffb800',
+              accent: '#38bdf8'
+            }
+          },
+          boxShadow: {
+            'glow-blue': '0 0 30px -5px rgba(29, 99, 255, 0.45)',
+            'glow-gold': '0 0 25px -4px rgba(255, 184, 0, 0.4)',
+            'card-elevated': '0 25px 60px -15px rgba(11, 37, 69, 0.10)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Typography & Base Reset -->
+<style data-purpose="typography">
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f4f5f8;
+      color: #1e293b;
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+<!-- Transitions, Animations and Exact Arcana Geometries -->
+<style data-purpose="animations-and-fx">
+    /* Direction inverse des rayons lumineux : voyageant de bas-gauche vers haut-droite */
+    @keyframes beamSweepReverse {
+      0% {
+        transform: translate(-100%, 150%) rotate(-45deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.85;
+      }
+      75% {
+        opacity: 0.85;
+      }
+      100% {
+        transform: translate(160%, -130%) rotate(-45deg);
+        opacity: 0;
+      }
+    }
+
+    .beam-reverse-wide {
+      position: absolute;
+      width: 140%;
+      height: 85px;
+      background: linear-gradient(90deg, transparent 0%, rgba(29,99,255,0.25) 20%, rgba(255,255,255,0.85) 50%, rgba(255,184,0,0.5) 75%, transparent 100%);
+      filter: blur(16px);
+      pointer-events: none;
+      animation: beamSweepReverse 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .beam-reverse-thin {
+      position: absolute;
+      width: 150%;
+      height: 3.5px;
+      background: linear-gradient(90deg, transparent 0%, rgba(29,99,255,0.7) 25%, #ffffff 50%, #ffb800 75%, transparent 100%);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(29, 99, 255, 0.7);
+      pointer-events: none;
+      animation: beamSweepReverse 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      animation-delay: 0.08s;
+    }
+
+    /* Trait fixe stylisé identique à la référence Arcana coupant le haut droit */
+    .arcana-fixed-beam {
+      position: absolute;
+      width: 150%;
+      height: 1px;
+      background: linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.7) 70%, rgba(255,184,0,0.6) 85%, transparent 100%);
+      transform: rotate(-38deg);
+      top: 25%;
+      right: -25%;
+      pointer-events: none;
+    }
+
+    /* Reproduction exacte au millimètre du cutout cranté asymétrique d'Arcana (Notched Step Top-Right) */
+    .arcana-notched-card {
+      background: #2b2b2b;
+      position: relative;
+      clip-path: url(#arcanaCardClip);
+      -webkit-clip-path: url(#arcanaCardClip);
+    }
+
+    /* Pulse wave subtle glow */
+    @keyframes pulseAura {
+      0%, 100% {
+        filter: drop-shadow(0 0 16px rgba(29, 99, 255, 0.35));
+      }
+      50% {
+        filter: drop-shadow(0 0 26px rgba(255, 184, 0, 0.45));
+      }
+    }
+    .pulse-glow-anim {
+      animation: pulseAura 5.5s ease-in-out infinite;
+    }
+
+    /* Custom subtle pulse for pending state */
+    @keyframes amberAura {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.55;
+        transform: scale(1.18);
+      }
+    }
+    .amber-pulse-dot {
+      animation: amberAura 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 sm:p-6 lg:p-8 selection:bg-az-blue selection:text-white">
+<!-- SVG CLIP-PATH DÉFINI POUR LE CONTOUR ASYMÉTRIQUE EXACT DE LA BOTTOM CARD ARCANA -->
+<svg aria-hidden="true" class="absolute w-0 h-0 pointer-events-none">
+<defs>
+<clipPath clipPathUnits="objectBoundingBox" id="arcanaCardClip">
+<path d="
+        M 0, 0.14
+        C 0, 0.06 0.025, 0 0.06, 0
+        L 0.68, 0
+        C 0.72, 0 0.74, 0.05 0.75, 0.12
+        C 0.765, 0.26 0.79, 0.34 0.84, 0.34
+        L 0.94, 0.34
+        C 0.975, 0.34 1, 0.40 1, 0.47
+        L 1, 0.86
+        C 1, 0.94 0.975, 1 0.94, 1
+        L 0.06, 1
+        C 0.025, 1 0, 0.94 0, 0.86
+        Z
+      "></path>
+</clipPath>
+</defs>
+</svg>
+<!-- BEGIN: MainApplicationContainer -->
+<main class="w-full max-w-[840px] bg-white rounded-[32px] shadow-card-elevated border border-slate-200/70 p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 min-h-[520px] relative transition-all duration-300 my-auto">
+<!-- ========================================================================= -->
+<!-- LEFT PANEL: Access Request Pending Validation Status                      -->
+<!-- ========================================================================= -->
+<!-- BEGIN: LeftPanel -->
+<section class="lg:col-span-7 flex flex-col justify-between p-4 sm:p-5 bg-white relative z-10" data-purpose="auth-panel-container">
+<!-- Top Brand Header with AZ Pulse Logo & Status badge -->
+<header class="flex items-center justify-between mb-3" data-purpose="brand-header">
+<a class="inline-flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-az-blue/40 rounded-xl p-1 -m-1" href="#">
+<img alt="AZ Pulse Logo" class="h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAA6127J0MG2k-JQACYWtXvVEIxqTaiccuACOeMkUDV_fvw4fiC8vZJqH-FVDFM3bcClZLKu2c3wDUn4IhzFivGnQmExW7eRQUpQHgz8S_GnvuLkpCR_xdGLc6Jk2eF8iAvUd-TH2nJh6N5hMkS1J4N7TXgxgjzhT-DNx-vLkd4pmdwer6HV4c_pqWrnxPW11e6won7Gqjmnhf3f-NWHD1Ri26BUZ0TDl42dwUo-Eserpp-Px5MdyKEY-Gjr_wsbeop3w">
+<div class="flex flex-col">
+<span class="text-xs font-bold uppercase tracking-widest text-az-blue">Internal Portal</span>
+<span class="text-sm font-semibold text-slate-800 -mt-0.5">AZ Corporation</span>
+</div>
+</a>
+<!-- Status badge clignotant / pulsé -->
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+<span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Système Actif
+        </span>
+</header>
+<!-- Main Pending Content -->
+<div class="flex-1 flex flex-col justify-center my-auto space-y-2.5">
+<!-- Status Pill & Main Titles -->
+<div>
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 mb-2.5">
+<span class="relative flex h-2 w-2">
+<span class="amber-pulse-dot absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+</span>
+<span class="">Demande en cours de traitement</span>
+</div>
+<h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-snug">
+          Demande en attente de validation
+        </h1>
+<p class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed font-normal">
+          Votre demande d'accès au portail interne AZ Pulse a bien été enregistrée et est actuellement en cours d'examen par nos administrateurs de sécurité.
+        </p>
+</div>
+<!-- Ticket / Summary Card -->
+<div class="bg-[#f8fafc] border border-slate-200/80 rounded-xl p-3 space-y-2.5 shadow-sm">
+<!-- Ticket ID & Copy -->
+<div class="flex items-center justify-between pb-3 border-b border-slate-200/70">
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Réf. Ticket</span>
+<span class="font-mono text-xs sm:text-sm font-bold text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200" id="refTicketCode">REF-AZP-2025-0849</span>
+</div>
+<button class="inline-flex items-center gap-1.5 text-xs font-semibold text-az-blue hover:text-az-navy transition-colors px-2 py-1 rounded-md hover:bg-blue-50 focus:outline-none" id="copyRefBtn" onclick="copyTicketRef()" title="Copier la référence" type="button">
+<svg class="w-3.5 h-3.5" fill="none" id="copyIcon" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span id="copyLabel" class="">Copier</span>
+</button>
+</div>
+<!-- Submitted Information Grid -->
+<div class="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs">
+<div>
+<span class="block text-[10px] font-bold uppercase text-slate-400">Demandeur</span>
+<span class="font-semibold text-slate-800">Jean Dupont</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold uppercase text-slate-400">Profil sollicité</span>
+<span class="font-semibold text-slate-800">Consultant / Ingénieur IT</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold uppercase text-slate-400">Email professionnel</span>
+<span class="font-semibold text-slate-800 truncate block" title="jean.dupont@azcorporation.net">jean.dupont@azcorporation.net</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold uppercase text-slate-400">Date de soumission</span>
+<span class="font-semibold text-slate-800">Aujourd'hui, 14:32</span>
+</div>
+</div>
+<!-- Steps Timeline Indicator -->
+<div class="pt-3 border-t border-slate-200/70 space-y-2.5">
+<span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Progression du dossier</span>
+<div class="relative pl-5 space-y-2 before:absolute before:left-[8px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-200">
+<!-- Step 1: Validated -->
+<div class="relative flex items-center gap-3">
+<div class="absolute -left-5 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-white">
+<svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+</svg>
+</div>
+<div class="flex-1 flex items-center justify-between">
+<span class="text-xs font-semibold text-slate-800">Demande soumise</span>
+<span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">Validée</span>
+</div>
+</div>
+<!-- Step 2: In Progress -->
+<div class="relative flex items-center gap-3">
+<div class="absolute -left-5 w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center ring-4 ring-white">
+<svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8v8H4z" fill="currentColor"></path>
+</svg>
+</div>
+<div class="flex-1 flex items-center justify-between">
+<span class="text-xs font-semibold text-amber-900">Revue par l'administrateur système</span>
+<span class="text-[10px] font-bold text-amber-700 bg-amber-100/70 px-2 py-0.5 rounded-full border border-amber-300 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                    En cours
+                  </span>
+</div>
+</div>
+<!-- Step 3: Pending -->
+<div class="relative flex items-center gap-3">
+<div class="absolute -left-5 w-4 h-4 rounded-full bg-slate-300 text-slate-500 flex items-center justify-center ring-4 ring-white">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+</div>
+<div class="flex-1 flex items-center justify-between">
+<span class="text-xs font-medium text-slate-400">Activation du compte &amp; notification par email</span>
+<span class="text-[10px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">En attente</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Estimated Time & Reassurance Notice -->
+<div class="space-y-2">
+<div class="flex items-center gap-2 text-xs text-slate-600">
+<svg class="w-4 h-4 text-az-blue flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class=""><strong>Délai moyen de réponse :</strong> moins de 24h ouvrées.</span>
+</div>
+<div class="p-3 bg-blue-50/70 border border-blue-100 rounded-xl flex items-start gap-2.5">
+<svg class="w-4 h-4 text-az-blue mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<p class="text-xs text-slate-600 leading-snug">
+            Un e-mail de confirmation contenant votre lien d'activation sécurisé vous sera envoyé dès approbation.
+          </p>
+</div>
+</div>
+<!-- User Action Buttons -->
+<div class="space-y-2.5 pt-1">
+<!-- Bouton Actualiser le statut -->
+<button class="w-full py-2.5 px-4 rounded-lg font-semibold text-xs text-white bg-[#191919] hover:bg-black active:scale-[0.99] transition-all duration-200 shadow-sm flex items-center justify-center gap-2 group" id="refreshStatusBtn" onclick="handleRefreshStatus()" type="button">
+<svg class="h-4 w-4 text-white group-hover:rotate-180 transition-transform duration-500" fill="none" id="refreshSpinner" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span id="refreshBtnText" class="">Actualiser le statut</span>
+</button>
+<!-- Liens secondaires : Contacter support / Retour connexion -->
+<div class="flex items-center justify-between text-xs pt-1 px-1">
+<button class="font-medium text-slate-500 hover:text-az-navy transition-colors flex items-center gap-1.5 focus:outline-none" onclick="handleContactAdmin()" type="button">
+<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="">Contacter l'administrateur</span>
+</button>
+<a class="font-semibold text-az-blue hover:underline transition-colors flex items-center gap-1" href="#" onclick="handleReturnToLogin(event)">
+<span class="">Retour à la page de connexion</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</div>
+</div>
+<!-- Legal / Footer info -->
+<footer class="mt-3 pt-2 text-center lg:text-left text-[10px] text-slate-400 border-t border-slate-100/80 flex items-center justify-between">
+<span class="">© 2025 AZ Corporation. Tous droits réservés.</span>
+<span class="hover:text-slate-600 transition-colors">v3.4.2 Enterprise</span>
+</footer>
+</section>
+<!-- END: LeftPanel -->
+<!-- ========================================================================= -->
+<!-- RIGHT PANEL: Identique Arcana / AZ Pulse Corporate Visual Panel             -->
+<!-- Conservé avec le logo AZ Pulse, les rayons et la carte organique intacte    -->
+<!-- ========================================================================= -->
+<!-- BEGIN: RightPanel -->
+<section class="hidden lg:flex lg:col-span-5 relative p-1" data-purpose="brand-showcase-panel">
+<!-- Conteneur noir avec coins très arrondis [42px] comme dans Arcana -->
+<div class="w-full h-full rounded-[26px] bg-gradient-to-b from-[#07152b] via-[#0b1f3a] to-[#050e1c] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden text-white shadow-xl border border-white/[0.08]">
+<!-- RAYONS LUMINEUX EN SENS INVERSE (Bas-gauche vers haut-droite) -->
+<div class="beam-reverse-wide bottom-10 -left-20 pointer-events-none"></div>
+<div class="beam-reverse-thin bottom-10 -left-20 pointer-events-none"></div>
+<div class="arcana-fixed-beam"></div>
+<!-- TOP SECTION: Monogramme 3D "A" / "AZ" tridimensionnel à facettes géométriques fidèles à Arcana -->
+<div class="relative z-10 flex flex-col items-start pt-3 select-none" data-purpose="3d-emblem-visual">
+<div class="w-full flex items-center justify-center -mt-2 mb-2">
+<div class="relative w-48 h-36 flex items-center justify-center pulse-glow-anim">
+<div class="relative flex items-center justify-center w-full h-full">
+<div class="absolute inset-0 bg-az-blue/20 blur-2xl rounded-full scale-90 pointer-events-none"></div>
+<img alt="AZ Pulse Official 3D Emblem" class="max-h-28 w-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.8)] filter transition-transform duration-500 hover:scale-105 relative z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBACdGu1ZpUWerpXiJFwemgHBt2lOhh6xUTyfM-hQ27MVDJgCml7zBXo8eiYRl0abKoGnabn8SNyRfKdOeZjhfJLg7gzYWzG4fCoIWUNY2Na_ysUoRQu157XqPPfCVNc4nuJfg_gDBdcwsg1DaniegKHT9oISheU-EADLMMD1jeLjeikOL5YszFC71Ku7148Zz8IKD8mNhAMj_soYwPDE9d5ChT98ih4vlN3baJHghCc5Kcn-pQIMwH-Hy8lJa_hEJgIQ">
+</div>
+</div>
+</div>
+<!-- Logo Brand Mark (Arcana style text label) -->
+<div class="flex items-center gap-2 mb-3">
+<span class="text-white text-xs sm:text-sm font-semibold tracking-wide">AZ Pulse</span>
+</div>
+<!-- MIDDLE SECTION: Hero Copy & Description (Exactement la mise en page d'Arcana) -->
+<div class="max-w-md" data-purpose="hero-copy">
+<h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-tight">
+    Welcome to <span class="text-white">AZ Pulse</span>
+</h2>
+<p class="text-neutral-400 text-xs sm:text-sm mt-3 leading-relaxed font-normal">
+    AZ Pulse helps developers &amp; operational teams to build unified enterprise workflows, cloud networks, MINEFOP certifications, and smart dashboards full of beautiful, automated tools.
+  </p>
+<p class="text-neutral-400 text-xs mt-2 font-light">
+    More than 17k people joined us, it's your turn
+  </p>
+</div>
+</div>
+<!-- BOTTOM SECTION: COMPOSANT INTERNE FLOTTANT GRIS ANTHRACITE AVEC DÉCOUPE CRANTÉE ASYMÉTRIQUE EXACTE D'ARCANA -->
+<div class="relative z-10 mt-6 w-full pt-4">
+<!-- Container avec la découpe asymétrique supérieure droite (clip-path défini dans le SVG header) -->
+<div class="arcana-notched-card w-full p-4 sm:p-5 relative transition-all duration-300" style="background: linear-gradient(135deg, rgba(14, 36, 69, 0.92) 0%, rgba(9, 24, 48, 0.95) 100%); border-top: 1px solid rgba(255, 255, 255, 0.12);">
+<div class="flex flex-col justify-between min-h-[148px]">
+<!-- Titre principal de la bottom card -->
+<div class="max-w-[70%]">
+<h3 class="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug">
+          Get your right job and right place apply now
+        </h3>
+</div>
+<!-- Description et groupe d'avatars -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-3">
+<p class="text-xs text-neutral-300/85 max-w-[62%] leading-relaxed">
+          Be among the first founders to experience the easiest way to start and scale operations.
+        </p>
+<!-- Avatars cluster stylisé au millimètre selon Arcana -->
+<div class="flex items-center -space-x-2 self-end flex-shrink-0" data-purpose="avatar-pile">
+<img alt="Collaborateur 1" class="w-7 h-7 rounded-full ring-2 ring-[#2b2b2b] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwq-PPptavpYgvzgLK4q2bc46moyICH7hemMEC7cTvCAmNVheyHuA_O8eXraktfxMp2FkrpCi1ptkUBCRp6nOvbio-C-oJSIZz1EnA5ihvcivNhHHntceNrT6cap0X_SzFQmPxhN6r4FYjfyLHeNklE2TS2e5nXd445LBVDzkZLCSMOdwU5HVQ37mkSfZsxKVy87EV2RKAic5jmwmse0aNxUyoS6aVjisXvYfmFcHdPR4aS1PC4SZM">
+<img alt="Collaborateur 2" class="w-7 h-7 rounded-full ring-2 ring-[#2b2b2b] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh3EFs_6vIT4esGGadfdKjJ6zi6Kx-TGgeYvjbO9xIWWI26EK_8hnrs5gfqZWkxzwPTMZVkugtvjGc2CD-hFuFvbOUgh0mmRQaoxlvqccQzceeHgnFsiRyQFJkSQJUdHG0f8c_FQMaCfIf3mx7wAiHlEaZ6cM1M9Tuaa4sF8nIEoJwHBHMEXH80NhS6abWQ6va1tIoEaQJFGL2CmL1RnbKXe4YiuRh4gvDNL0_T20bf03DwKJxFABg">
+<img alt="Collaborateur 3" class="w-7 h-7 rounded-full ring-2 ring-[#2b2b2b] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbvCphUBiJPW_QE6zoq2G20l3MhDIGADUeXMq0TIZlGybRYvGf-LJzyv6jTjGu4Db0MyZsJx8tp7_b0XcHeZOdhmQXXzGzIq5B3J6e_w64axXrThCfcoMdwYDOQbwXvBvm3H4QJpPQLn8gTgt3gVee3O5fFWxLS2xwuwqVBoZd1mHufCpb5msWUqzr4k8GSMvXZwhHQwfuHYkVx875x_Ffk2beEs1FTa50K-HorLhlVMAkuwWSOQT4">
+<div class="w-7 h-7 rounded-full ring-2 ring-[#2b2b2b] bg-[#111111] text-white flex items-center justify-center text-[10px] font-bold tracking-tight">
+            +2
+          </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: RightPanel -->
+</main>
+<!-- END: MainApplicationContainer -->
+<!-- ========================================================================= -->
+<!-- JAVASCRIPT: Interactivity for Ticket Copy & Verification Refresh           -->
+<!-- ========================================================================= -->
+<script data-purpose="pending-interactions">
+    function copyTicketRef() {
+      const code = document.getElementById('refTicketCode').innerText;
+      const copyLabel = document.getElementById('copyLabel');
+      
+      navigator.clipboard.writeText(code).then(() => {
+        copyLabel.innerText = "Copié !";
+        setTimeout(() => {
+          copyLabel.innerText = "Copier";
+        }, 2000);
+      }).catch(() => {
+        alert("Numéro de référence : " + code);
+      });
+    }
+
+    function handleRefreshStatus() {
+      const btn = document.getElementById('refreshStatusBtn');
+      const text = document.getElementById('refreshBtnText');
+      const spinner = document.getElementById('refreshSpinner');
+
+      btn.disabled = true;
+      spinner.classList.add('animate-spin');
+      text.innerText = "Vérification en direct...";
+
+      setTimeout(() => {
+        spinner.classList.remove('animate-spin');
+        btn.disabled = false;
+        text.innerText = "Statut à jour";
+        
+        setTimeout(() => {
+          text.innerText = "Actualiser le statut";
+        }, 2200);
+
+        // Feedback toast / alert
+        alert("Statut vérifié auprès de l'annuaire AZ Pulse :\nVotre dossier REF-AZP-2025-0849 est toujours à l'étape 2 (Revue administrateur). Vous recevrez un e-mail dès validation.");
+      }, 1200);
+    }
+
+    function handleContactAdmin() {
+      alert("Support Administratif AZ Corporation\nEmail : admin-access@azcorporation.net\nGuichet Sécurité : Lundi - Vendredi, 8h00 - 18h00 UTC+1.");
+    }
+
+    function handleReturnToLogin(e) {
+      e.preventDefault();
+      const confirmReturn = confirm("Voulez-vous retourner à la page de connexion ? Votre dossier de demande restera actif.");
+      if (confirmReturn) {
+        window.history.back();
+      }
+    }
+  </script>
+<div id="snapdom-sandbox" data-snapdom-sandbox="true" aria-hidden="true" style="position: absolute; left: -9999px; top: -9999px; width: 0px; height: 0px; overflow: hidden;"></div>
+
+</body></html>

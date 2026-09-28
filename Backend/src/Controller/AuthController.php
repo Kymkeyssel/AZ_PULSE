@@ -116,6 +116,28 @@ class AuthController extends AbstractController
         }
     }
 
+    #[Route('/status', name: 'api_auth_status', methods: ['POST'])]
+    public function status(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $uuid = $data['uuid'] ?? '';
+
+        try {
+            $result = $this->authService->checkStatus($uuid);
+            return $this->json($result, Response::HTTP_OK);
+        } catch (HttpExceptionInterface $e) {
+            return $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], $e->getStatusCode());
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     #[Route('/logout', name: 'api_auth_logout', methods: ['POST'])]
     public function logout(Request $request, #[CurrentUser] ?User $user): JsonResponse
     {

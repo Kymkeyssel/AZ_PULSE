@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
+use App\Repository\CustomerRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: CustomerRepository::class)]
 #[ORM\Table(name: 'customers')]
 class Customer
 {
@@ -40,6 +41,17 @@ class Customer
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Activity::class, cascade: ['persist', 'remove'])]
     private Collection $activities;
 
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Reminder::class, cascade: ['persist', 'remove'])]
+    private Collection $reminders;
+
+    /**
+     * Projets livrés à ce client. Côté inverse de `Project#customer`.
+     *
+     * @var Collection<int, Project>
+     */
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Project::class)]
+    private Collection $projects;
+
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -47,6 +59,8 @@ class Customer
     {
         $this->opportunities = new ArrayCollection();
         $this->activities = new ArrayCollection();
+        $this->reminders = new ArrayCollection();
+        $this->projects = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -69,6 +83,12 @@ class Customer
 
     public function getOpportunities(): Collection { return $this->opportunities; }
     public function getActivities(): Collection { return $this->activities; }
+    public function getReminders(): Collection { return $this->reminders; }
+
+    /**
+     * @return Collection<int, Project>
+     */
+    public function getProjects(): Collection { return $this->projects; }
     
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
 }

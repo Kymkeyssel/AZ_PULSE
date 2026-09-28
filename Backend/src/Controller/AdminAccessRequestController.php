@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Enum\CollaboratorProfile;
 use App\Repository\PermissionRepository;
 use App\Repository\RoleRepository;
 use App\Service\AccessRequestService;
@@ -51,6 +52,7 @@ class AdminAccessRequestController extends AbstractController
         $roleCode = $body['roleCode'] ?? '';
         $customGrants = $body['customGrants'] ?? [];
         $customRevokes = $body['customRevokes'] ?? [];
+        $profileCode = $body['profileCode'] ?? null;
 
         if (empty($roleCode)) {
             return $this->json(['success' => false, 'message' => 'Le rôle à attribuer est obligatoire.'], Response::HTTP_BAD_REQUEST);
@@ -61,9 +63,17 @@ class AdminAccessRequestController extends AbstractController
             return $this->json(['success' => false, 'message' => 'Seul le Super Administrateur peut promouvoir au rang de Super Admin.'], Response::HTTP_FORBIDDEN);
         }
 
+        // Un sous-rôle n'a de sens que pour le rôle Collaborateur
+        if ($profileCode !== null && $profileCode !== '' && $roleCode !== AccessRequestService::COLLABORATOR_ROLE_CODE) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Une spécialisation ne peut être attribuée qu\'au rôle Collaborateur.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         try {
             $accessRequest = $this->accessRequestService->getRequestById($id);
-            $result = $this->accessRequestService->approve($accessRequest, $roleCode, $user, $customGrants, $customRevokes);
+            $result = $this->accessRequestService->approve($accessRequest, $roleCode, $user, $customGrants, $customRevokes, $profileCode);
             return $this->json($result);
         } catch (HttpExceptionInterface $e) {
             return $this->json(['success' => false, 'message' => $e->getMessage()], $e->getStatusCode());
@@ -138,6 +148,8 @@ class AdminAccessRequestController extends AbstractController
             'success' => true,
             'roles' => $rolesData,
             'permissions' => $permsData,
+            'collaboratorRoleCode' => AccessRequestService::COLLABORATOR_ROLE_CODE,
+            'collaboratorProfiles' => CollaboratorProfile::catalog(),
         ]);
     }
 }

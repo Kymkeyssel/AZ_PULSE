@@ -43,6 +43,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 30)]
     private string $status = self::STATUS_PENDING_APPROVAL;
 
+    /**
+     * Spécialisation du rôle COLLABORATEUR (ex. COMMERCIAL, FORMATEUR).
+     *
+     * Ce champ n'est jamais utilisé pour autoriser quoi que ce soit : il sert
+     * uniquement à déterminer l'interface de l'espace personnel. Les droits
+     * effectifs restent portés par le rôle COLLABORATEUR et les
+     * UserPermissionOverride posés à l'approbation.
+     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $collaboratorProfile = null;
+
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $lastLoginAt = null;
 
@@ -95,6 +106,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Activity::class)]
     private Collection $activities;
 
+    /**
+     * Relances qui me sont affectées.
+     *
+     * @var Collection<int, Reminder>
+     */
+    #[ORM\OneToMany(mappedBy: 'assignedTo', targetEntity: Reminder::class)]
+    private Collection $reminders;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'parents')]
+    private Collection $children;
+
+    /**
+     * Documents déposés par ce collaborateur.
+     *
+     * @var Collection<int, Document>
+     */
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Document::class)]
+    private Collection $documents;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'children')]
+    private Collection $parents;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
@@ -105,8 +144,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->customers = new ArrayCollection();
         $this->opportunities = new ArrayCollection();
         $this->activities = new ArrayCollection();
+        $this->reminders = new ArrayCollection();
+        $this->documents = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+        $this->children = new ArrayCollection();
+        $this->parents = new ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -203,6 +246,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function getCollaboratorProfile(): ?string
+    {
+        return $this->collaboratorProfile;
+    }
+
+    public function setCollaboratorProfile(?string $collaboratorProfile): self
+    {
+        $this->collaboratorProfile = $collaboratorProfile !== null
+            ? strtoupper(trim($collaboratorProfile))
+            : null;
+
+        return $this;
     }
 
     public function getLastLoginAt(): ?\DateTimeImmutable
@@ -376,5 +433,76 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getActivities(): Collection
     {
         return $this->activities;
+    }
+
+    /**
+     * Relances qui me sont affectées.
+     *
+     * @return Collection<int, Reminder>
+     */
+    public function getReminders(): Collection
+    {
+        return $this->reminders;
+    }
+
+    /**
+     * Documents que j'ai déposés.
+     *
+     * @return Collection<int, Document>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(self $child): static
+    {
+        if (!$this->children->contains($child)) {
+            $this->children->add($child);
+        }
+
+        return $this;
+    }
+
+    public function removeChild(self $child): static
+    {
+        $this->children->removeElement($child);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getParents(): Collection
+    {
+        return $this->parents;
+    }
+
+    public function addParent(self $parent): static
+    {
+        if (!$this->parents->contains($parent)) {
+            $this->parents->add($parent);
+            $parent->addChild($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParent(self $parent): static
+    {
+        if ($this->parents->removeElement($parent)) {
+            $parent->removeChild($this);
+        }
+
+        return $this;
     }
 }

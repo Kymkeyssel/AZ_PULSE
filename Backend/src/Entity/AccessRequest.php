@@ -29,6 +29,22 @@ class AccessRequest
     #[ORM\Column(type: 'text')]
     private string $motivation;
 
+    /**
+     * Spécialisation attendue par le demandeur (ex. COMMERCIAL, FORMATEUR).
+     *
+     * Purement indicative : le demandeur expresses un besoin, il ne s'attribue
+     * aucun droit. La valeur décisive reste assignedProfile, arbitrée par
+     * l'administrateur lors de l'approbation.
+     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $requestedProfile = null;
+
+    /**
+     * Spécialisation effectivement retenue par l'administrateur.
+     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $assignedProfile = null;
+
     #[ORM\Column(type: 'string', length: 30)]
     private string $status = self::STATUS_PENDING;
 
@@ -100,6 +116,34 @@ class AccessRequest
     public function setMotivation(string $motivation): self
     {
         $this->motivation = $motivation;
+        return $this;
+    }
+
+    public function getRequestedProfile(): ?string
+    {
+        return $this->requestedProfile;
+    }
+
+    public function setRequestedProfile(?string $requestedProfile): self
+    {
+        $this->requestedProfile = $requestedProfile !== null
+            ? strtoupper(trim($requestedProfile))
+            : null;
+
+        return $this;
+    }
+
+    public function getAssignedProfile(): ?string
+    {
+        return $this->assignedProfile;
+    }
+
+    public function setAssignedProfile(?string $assignedProfile): self
+    {
+        $this->assignedProfile = $assignedProfile !== null
+            ? strtoupper(trim($assignedProfile))
+            : null;
+
         return $this;
     }
 

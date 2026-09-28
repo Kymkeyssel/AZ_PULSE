@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Customer;
+use App\Repository\CustomerRepository;
 use App\Service\CustomerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,20 +24,34 @@ class CrmCustomerController extends AbstractController
 
         $criteria = [];
         if ($status) $criteria['status'] = $status;
-        if ($ownerId) $criteria['owner'] = $ownerId;
 
-        $customers = $em->getRepository(Customer::class)->findBy($criteria);
+        // `owner` est un identifiant public (UUID) : il faut résoudre l'entité,
+        // Doctrine n'accepte pas la chaîne telle quelle sur une association.
+        if ($ownerId) {
+            $owner = $em->getRepository(\App\Entity\User::class)->find($ownerId);
+            if ($owner) $criteria['owner'] = $owner;
+        }
 
-        $data = array_map(fn($c) => [
-            'id' => $c->getId(),
-            'name' => $c->getName(),
-            'email' => $c->getEmail(),
-            'phone' => $c->getPhone(),
-            'industry' => $c->getIndustry(),
-            'status' => $c->getStatus(),
-            'owner_id' => $c->getOwner()?->getId(),
-            'createdAt' => $c->getCreatedAt()->format(\DateTimeInterface::ATOM)
-        ], $customers);
+        $customers = $em->getRepository(Customer::class)->findBy($criteria, ['name' => 'ASC']);
+
+        $data = array_map(fn($c) => $this->format($c), $customers);
+
+        return $this->json(['success' => true, 'data' => $data]);
+    }
+
+    /**
+     * Autocomplétion pour les saisies : chercher un client par son nom
+     * ou son email, sans attendre d'avoir tout le carnet chargé.
+     */
+    #[Route('/search', name: 'search', methods: ['GET'])]
+    public function search(Request $request, CustomerRepository $customerRepository): JsonResponse
+    {
+        $q = (string) $request->query->get('q', '');
+
+        $data = array_map(
+            fn($c) => $this->format($c),
+            $customerRepository->search($q, min(50, max(5, $request->query->getInt('limit') ?: 20)))
+        );
 
         return $this->json(['success' => true, 'data' => $data]);
     }
@@ -78,16 +93,7 @@ class CrmCustomerController extends AbstractController
     {
         return $this->json([
             'success' => true,
-            'data' => [
-                'id' => $customer->getId(),
-                'name' => $customer->getName(),
-                'email' => $customer->getEmail(),
-                'phone' => $customer->getPhone(),
-                'industry' => $customer->getIndustry(),
-                'status' => $customer->getStatus(),
-                'owner_id' => $customer->getOwner()?->getId(),
-                'createdAt' => $customer->getCreatedAt()->format(\DateTimeInterface::ATOM)
-            ]
+            'data' => $this->format($customer)
         ]);
     }
 
@@ -113,5 +119,24 @@ class CrmCustomerController extends AbstractController
                 'status' => $customer->getStatus()
             ]
         ]);
+    }
+
+    /**
+     * Sérialise un client pour l'interface.
+     *
+     * @return array<string, mixed>
+     */
+    private function format(Customer $customer): array
+    {
+        return [
+            'id' => $customer->getId(),
+            'name' => $customer->getName(),
+            'email' => $customer->getEmail(),
+            'phone' => $customer->getPhone(),
+            'industry' => $customer->getIndustry(),
+            'status' => $customer->getStatus(),
+            'owner_id' => $customer->getOwner()?->getId()->toRfc4122(),
+            'createdAt' => $customer->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+        ];
     }
 }

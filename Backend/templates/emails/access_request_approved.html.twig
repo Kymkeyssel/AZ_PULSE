@@ -1,0 +1,10 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block body %}
+    <h2>Félicitations {{ fullName }} !</h2>
+    <p>Votre demande de compte AZ PULSE a été <strong>validée</strong> par notre équipe d'administration.</p>
+    <p>Vous avez désormais accès à l'espace correspondant à votre profil.</p>
+    <p style="text-align: center; margin-top: 30px;">
+        <a href="{{ loginUrl }}" class="btn">Me connecter</a>
+    </p>
+{% endblock %}

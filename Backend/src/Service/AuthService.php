@@ -5,8 +5,11 @@ namespace App\Service;
 use App\Entity\AccessRequest;
 use App\Entity\ApiToken;
 use App\Entity\User;
+use App\Enum\CollaboratorProfile;
 use App\Repository\ApiTokenRepository;
 use App\Repository\UserRepository;
+use App\Repository\AccessRequestRepository;
+use App\Service\EmailSender;
 use App\Security\UserChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -29,6 +32,8 @@ class AuthService
         private readonly RateLimiterFactory $loginLimiter,
         #[Autowire(service: 'limiter.register_limiter')]
         private readonly RateLimiterFactory $registerLimiter,
+        private readonly AccessRequestRepository $accessRequestRepository,
+        private readonly EmailSender $emailSender,
     ) {
     }
 
@@ -92,14 +97,56 @@ class AuthService
         $request->setMotivation($motivation);
         $request->setStatus(AccessRequest::STATUS_PENDING);
 
+        // Spécialisation souhaitée : indicative seulement. Le demandeur exprime
+        // un besoin, il ne s'attribue aucun droit (cf. §5 du document fonctionnel).
+        // On accepte soit le code de spécialisation, soit la valeur du formulaire.
+        $requestedProfile = $this->resolveRequestedProfile($data);
+        if ($requestedProfile !== null) {
+            $request->setRequestedProfile($requestedProfile->value);
+        }
+
         $this->entityManager->persist($request);
         $this->entityManager->flush();
+
+        $uuid = $request->getId()->toBase32(); // using base32 for more compact UUID
+        
+        // Envoi de l'email asynchrone
+        $this->emailSender->sendAccessRequestPending($email, $firstName . ' ' . $lastName, $uuid);
 
         return [
             'success' => true,
             'message' => 'Votre demande d\'accès a été soumise avec succès. Elle sera examinée par la Direction.',
             'status' => User::STATUS_PENDING_APPROVAL,
+            'uuid' => $uuid,
         ];
+    }
+
+    /**
+     * Traduit la situation déclarée par le demandeur en spécialisation
+     * collaborateur, si elle en correspond une.
+     *
+     * Le mapping est explicite (et non une simple normalisation) : c'est le
+     * formulaire public qui emploie des libellés d'interface, pas les codes
+     * métier du RBAC. Toute valeur inconnue est simplement ignorée, l'admin
+     * tranchera de toute façon à l'approbation.
+     */
+    private function resolveRequestedProfile(array $data): ?CollaboratorProfile
+    {
+        $raw = $data['requestedProfile']
+            ?? $data['requestedDomain']
+            ?? null;
+
+        if ($raw === null || trim((string) $raw) === '') {
+            return null;
+        }
+
+        return match (strtolower(trim((string) $raw))) {
+            'commercial', 'commercial_charge_affaires' => CollaboratorProfile::COMMERCIAL,
+            'formateur', 'formateur_intervenant'      => CollaboratorProfile::FORMATEUR,
+            'support_it', 'support_technicien'         => CollaboratorProfile::SUPPORT_IT,
+            'communication', 'charge_communication'     => CollaboratorProfile::COMMUNICATION,
+            default => null,
+        };
     }
 
     /**
@@ -189,6 +236,21 @@ class AuthService
         ];
     }
 
+    public function checkStatus(string $uuid): array
+    {
+        $request = $this->accessRequestRepository->find($uuid);
+        if (!$request) {
+            throw new BadRequestException('Aucune demande trouvée avec cette référence.');
+        }
+
+        return [
+            'success' => true,
+            'status' => $request->getStatus(),
+            'email' => $request->getUser()->getEmail(),
+        ];
+    }
+
+
     public function formatUserPayload(User $user): array
     {
         $roleCodes = [];
@@ -204,11 +266,17 @@ class AuthService
             $primaryRole = 'SUPER_ADMIN';
         } elseif ($user->hasRoleCode('ADMIN')) {
             $primaryRole = 'ADMIN';
+        } elseif ($user->hasRoleCode('COLLABORATEUR')) {
+            $primaryRole = 'COLLABORATEUR';
         } elseif (preg_grep('/^RESPONSABLE_/', $roleCodes)) {
             $primaryRole = 'RESPONSABLE';
         } elseif ($user->hasRoleCode('PARENT')) {
             $primaryRole = 'PARENT';
         }
+
+        // Spécialisation du collaborateur : sert uniquement à l'aiguillage d'interface.
+        // L'autorisation, elle, reste portée par « permissions ».
+        $profile = CollaboratorProfile::fromCode($user->getCollaboratorProfile());
 
         return [
             'id' => $user->getId()->toRfc4122(),
@@ -221,6 +289,9 @@ class AuthService
             'roles' => $roleCodes,
             'roleLabels' => $roleLabels,
             'primaryRole' => $primaryRole,
+            'collaboratorProfile' => $profile?->value,
+            'collaboratorProfileLabel' => $profile?->label(),
+            'interfaceRoute' => $profile?->interfaceRoute(),
             'permissions' => $user->getComputedPermissions(),
             'lastLoginAt' => $user->getLastLoginAt()?->format(\DateTimeInterface::ATOM),
             'createdAt' => $user->getCreatedAt()->format(\DateTimeInterface::ATOM),

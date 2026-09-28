@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
+import { toast } from 'sonner';
 import './Auth.css';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const mode = searchParams.get('mode');
-  const [isLogin, setIsLogin] = useState(mode !== 'register');
+  const [viewMode, setViewMode] = useState(mode === 'register' ? 'register' : 'login');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -27,13 +28,33 @@ const Auth = () => {
       } else if (data.user.status === 'REJECTED') {
         navigate('/rejected');
       } else if (data.user.lastLoginAt === null) {
-        navigate('/activate');
+        navigate('/activate', { state: { email: form.email.value } });
       } else {
-        alert(`Connexion réussie. Bienvenue ${data.user.firstName}!`);
-        // navigate('/dashboard');
+        if (data.user.primaryRole === 'SUPER_ADMIN') {
+          navigate('/superadmin');
+        } else if (data.user.primaryRole === 'ADMIN') {
+          navigate('/admin');
+        } else if (data.user.primaryRole === 'COLLABORATEUR') {
+          // Le sous-rôle attribué par l'administrateur décide de l'écran d'entrée.
+          navigate(data.user.interfaceRoute || '/collaborateur');
+        } else if (data.user.primaryRole === 'APPRENANT') {
+          navigate('/apprenant');
+        } else if (data.user.primaryRole === 'PARENT') {
+          navigate('/parent');
+        } else {
+          // Rôles responsables → dashboard générique (à créer)
+          navigate('/apprenant');
+        }
       }
     } catch (err) {
-      setErrorMsg(err.message || "Erreur de connexion");
+      const msg = err.message || "Erreur de connexion";
+      if (msg.includes("en attente de validation")) {
+        navigate('/pending');
+      } else if (msg.includes("refusée")) {
+        navigate('/rejected');
+      } else {
+        setErrorMsg(msg);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -59,6 +80,30 @@ const Auth = () => {
       navigate('/pending');
     } catch (err) {
       setErrorMsg(err.message || "Erreur lors de la demande d'accès");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleStatusCheckSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMsg('');
+    const form = e.target;
+    
+    try {
+      const data = await authService.checkStatus(form.uuid.value);
+      if (data.status === 'PENDING') {
+        navigate('/pending');
+      } else if (data.status === 'REJECTED') {
+        navigate('/rejected');
+      } else if (data.status === 'APPROVED') {
+        navigate('/activate', { state: { email: data.email } });
+      } else {
+        setErrorMsg('Statut de demande inconnu.');
+      }
+    } catch (err) {
+      setErrorMsg(err.message || "Erreur lors de la vérification du statut");
     } finally {
       setIsSubmitting(false);
     }
@@ -128,19 +173,19 @@ const Auth = () => {
 
           <div className="relative flex-1 flex flex-col justify-center my-auto min-h-[460px] overflow-hidden">
             {/* Sign In Form */}
-            <div className={`form-pane w-full flex flex-col justify-center ${isLogin ? 'form-pane-active' : 'form-pane-hidden-left'}`} data-purpose="sign-in-form-pane">
+            <div className={`form-pane w-full flex flex-col justify-center ${viewMode === 'login' ? 'form-pane-active' : 'form-pane-hidden-left'}`} data-purpose="sign-in-form-pane">
               <div className="mb-7">
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Connexion</h1>
                 <p className="text-sm sm:text-base text-slate-500 mt-2 font-normal">
                   Portail interne de pilotage d'entreprise & gouvernance unifiée
                 </p>
-                {errorMsg && isLogin && (
+                {errorMsg && viewMode === 'login' && (
                   <div className="mt-4 p-3 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl">
                     {errorMsg}
                   </div>
                 )}
               </div>
-              <form className="space-y-4" onSubmit={handleLoginSubmit}>
+              <form className="space-y-4" onSubmit={handleLoginSubmit} autoComplete="off">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider" htmlFor="loginEmail">
                     Adresse Email
@@ -151,7 +196,7 @@ const Auth = () => {
                         <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                       </svg>
                     </div>
-                    <input className="w-full pl-10 pr-4 py-3 bg-[#f8fafc] hover:bg-slate-100/80 focus:bg-white text-slate-800 text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none" id="loginEmail" name="email" placeholder="Kymekeyss19@gmail.com" required type="email" />
+                    <input className="w-full pl-10 pr-4 py-3 bg-[#f8fafc] hover:bg-slate-100/80 focus:bg-white text-slate-800 text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none" id="loginEmail" name="email" placeholder="Kymekeyss19@gmail.com" required type="email" autoComplete="off" />
                   </div>
                 </div>
                 
@@ -167,7 +212,7 @@ const Auth = () => {
                         <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                       </svg>
                     </div>
-                    <input className="w-full pl-10 pr-11 py-3 bg-[#f8fafc] hover:bg-slate-100/80 focus:bg-white text-slate-800 text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none tracking-wider" id="loginPassword" name="password" placeholder="••••••••" required type={showPassword ? 'text' : 'password'} />
+                    <input className="w-full pl-10 pr-11 py-3 bg-[#f8fafc] hover:bg-slate-100/80 focus:bg-white text-slate-800 text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none tracking-wider" id="loginPassword" name="password" placeholder="••••••••" required type={showPassword ? 'text' : 'password'} autoComplete="new-password" />
                     <button aria-label="Afficher ou masquer le mot de passe" className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none" type="button" onClick={() => setShowPassword(!showPassword)}>
                       {showPassword ? (
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +233,7 @@ const Auth = () => {
                     <input className="w-4 h-4 rounded border-slate-300 text-az-navy focus:ring-az-blue focus:ring-offset-0 transition-colors" type="checkbox" />
                     <span className="font-medium">Se souvenir de moi</span>
                   </label>
-                  <button className="font-medium text-slate-500 hover:text-az-blue transition-colors bg-transparent border-none p-0 cursor-pointer" type="button" onClick={() => alert("Veuillez contacter le support informatique AZ Corporation (support@azcorporation.net) ou votre administrateur d'infrastructure pour réinitialiser vos identifiants.")}>
+                  <button className="font-medium text-slate-500 hover:text-az-blue transition-colors bg-transparent border-none p-0 cursor-pointer" type="button" onClick={() => toast.info("Veuillez contacter le support informatique AZ Corporation (support@azcorporation.net) ou votre administrateur d'infrastructure pour réinitialiser vos identifiants.")}>
                     Mot de passe oublié ?
                   </button>
                 </div>
@@ -210,9 +255,14 @@ const Auth = () => {
 
               <div className="mt-6 text-center text-xs text-slate-600">
                 <span>Pas encore de compte ? </span>
-                <button className="font-bold hover:text-slate-900 text-az-blue hover:underline transition-colors focus:outline-none" type="button" onClick={() => setIsLogin(false)}>
+                <button className="font-bold hover:text-slate-900 text-az-blue hover:underline transition-colors focus:outline-none" type="button" onClick={() => setViewMode('register')}>
                   S'inscrire
                 </button>
+                <div className="mt-2">
+                  <button className="font-bold text-slate-500 hover:text-slate-800 transition-colors focus:outline-none" type="button" onClick={() => setViewMode('status')}>
+                    J'ai déjà soumis une demande
+                  </button>
+                </div>
               </div>
 
               <div className="mt-8 pt-6 border-t border-slate-100">
@@ -243,7 +293,7 @@ const Auth = () => {
             </div>
 
             {/* Access Request Form */}
-            <div className={`form-pane w-full flex flex-col justify-between ${!isLogin ? 'form-pane-active' : 'form-pane-hidden-right'}`} data-purpose="access-request-pane">
+            <div className={`form-pane w-full flex flex-col justify-between ${viewMode === 'register' ? 'form-pane-active' : (viewMode === 'login' ? 'form-pane-hidden-right' : 'form-pane-hidden-left')}`} data-purpose="access-request-pane">
               <div className="mb-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Demande d'accès</h2>
@@ -259,7 +309,7 @@ const Auth = () => {
                     <strong className="text-slate-800 font-medium">Validation requise :</strong> Votre compte sera activé après approbation manuelle d'un administrateur interne AZ Corporation.
                   </p>
                 </div>
-                {errorMsg && !isLogin && (
+                {errorMsg && viewMode === 'register' && (
                   <div className="mt-4 p-3 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl">
                     {errorMsg}
                   </div>
@@ -323,7 +373,10 @@ const Auth = () => {
                         <option value="client">Client</option>
                       </optgroup>
                       <optgroup label="Collaborateurs">
+                        <option value="commercial">Commercial / Chargé d&apos;affaires</option>
                         <option value="formateur">Formateur / Intervenant</option>
+                        <option value="support_it">Support IT / Technicien</option>
+                        <option value="communication">Chargé de communication</option>
                       </optgroup>
                       <optgroup label="Responsables Métier">
                         <option value="resp_formation">Responsable Formation</option>
@@ -373,10 +426,60 @@ const Auth = () => {
 
               <div className="mt-4 pt-3 border-t border-slate-100 text-center text-xs text-slate-600">
                 <span>Déjà un compte validé ? </span>
-                <button className="font-bold text-az-blue hover:text-az-navy hover:underline transition-colors focus:outline-none" type="button" onClick={() => setIsLogin(true)}>
+                <button className="font-bold text-az-blue hover:text-az-navy hover:underline transition-colors focus:outline-none" type="button" onClick={() => setViewMode('login')}>
                   Se connecter
                 </button>
               </div>
+            </div>
+
+            {/* Status Check Form */}
+            <div className={`form-pane w-full flex flex-col justify-center ${viewMode === 'status' ? 'form-pane-active' : 'form-pane-hidden-right'}`} data-purpose="status-check-pane">
+              <div className="mb-7">
+                <div className="flex items-center justify-between mb-2">
+                  <button className="text-slate-400 hover:text-az-blue transition-colors focus:outline-none" onClick={() => setViewMode('login')}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                  </button>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Vérifier mon statut</h2>
+                <p className="text-sm sm:text-base text-slate-500 mt-2 font-normal">
+                  Entrez la référence unique (UUID) reçue par email pour vérifier l'état de votre demande d'accès.
+                </p>
+                {errorMsg && viewMode === 'status' && (
+                  <div className="mt-4 p-3 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl">
+                    {errorMsg}
+                  </div>
+                )}
+              </div>
+              
+              <form className="space-y-4" onSubmit={handleStatusCheckSubmit}>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider" htmlFor="statusUuid">
+                    Référence de la demande
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <span className="material-symbols-outlined text-[18px]">key</span>
+                    </div>
+                    <input className="w-full pl-10 pr-4 py-3 bg-[#f8fafc] hover:bg-slate-100/80 focus:bg-white text-slate-800 text-sm rounded-xl border border-slate-200 focus:border-az-blue focus:ring-2 focus:ring-az-blue/20 transition-all outline-none" id="statusUuid" name="uuid" placeholder="ex: 01HABCDEF..." required type="text" />
+                  </div>
+                </div>
+
+                <button className="w-full py-3 px-6 mt-4 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-[#191919] via-[#0b2545] to-[#1d63ff] hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed" type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      <span>Vérification...</span>
+                    </>
+                  ) : (
+                    <span>Vérifier le statut</span>
+                  )}
+                </button>
+              </form>
             </div>
           </div>
           

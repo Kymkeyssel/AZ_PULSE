@@ -1,0 +1,10 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block body %}
+    <h2>Bienvenue {{ fullName }} !</h2>
+    <p>Nous sommes ravis de vous compter parmi nous sur AZ PULSE.</p>
+    <p>Vous pouvez vous connecter à votre espace dès maintenant pour découvrir nos fonctionnalités.</p>
+    <p style="text-align: center; margin-top: 30px;">
+        <a href="http://localhost:5173/login" class="btn">Accéder à mon espace</a>
+    </p>
+{% endblock %}

@@ -1,5 +1,9 @@
 import { useState } from 'react';
+
+
+import { API_BASE_URL, TOKEN_KEY } from '../../../services/config';
 import { NavLink, useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../../../contexts/AuthContext';
 
 /**
@@ -97,7 +101,7 @@ const CollaborateurSidebar = () => {
       {/* ── Pied : déconnexion ─────────────────────────────────────────── */}
       <div className="p-3 bg-[#001026]/80 border-t border-white/10">
         <button
-          onClick={() => { localStorage.removeItem('az_pulse_token'); navigate('/'); }}
+          onClick={() => { localStorage.removeItem(TOKEN_KEY); navigate('/'); }}
           className="w-full flex items-center gap-2.5 px-2 py-2 rounded-xl text-[#b5c4ff] hover:text-[#ff6b6b] transition-colors"
         >
           <span className="material-symbols-outlined notranslate text-[18px]">logout</span>

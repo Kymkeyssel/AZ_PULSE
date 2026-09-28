@@ -1,10 +1,10 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+import { API_BASE_URL, TOKEN_KEY } from './config';
 
 /**
  * Fonction générique pour effectuer des requêtes à l'API
  */
 export async function fetchApi(endpoint, options = {}) {
-  const token = localStorage.getItem('az_pulse_token');
+  const token = localStorage.getItem(TOKEN_KEY);
   
   const headers = {
     'Content-Type': 'application/json',
@@ -30,6 +30,15 @@ export async function fetchApi(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 500) {
+      window.location.href = '/500';
+      return;
+    }
+    if (response.status === 403) {
+      window.location.href = '/403';
+      return;
+    }
+
     const error = new Error(data.message || 'Une erreur est survenue.');
     error.status = response.status;
     error.data = data;
@@ -72,7 +81,21 @@ export const authService = {
     return fetchApi('/auth/logout', {
       method: 'POST',
     }).finally(() => {
-      localStorage.removeItem('az_pulse_token');
+      localStorage.removeItem(TOKEN_KEY);
+    });
+  },
+
+  forgotPassword: (email) => {
+    return fetchApi('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  resetPassword: (token, password) => {
+    return fetchApi('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
     });
   }
 };
@@ -200,4 +223,59 @@ export const crmService = {
   deleteReminder: (id) => {
     return fetchApi(`/reminders/${id}`, { method: 'DELETE' });
   },
+};
+
+/**
+ * File de notifications.
+ *
+ * Le serveur n'expose que de la lecture et du « marquer comme lu » : il n'y a
+ * volontairement aucune méthode de création ni de suppression. Une notification
+ * est un effet de bord d'un fait métier, pas un message que l'on composerait
+ * depuis l'interface.
+ */
+export const notificationService = {
+  /**
+   * `unread` filtre sur les non lues ; sans lui, on récupère tout l'historique.
+   */
+  list: ({ page = 1, limit = 20, unread = false } = {}) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (unread) params.set('unread', '1');
+
+    return fetchApi(`/notifications?${params.toString()}`);
+  },
+
+  /**
+   * Compteur de la cloche.
+   *
+   * Appelé sur toutes les pages, d'où une route dédiée qui renvoie un simple
+   * nombre : charger la file entière à chaque navigation serait du gaspillage.
+   */
+  getUnreadCount: () => fetchApi('/notifications/unread-count'),
+
+  markAsRead: (id) => fetchApi(`/notifications/${id}/read`, { method: 'POST' }),
+
+  markAllAsRead: () => fetchApi('/notifications/read-all', { method: 'POST' }),
+};
+
+/**
+ * Journal d'audit — consultation seule.
+ *
+ * L'API ne propose ni création, ni modification, ni suppression : une trace
+ * s'écrit depuis le code qui a commis l'action. Exposer une écriture ici
+ * reviendrait à laisser un administrateur fabriquer une trace contre un collègue.
+ */
+export const auditService = {
+  list: ({ page = 1, limit = 50, category, severity, action, actor, since } = {}) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (category) params.set('category', category);
+    if (severity) params.set('severity', severity);
+    if (action) params.set('action', action);
+    if (actor) params.set('actor', actor);
+    if (since) params.set('since', since);
+
+    return fetchApi(`/audit?${params.toString()}`);
+  },
+
+  /** Valeurs closes des filtres, fournies par le serveur. */
+  getFilters: () => fetchApi('/audit/filters'),
 };

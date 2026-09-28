@@ -25,7 +25,10 @@ services:
 
     volumes:
       - azpulse_postgres_data:/var/lib/postgresql
-      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      # Le dossier sur le disque est `Docker/Postgres/init` (P majuscule).
+      # Sous Linux, Docker distingue la casse : un chemin en minuscules
+      # créait un dossier vide au lieu de monter les scripts d'init.
+      - ./Postgres/init:/docker-entrypoint-initdb.d:ro
 
     healthcheck:
       test:

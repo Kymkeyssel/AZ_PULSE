@@ -1,0 +1,13 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block body %}
+    <h2>Bonjour {{ fullName }},</h2>
+    <p>Nous vous informons que votre demande d'accès à AZ PULSE n'a pas pu être validée par notre équipe d'administration.</p>
+    {% if reason %}
+    <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <strong>Motif du refus :</strong><br/>
+        {{ reason }}
+    </div>
+    {% endif %}
+    <p>Si vous pensez qu'il s'agit d'une erreur ou pour toute question, vous pouvez contacter notre support.</p>
+{% endblock %}

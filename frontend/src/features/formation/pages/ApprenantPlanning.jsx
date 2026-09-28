@@ -21,7 +21,6 @@ export const ApprenantPlanning = () => {
   };
   const { data } = useOutletContext();
   const program = data?.program || {};
-  const studentName = "Cher apprenant"; // Note: User identity is not passed in the payload currently, assuming generic or fetched from auth Context. Wait, I can pass it if we add it, but for now generic.
 
   return (
     <div className="flex-1 pb-10">

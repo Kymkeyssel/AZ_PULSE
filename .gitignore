@@ -1,25 +1,53 @@
-# Notes locales & documents d'audit personnel (non versionnés)
-SECURITY_NOTES.md
-*.local.md
-.venv
+# ── Secrets ──────────────────────────────────────────────────────────────────
+# Les fichiers .env ne sont JAMAIS versionnés. Les valeurs de référence
+# vivent dans les .env.example, volontairement sans valeur sensible.
 .env
 .env.*
 !.env.example
 
-front/node_modules/
-front/dist/
-front/.vite/
+# ── Dépendances ──────────────────────────────────────────────────────────────
+node_modules/
+vendor/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
 
-back/var/
-back/.env.local
-back/.env.local.php
+# ── Artefacts de build ───────────────────────────────────────────────────────
+# `dist/` n'a jamais dû être versionné : c'est une sortie de `npm run build`.
+# L'ancien .gitignore pointait sur `front/` (minuscule), inexistant, et laissait
+# passer frontend/dist.
+frontend/dist/
+dist/
+.vite/
+*.tsbuildinfo
 
-AI_Service/.venv/
-AI_Service/__pycache__/
-AI_Service/.env
+# ── Backend Symfony ──────────────────────────────────────────────────────────
+Backend/var/
+Backend/.env.local
+Backend/.env.*.local
+Backend/public/bundles/
+Backend/phpunit.xml
 
-*.log
+# Documents téléversés par les utilisateurs (attestations, justificatifs, TP).
+# Ce sont des données personnelles : elles ne doivent jamais être versionnées.
+# On garde le dossier pour l'application, pas son contenu.
+Backend/public/uploads/*
+!Backend/public/uploads/.gitkeep
+
+# ── Python / IA ──────────────────────────────────────────────────────────────
+Ai_Service/.venv/
+Ai_Service/__pycache__/
+Ai_Service/.pytest_cache/
+
+# ── Système & éditeurs ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
-AI_Service/venv
-Ai_Service/.venv
+*.swp
+
+# ── Journaux ─────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-error.log*

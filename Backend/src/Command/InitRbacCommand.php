@@ -83,6 +83,7 @@ class InitRbacCommand extends Command
             ['code' => 'role.manage', 'module' => 'Administration', 'desc' => 'Gérer les rôles et attributions'],
             ['code' => 'permission.read', 'module' => 'Administration', 'desc' => 'Consulter les permissions'],
             ['code' => 'permission.manage', 'module' => 'Administration', 'desc' => 'Gérer les permissions du système'],
+            ['code' => 'audit.read', 'module' => 'Administration', 'desc' => 'Consulter le journal d\'audit nominatif'],
         ];
 
         $permissionsByCode = [];
@@ -118,7 +119,15 @@ class InitRbacCommand extends Command
                 'label' => 'Directeur / Administrateur Général',
                 'desc' => 'Directeur d\'AZ CORPORATION avec autorité métier centrale',
                 'is_system' => true,
-                'permissions' => array_keys($permissionsByCode), // Toutes les permissions
+                // Règle structurante n°2 et §5.2 : l'Admin / Direction gère les
+                // utilisateurs et les demandes d'accès selon son périmètre, mais
+                // n'administre ni les rôles, ni les permissions, ni la
+                // configuration technique profonde. Ces deux droits restent
+                // l'apanage du Super Administrateur.
+                'permissions' => array_values(array_diff(
+                    array_keys($permissionsByCode),
+                    ['role.manage', 'permission.manage']
+                )),
             ],
             [
                 'code' => 'RESPONSABLE_CRM',

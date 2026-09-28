@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+
+
+
+import { API_BASE_URL, TOKEN_KEY } from '../services/config';
+
 import { useAuth } from '../contexts/AuthContext';
 
 // ── Design tokens AZ PULSE ────────────────────────────────────────────────────
@@ -84,9 +89,9 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token   = localStorage.getItem('az_pulse_token');
+        const token   = localStorage.getItem(TOKEN_KEY);
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const res     = await fetch('http://localhost:8000/api/dashboard/admin', { headers });
+        const res     = await fetch(`${API_BASE_URL}/dashboard/admin`, { headers });
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();

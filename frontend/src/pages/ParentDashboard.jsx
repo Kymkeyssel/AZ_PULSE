@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
+
+
+
+import { API_BASE_URL, TOKEN_KEY } from '../services/config';
+
 import { NavLink, useNavigate } from 'react-router-dom';
+
+
 import { useAuth } from '../contexts/AuthContext';
 
 // ── Design tokens ────────────────────────────────────────────────────────
@@ -175,7 +182,7 @@ const ParentTopbar = () => {
         </div>
 
         <button
-          onClick={() => { localStorage.removeItem('az_pulse_token'); navigate('/'); }}
+          onClick={() => { localStorage.removeItem(TOKEN_KEY); navigate('/'); }}
           style={{ color: C.error }}
           className="p-1 rounded-lg hover:bg-[#ffdad6] transition-colors" title="Déconnexion" type="button">
           <span className="material-symbols-outlined notranslate text-[22px]">logout</span>
@@ -199,8 +206,8 @@ const ParentDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem('az_pulse_token');
-        const res = await fetch('http://localhost:8000/api/dashboard/parent', {
+        const token = localStorage.getItem(TOKEN_KEY);
+        const res = await fetch(`${API_BASE_URL}/dashboard/parent`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

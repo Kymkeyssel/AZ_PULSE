@@ -1,10 +1,60 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { API_BASE_URL, TOKEN_KEY } from '../services/config';
 
+/**
+ * Tableau de bord du Super Administrateur.
+ *
+ * Toutes les valeurs affichées proviennent de Symfony, qui reste l'autorité
+ * unique sur la donnée (`GET /api/dashboard/super-admin`, protégé par
+ * `ROLE_SUPER_ADMIN`). Aucun chiffre n'est codé en dur : un écran de
+ * gouvernance qui affiche des nombres inventés n'a aucune valeur probante et
+ * engage la crédibilité de la démonstration.
+ */
 const SuperAdminDashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState({ title: '', icon: '', content: null });
+  const [stats, setStats] = useState(null);
+  const [pendingRequests, setPendingRequests] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = useCallback(async () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/dashboard/super-admin`, { headers });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      setStats(json.data);
+    } catch (err) {
+      console.error(err);
+      toast.error('Statistiques indisponibles : la API ne répond pas.');
+    }
+
+    // Compteur des demandes d'accès en attente d'arbitrage. Un échec ici n'a
+    // pas à masquer les KPI ci-dessus : on laisse simplement la tuile à « — ».
+    try {
+      const reqRes = await fetch(`${API_BASE_URL}/admin/access-requests`, { headers });
+      if (reqRes.ok) {
+        const reqJson = await reqRes.json();
+        const list = reqJson.data ?? [];
+        setPendingRequests(list.filter((r) => r.status === 'PENDING'));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  // Rendu d'une valeur numérique, ou d'un tiret si l'API n'a pas répondu.
+  const n = (value) => (value === undefined || value === null ? '—' : value);
 
   const openModal = (type) => {
     let title;
@@ -40,22 +90,29 @@ const SuperAdminDashboard = () => {
       icon = 'tune';
       content = (
         <div className="space-y-2">
-          <p>Supervision des 38 politiques granulaires actives sur les 1 248 comptes.</p>
+          <p>
+            Les rôles et permissions sont définis en base et versionnés par la
+            commande <code>app:init-rbac</code>. Le Super Administrateur est le seul
+            à les administrer : l&apos;Admin / Direction dispose de tous les droits
+            métier sauf <code>role.manage</code> et <code>permission.manage</code>.
+          </p>
           <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl font-semibold">
-            ✓ Conformité ISO 27001 et isolation des tenants 100% validées.
+            L&apos;autorisation réelle est appliquée côté Symfony par
+            <code> #[IsGranted]</code> sur chaque endpoint. Les gardes de route
+            React ne sont qu&apos;un confort d&apos;affichage.
           </div>
         </div>
       );
     } else if (type === 'siem-live') {
-      title = 'Journal de Sécurité SIEM & Détections IP';
+      title = 'Journal d&apos;audit';
       icon = 'security';
       content = (
         <div className="p-3 bg-[#001026] text-[#b5c4ff] rounded-xl font-mono text-[11px] space-y-1 max-h-48 overflow-y-auto">
-          <div>10:42:01 [AUTH-OK] Keyssel K. session validée (FIDO2 Token)</div>
-          <div>10:38:12 [REQ-IN] Nouvelle demande access: Jean Dupont</div>
-          <div>10:31:05 [GLPI-SYNC] 3 240 assets scellés SHA-256</div>
-          <div>10:24:19 [AI-INFER] Embedding 2.4s sur projet Global Tech</div>
-          <div>10:17:40 [GEO-IP] Connexion autorisée Hub Yaoundé HQ</div>
+          <div>Le journal d&apos;audit est en cours de mise en place (phase 1).</div>
+          <div className="text-[#8aa0d0]">
+            Dès livraison, chaque décision d&apos;un administrateur (approbation,
+            rejet, changement de rôle) y sera horodatée et attribuée.
+          </div>
         </div>
       );
     } else if (type === 'new-admin') {
@@ -64,7 +121,9 @@ const SuperAdminDashboard = () => {
       content = (
         <div className="space-y-3">
           <div className="p-3 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-xs font-semibold">
-            Attention : L'octroi d'un rôle Administrateur nécessite une clé matérielle FIDO2 / YubiKey.
+            Attention : un compte administrateur donne accès aux demandes d&apos;accès,
+            aux utilisateurs et aux données de tous les domaines. L&apos;octroi se fait
+            par approbation explicite, et chaque décision est tracée.
           </div>
           <div>
             <label className="block font-bold text-[#001026] mb-1">Sélectionner le collaborateur</label>
@@ -79,7 +138,7 @@ const SuperAdminDashboard = () => {
             <select className="w-full px-3 py-2 rounded-xl bg-[#f0f4f8] text-[#001026] border border-[#dfe3e7]">
               <option>Super Administrateur Délégué</option>
               <option>Admin Sécurité & Réseaux</option>
-              <option>Auditeur Conformité SIEM</option>
+              <option>Auditeur Conformité</option>
             </select>
           </div>
         </div>
@@ -170,12 +229,15 @@ const SuperAdminDashboard = () => {
               <span className="text-[11px] text-[#74777f] font-mono">Confiance 98.7%</span>
             </div>
             <p className="text-xs text-[#44474e] leading-relaxed">
-              <strong className="text-[#001026]">Charge base de données stable à 28%</strong>. Aucune dérive de latence détectée sur les répliques PostgreSQL. <span className="text-[#004ad1] font-semibold">Recommandation IA :</span> Archivage automatique des logs SIEM programmé à 02h00.
+              <strong className="text-[#001026]">Socle Symfony</strong> : authentification
+              par jeton Bearer, autorisation par permissions vérifiées côté serveur
+              (<code>#[IsGranted]</code>), et validation humaine obligatoire avant toute
+              action sensible.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 self-end md:self-auto">
-          <button onClick={() => toast.success("Audit prédictif exécuté: PostgreSQL à 28% de charge, cache Redis optimal (hit ratio 94.2%), stockage S3 WORM préservé.")} type="button" className="px-3 py-1.5 rounded-xl bg-[#f0f4f8] hover:bg-[#dfe3e7] text-[#001026] text-xs font-bold transition-all flex items-center gap-1.5">
+          <button onClick={() => toast.info("Le diagnostic d'infrastructure sera branché sur les métriques du serveur de supervision.")} type="button" className="px-3 py-1.5 rounded-xl bg-[#f0f4f8] hover:bg-[#dfe3e7] text-[#001026] text-xs font-bold transition-all flex items-center gap-1.5">
             <span className="material-symbols-outlined notranslate text-[15px] text-[#004ad1]">troubleshoot</span>
             <span>Analyser</span>
           </button>
@@ -196,103 +258,93 @@ const SuperAdminDashboard = () => {
             </span>
           </div>
           <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">1 248</div>
-            <div className="text-[11px] text-[#44474e] font-medium">Utilisateurs actifs</div>
+            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">{n(stats?.users)}</div>
+            <div className="text-[11px] text-[#44474e] font-medium">Comptes enregistrés</div>
           </div>
           <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded">17 en attente</span>
-            <span className="text-[#ba1a1a] font-bold bg-red-50 px-1.5 py-0.5 rounded">3 suspendus</span>
+            <span className="text-[#44474e]">Source : table User</span>
           </div>
         </Link>
 
-        <div className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#44474e]">Sessions PAM</span>
-            <span className="w-8 h-8 rounded-lg bg-[#f0f4f8] text-[#004ad1] flex items-center justify-center">
-              <span className="material-symbols-outlined notranslate text-[18px]">devices</span>
-            </span>
-          </div>
-          <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">126</div>
-            <div className="text-[11px] text-[#44474e] font-medium">Sessions actives</div>
-          </div>
-          <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-emerald-700 font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 5 Admins</span>
-            <span className="text-[#74777f] font-mono">FIDO2 Strict</span>
-          </div>
-        </div>
-
         <Link to="/superadmin/requests" className="bg-white p-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-white to-amber-50/40 shadow-sm hover:border-amber-400 hover:shadow transition-all group flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900">Accès & Privilèges</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900">Accès &amp; Privilèges</span>
             <span className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
               <span className="material-symbols-outlined notranslate text-[18px]">key</span>
             </span>
           </div>
           <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-amber-900 tracking-tight flex items-center gap-1.5">
-              17
-              <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-950">Arbitrage</span>
-            </div>
-            <div className="text-[11px] text-amber-800 font-medium">4 rôles modifiés</div>
+            <div className="text-2xl font-extrabold text-amber-900 tracking-tight">{pendingRequests === null ? '—' : pendingRequests.length}</div>
+            <div className="text-[11px] text-amber-800 font-medium">Demandes à arbitrer</div>
           </div>
           <div className="pt-1.5 border-t border-amber-200/60 flex items-center justify-between text-[10px]">
-            <span className="text-[#ba1a1a] font-bold">2 sensibles</span>
-            <span className="text-amber-800 font-medium">↑ 5 depuis hier</span>
+            <span className="text-amber-800 font-medium">Validation humaine obligatoire</span>
           </div>
         </Link>
 
-        <div className="bg-white p-4 rounded-2xl border border-red-200 bg-gradient-to-br from-white to-red-50/40 shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#ba1a1a]">Sécurité & WAF</span>
-            <span className="w-8 h-8 rounded-lg bg-red-50 text-[#ba1a1a] flex items-center justify-center">
-              <span className="material-symbols-outlined notranslate text-[18px]">shield</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#44474e]">Clients CRM</span>
+            <span className="w-8 h-8 rounded-lg bg-[#f0f4f8] text-[#004ad1] flex items-center justify-center">
+              <span className="material-symbols-outlined notranslate text-[18px]">handshake</span>
             </span>
           </div>
           <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#ba1a1a] tracking-tight flex items-center gap-1.5">
-              4
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-100 text-[#ba1a1a]">Alertes</span>
-            </div>
-            <div className="text-[11px] text-[#44474e] font-medium">2 critiques WAF</div>
+            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">{n(stats?.customers)}</div>
+            <div className="text-[11px] text-[#44474e] font-medium">Sociétés référencées</div>
           </div>
-          <div className="pt-1.5 border-t border-red-200/60 flex items-center justify-between text-[10px]">
-            <span className="text-[#ba1a1a] font-bold">2 IP bloquées</span>
-            <span className="text-[#74777f] font-mono">SHA-256 SIEM</span>
+          <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
+            <span className="text-[#44474e]">Source : table Customer</span>
           </div>
         </div>
 
-        <a href="#section-system-health" className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm hover:border-emerald-500 hover:shadow transition-all group flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">Santé Plateforme</span>
-            <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-              <span className="material-symbols-outlined notranslate text-[18px]">hub</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#44474e]">Projets</span>
+            <span className="w-8 h-8 rounded-lg bg-[#f0f4f8] text-[#004ad1] flex items-center justify-center">
+              <span className="material-symbols-outlined notranslate text-[18px]">folder_open</span>
             </span>
           </div>
           <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-emerald-800 tracking-tight">8 / 8</div>
-            <div className="text-[11px] text-[#44474e] font-medium">Services en ligne</div>
+            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">{n(stats?.projects)}</div>
+            <div className="text-[11px] text-[#44474e] font-medium">Dossiers suivis</div>
           </div>
           <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-emerald-700 font-bold">100% Nominal</span>
-            <span className="text-[#74777f] font-mono">Max 182ms</span>
+            <span className="text-[#44474e]">Source : table Project</span>
           </div>
-        </a>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#44474e]">Chiffre d&apos;affaires</span>
+            <span className="w-8 h-8 rounded-lg bg-[#f0f4f8] text-[#004ad1] flex items-center justify-center">
+              <span className="material-symbols-outlined notranslate text-[18px]">payments</span>
+            </span>
+          </div>
+          <div className="my-1.5">
+            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">
+              {stats?.totalRevenue ? stats.totalRevenue.toLocaleString('fr-FR') : '—'}
+            </div>
+            <div className="text-[11px] text-[#44474e] font-medium">Affaires gagnées (CRM)</div>
+          </div>
+          <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
+            <span className="text-[#44474e]">Opportunités au stade WON</span>
+          </div>
+        </div>
 
         <a href="#infra-it" className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm hover:border-[#004ad1] hover:shadow transition-all group flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#001026]">Parc GLPI & IT</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#001026]">Incidents ouverts</span>
             <span className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-[#004ad1] group-hover:text-white transition-colors">
-              <span className="material-symbols-outlined notranslate text-[18px]">dns</span>
+              <span className="material-symbols-outlined notranslate text-[18px]">build_circle</span>
             </span>
           </div>
           <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">248</div>
-            <div className="text-[11px] text-[#44474e] font-medium">Machines inventoriées</div>
+            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">{n(stats?.openIncidents)}</div>
+            <div className="text-[11px] text-[#44474e] font-medium">Tickets non clos</div>
           </div>
           <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-amber-800 font-bold">12 incidents</span>
-            <span className="text-[#ba1a1a] font-bold">2 critiques</span>
+            <span className="text-[#44474e]">Inventaire : GLPI (§8)</span>
           </div>
         </a>
       </section>
@@ -361,31 +413,29 @@ const SuperAdminDashboard = () => {
             </div>
             <div className="divide-y divide-[#dfe3e7]/60 text-xs mt-1">
               {[
-                { name: 'Backend Symfony', status: 'Opérationnel', latency: '18ms', desc: 'API REST & ORM Core AZ Pulse v6.4 LTS', color: 'emerald', sub: 'PHP 8.3-FPM' },
-                { name: 'PostgreSQL Cluster', status: 'Opérationnel', latency: '4ms', desc: 'Master + 2 répliques temps réel', color: 'emerald', sub: 'Master + 2 répliques' },
-                { name: 'FastAPI AI Service', status: 'Opérationnel', latency: '182ms', desc: 'Infér. Qdrant / Embeddings NLP', color: 'amber', sub: 'Infér. Qdrant' },
-                { name: 'n8n Automation', status: 'Opérationnel', latency: 'Queue: 0', desc: '42 flux orchestrés par heure', color: 'emerald', sub: '42 flux/h' },
-                { name: 'Mail Service SMTP', status: 'Opérationnel', latency: '100% Débit', desc: 'TLS 1.3 Strict', color: 'emerald', sub: 'SPF/DKIM OK' },
-                { name: 'Mercure Hub', status: 'Opérationnel', latency: '12ms', desc: 'SSE temps réel', color: 'emerald', sub: 'SSE temps réel' },
-                { name: 'GLPI Asset Connect', status: 'Connecté', latency: 'Sync -3 min', desc: 'Synchronisation périodique des inventaires', color: 'amber', sub: '3 240 items' },
-                { name: 'Storage & S3 Vault', status: 'Opérationnel', latency: 'Immuable', desc: 'WORM SHA-256', color: 'emerald', sub: 'WORM SHA-256' },
+                { name: 'Backend Symfony', status: 'API REST & ORM — autorité unique', color: 'emerald', sub: 'PHP 8.3', desc: 'Source de vérité des données, des permissions et des actions.' },
+                { name: 'PostgreSQL', status: 'Base relationnelle', color: 'emerald', sub: 'PostgreSQL', desc: 'Référentiels users, CRM, formations, projets.' },
+                { name: 'React (Vite)', status: 'Interface — sans accès direct aux données', color: 'emerald', sub: 'React 18', desc: 'Passe par l\'API Symfony, jamais par la base ni GLPI.' },
+                { name: 'Service IA (FastAPI)', status: 'Orchestration d\'agents', color: 'amber', sub: 'FastAPI', desc: 'Appelle le fournisseur de modèle. Aucun accès PostgreSQL.' },
+                { name: 'GLPI', status: 'Inventaire — système de référence', color: 'emerald', sub: 'GLPI', desc: 'Interrogé par Symfony uniquement, via GlpiService.' },
+                { name: 'n8n', status: 'Workflows simples', color: 'amber', sub: 'n8n', desc: 'Orchestration des processus courts, sans Logique métier.' },
               ].map(svc => (
-                <div key={svc.name} onClick={() => openModal(svc)} className="py-2.5 flex items-center justify-between hover:bg-[#f0f4f8] px-2 rounded-lg transition-colors cursor-pointer">
+                <div key={svc.name} className="py-2.5 flex items-center justify-between gap-3 hover:bg-[#f0f4f8] px-2 rounded-lg transition-colors">
                   <div className="flex items-center gap-2.5">
-                    <span className={`w-2 h-2 rounded-full bg-${svc.color}-500`}></span>
+                    <span className={`w-2 h-2 rounded-full bg-${svc.color}-500 shrink-0`}></span>
                     <span className="font-bold text-[#001026]">{svc.name}</span>
                     <span className="text-[10px] text-[#44474e]">{svc.sub}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`font-mono text-[11px] font-bold text-${svc.color}-600`}>{svc.latency}</span>
-                    <span className={`text-[10px] font-semibold text-${svc.color}-800 bg-${svc.color}-50 px-2 py-0.5 rounded`}>{svc.status}</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-[11px] text-[#44474e] truncate hidden sm:block">{svc.desc}</span>
+                    <span className={`text-[10px] font-semibold text-${svc.color}-800 bg-${svc.color}-50 px-2 py-0.5 rounded shrink-0`}>{svc.status}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
           <div className="pt-3 mt-2 border-t border-[#dfe3e7] flex items-center justify-between">
-            <span className="text-[11px] text-[#44474e]">Sondes d'intégrité télémétrique</span>
+            <span className="text-[11px] text-[#44474e]">Socle déclaré par le document d&apos;architecture</span>
             <a href="#configuration" className="text-xs font-bold text-[#004ad1] hover:underline flex items-center gap-1">
               Détails sondes système →
             </a>
@@ -400,7 +450,7 @@ const SuperAdminDashboard = () => {
                 <span className="w-2.5 h-6 bg-[#fbbf24] rounded-full"></span>
                 <div>
                   <h3 className="text-sm font-extrabold text-[#001026]">Sécurité & Accès (Gouvernance)</h3>
-                  <p className="text-[11px] text-[#44474e]">Filtrage périmétrique, Zero-Trust et SIEM</p>
+                  <p className="text-[11px] text-[#44474e]">RBAC, validation humaine et cloisonnement par domaine</p>
                 </div>
               </div>
               <span className="px-2.5 py-1 rounded-full bg-blue-50 text-[#004ad1] text-[11px] font-bold border border-blue-200">
@@ -435,9 +485,9 @@ const SuperAdminDashboard = () => {
                 <div className="text-[10px] text-emerald-700 font-medium">Inhabituelles contrôlées</div>
               </div>
               <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                <div className="text-xs text-emerald-800 font-semibold">Audit SIEM Scellé</div>
-                <div className="text-sm font-extrabold text-emerald-900 mt-1 font-mono">SHA-256</div>
-                <div className="text-[10px] text-emerald-700">Registre immuable OK</div>
+                <div className="text-xs text-emerald-800 font-semibold">Journal d&apos;audit</div>
+                <div className="text-sm font-extrabold text-emerald-900 mt-1 font-mono">En construction</div>
+                <div className="text-[10px] text-emerald-700">Phase 1 du chantier</div>
               </div>
             </div>
             
@@ -484,7 +534,7 @@ const SuperAdminDashboard = () => {
               Voir les demandes →
             </Link>
             <button onClick={() => openModal('siem-live')} className="px-3 py-1.5 rounded-lg bg-[#001026] text-white text-xs font-bold hover:bg-[#0b2545] transition-colors">
-              Voir le journal de sécurité / SIEM
+              Voir le journal d&apos;audit
             </button>
           </div>
         </div>
@@ -506,45 +556,78 @@ const SuperAdminDashboard = () => {
                 <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#f0f4f8] text-[#001026] border border-[#dfe3e7] text-[10px] font-bold font-mono">
                   <span className="text-[#fbbf24]">✨</span><span>Conformité IA : 99.4%</span>
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-[11px] font-extrabold">17 demandes à traiter</span>
+                <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-[11px] font-extrabold">
+                  {pendingRequests?.length ?? '—'} demande(s) à traiter
+                </span>
               </div>
             </div>
             <div className="divide-y divide-[#dfe3e7]/70 text-xs mt-1">
-              {[
-                { name: 'Jean Dupont', initials: 'JD', role: 'Responsable CRM', type: 'Collaborateur', time: '8 min', bg: 'bg-[#001026]' },
-                { name: 'Marie X', initials: 'MX', role: 'Gestionnaire LMS Certifié', type: 'Responsable Formation', time: '21 min', bg: 'bg-purple-900' },
-                { name: 'David Y', initials: 'DY', role: 'Auditeur Portail Client', type: 'Client Global Tech', time: '34 min', bg: 'bg-blue-900' }
-              ].map(req => (
-                <div key={req.name} className="py-3 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl ${req.bg} text-white flex items-center justify-center font-bold text-xs`}>
-                      {req.initials}
-                    </div>
-                    <div>
-                      <div className="font-extrabold text-[#001026] flex items-center gap-2">
-                        {req.name}
-                        <span className="text-[10px] font-semibold text-[#44474e]">{req.type}</span>
-                      </div>
-                      <div className="text-[11px] text-[#44474e] flex items-center gap-1.5 mt-0.5">
-                        <span className="material-symbols-outlined notranslate text-[12px]">schedule</span> Il y a {req.time} • Rôle : <span className="font-semibold text-[#001026]">{req.role}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">En attente</span>
-                    <button onClick={() => toast.success(`La demande de ${req.name} pour le rôle "${req.role}" a été approuvée avec succès par Keyssel K. Enregistrée au registre SIEM horodaté.`)} className="px-2.5 py-1 rounded-lg bg-secondary-container hover:bg-secondary text-white text-[11px] font-bold">
-                      Valider
-                    </button>
-                  </div>
+              {pendingRequests === null ? (
+                <div className="py-4 text-[#44474e]">Chargement des demandes…</div>
+              ) : pendingRequests.length === 0 ? (
+                <div className="py-4 text-[#44474e]">
+                  Aucune demande en attente d&apos;arbitrage.
                 </div>
-              ))}
+              ) : (
+                pendingRequests.slice(0, 3).map((req) => {
+                  const name = req.user?.fullName ?? req.user?.email ?? 'Demandeur';
+                  const initials = name
+                    .split(' ')
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((w) => w[0].toUpperCase())
+                    .join('');
+
+                  return (
+                    <div key={req.id} className="py-3 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-[#001026] text-white flex items-center justify-center font-bold text-xs">
+                          {initials || '?'}
+                        </div>
+                        <div>
+                          <div className="font-extrabold text-[#001026] flex items-center gap-2">
+                            {name}
+                            {req.requestedDomain && (
+                              <span className="text-[10px] font-semibold text-[#44474e]">{req.requestedDomain}</span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-[#44474e] flex items-center gap-1.5 mt-0.5">
+                            <span className="material-symbols-outlined notranslate text-[12px]">schedule</span>
+                            {req.createdAt
+                              ? new Date(req.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })
+                              : '—'}
+                            {req.requestedProfile?.label && (
+                              <> • Spécialisation : <span className="font-semibold text-[#001026]">{req.requestedProfile.label}</span></>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">En attente</span>
+                        {/* L'arbitrage se fait sur l'écran dédié : ce bouton ne
+                            simule pas une approbation, il y conduit. */}
+                        <Link
+                          to="/superadmin/requests"
+                          className="px-2.5 py-1 rounded-lg bg-secondary-container hover:bg-secondary text-white text-[11px] font-bold"
+                        >
+                          Traiter
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
           <div className="pt-3 mt-2 border-t border-[#dfe3e7] flex items-center justify-between">
-            <span className="text-[11px] text-[#44474e]">14 requêtes supplémentaires dans la file</span>
-            <button className="text-xs font-bold text-[#004ad1] hover:underline" onClick={() => toast.info("Ouverture de l'interface complète d'arbitrage des 17 demandes d'accès.")}>
-              Voir les 17 demandes d'accès →
-            </button>
+            <span className="text-[11px] text-[#44474e]">
+              {pendingRequests && pendingRequests.length > 3
+                ? `${pendingRequests.length - 3} autre(s) dans la file`
+                : 'File complète affichée ci-dessus'}
+            </span>
+            <Link to="/superadmin/requests" className="text-xs font-bold text-[#004ad1] hover:underline">
+              Voir les {pendingRequests?.length ?? 0} demande(s) d&apos;accès →
+            </Link>
           </div>
         </div>
         
@@ -727,7 +810,7 @@ const SuperAdminDashboard = () => {
               <span className="text-[10px] text-[#74777f]">Cockpit synthèse</span>
             </div>
             <div className="space-y-2 pt-2 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Utilisateurs actifs :</span><span className="font-bold text-[#001026]">1 248</span></div>
+              <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Comptes enregistrés :</span><span className="font-bold text-[#001026]">{n(stats?.users)}</span></div>
               <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Activité système globale :</span><span className="font-bold text-emerald-700">807 actions/24h</span></div>
               <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Demandes d'accès :</span><span className="font-bold text-amber-700">17 en attente</span></div>
               <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Actions administratives :</span><span className="font-bold text-[#004ad1]">48 auditées</span></div>

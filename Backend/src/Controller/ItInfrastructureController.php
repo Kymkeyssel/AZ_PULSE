@@ -17,7 +17,7 @@ class ItInfrastructureController extends AbstractController
     }
 
     #[Route('/computers', name: 'api_it_inventory_computers', methods: ['GET'])]
-    // #[IsGranted('ROLE_RESP_IT')] // Assumed role for IT manager, commented for MVP to facilitate testing
+    #[IsGranted('it.read')]
     public function getComputers(): JsonResponse
     {
         try {

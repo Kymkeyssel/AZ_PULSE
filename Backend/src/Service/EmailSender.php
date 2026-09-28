@@ -82,4 +82,33 @@ final readonly class EmailSender
 
         $this->mailer->send($email);
     }
+
+    public function sendAccessRequestRejected(string $toEmail, string $fullName, string $reason): void
+    {
+        $email = $this->createTemplatedEmail(
+            $toEmail,
+            'Votre demande d\'accès a été refusée',
+            'emails/access_request_rejected.html.twig',
+            [
+                'fullName' => $fullName,
+                'reason' => $reason
+            ]
+        );
+
+        $this->mailer->send($email);
+    }
+
+    public function sendPasswordResetEmail(string $toEmail, string $resetToken): void
+    {
+        $email = $this->createTemplatedEmail(
+            $toEmail,
+            'Réinitialisation de votre mot de passe AZ PULSE',
+            'emails/forgot_password.html.twig',
+            [
+                'resetUrl' => 'http://localhost:5173/reset-password?token=' . $resetToken
+            ]
+        );
+
+        $this->mailer->send($email);
+    }
 }

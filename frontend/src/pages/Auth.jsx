@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
+
+
+import { API_BASE_URL, TOKEN_KEY } from '../services/config';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+
 import { authService } from '../services/api';
+
 import { toast } from 'sonner';
+
 import './Auth.css';
 
 const Auth = () => {
@@ -21,12 +27,16 @@ const Auth = () => {
     
     try {
       const data = await authService.login(form.email.value, form.password.value);
-      localStorage.setItem('az_pulse_token', data.token);
+      localStorage.setItem(TOKEN_KEY, data.token);
       
+      // On transmet l'email afin que les écrans d'attente/refus affichent le
+      // dossier réellement concerné et non une donnée d'exemple.
+      // La référence UUID, elle, n'est pas Known à ce stade (elle est remise
+      // par email à l'inscription) : les écrans la demandent si besoin.
       if (data.user.status === 'PENDING_APPROVAL') {
-        navigate('/pending');
+        navigate('/pending', { state: { email: form.email.value } });
       } else if (data.user.status === 'REJECTED') {
-        navigate('/rejected');
+        navigate('/rejected', { state: { email: form.email.value } });
       } else if (data.user.lastLoginAt === null) {
         navigate('/activate', { state: { email: form.email.value } });
       } else {
@@ -49,9 +59,9 @@ const Auth = () => {
     } catch (err) {
       const msg = err.message || "Erreur de connexion";
       if (msg.includes("en attente de validation")) {
-        navigate('/pending');
+        navigate('/pending', { state: { email: form.email.value } });
       } else if (msg.includes("refusée")) {
-        navigate('/rejected');
+        navigate('/rejected', { state: { email: form.email.value } });
       } else {
         setErrorMsg(msg);
       }
@@ -76,8 +86,10 @@ const Auth = () => {
     };
 
     try {
-      await authService.register(payload);
-      navigate('/pending');
+      // Le service renvoie la référence du dossier : on la conserve pour que
+      // l'écran d'attente affiche le vrai ticket plutôt qu'un exemple.
+      const result = await authService.register(payload);
+      navigate('/pending', { state: { uuid: result.uuid, email: payload.email } });
     } catch (err) {
       setErrorMsg(err.message || "Erreur lors de la demande d'accès");
     } finally {
@@ -93,10 +105,15 @@ const Auth = () => {
     
     try {
       const data = await authService.checkStatus(form.uuid.value);
+      const ref = { uuid: form.uuid.value, email: data.email };
       if (data.status === 'PENDING') {
-        navigate('/pending');
+        navigate('/pending', { state: ref });
       } else if (data.status === 'REJECTED') {
-        navigate('/rejected');
+        // L'API restitue le motif et l'horodatage réels du dossier : l'écran de
+        // refus les affiche au lieu d'un texte d'exemple.
+        navigate('/rejected', {
+          state: { ...ref, rejectionReason: data.rejectionReason, createdAt: data.createdAt },
+        });
       } else if (data.status === 'APPROVED') {
         navigate('/activate', { state: { email: data.email } });
       } else {
@@ -233,7 +250,7 @@ const Auth = () => {
                     <input className="w-4 h-4 rounded border-slate-300 text-az-navy focus:ring-az-blue focus:ring-offset-0 transition-colors" type="checkbox" />
                     <span className="font-medium">Se souvenir de moi</span>
                   </label>
-                  <button className="font-medium text-slate-500 hover:text-az-blue transition-colors bg-transparent border-none p-0 cursor-pointer" type="button" onClick={() => toast.info("Veuillez contacter le support informatique AZ Corporation (support@azcorporation.net) ou votre administrateur d'infrastructure pour réinitialiser vos identifiants.")}>
+                  <button className="font-medium text-slate-500 hover:text-az-blue transition-colors bg-transparent border-none p-0 cursor-pointer" type="button" onClick={() => navigate('/forgot-password')}>
                     Mot de passe oublié ?
                   </button>
                 </div>

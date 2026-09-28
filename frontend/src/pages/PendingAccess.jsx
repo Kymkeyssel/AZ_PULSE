@@ -1,45 +1,72 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { authService } from '../services/api';
 import './Auth.css';
 
+/**
+ * Écran « demande en attente ».
+ *
+ * La référence du dossier et le bouton d'actualisation interrogent réellement
+ * l'API (`GET /api/auth/status`). Une demande approuvée entre-temps renvoie
+ * immédiatement vers l'activation : l'écran ne peut plus mentir sur l'état.
+ */
 const PendingAccess = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
+
+  // La référence n'est connue que si l'utilisateur vient de l'inscription
+  // (retournée par l'API) ou d'une vérification manuelle. Après un simple
+  // échec de connexion, elle n'est pas disponible : on le dit clairement
+  // plutôt que d'afficher un exemple fictif.
+  const [uuid] = useState(state?.uuid ?? '');
+  const [refreshing, setRefreshing] = useState(false);
 
   const copyTicketRef = () => {
-    const code = document.getElementById('refTicketCode').innerText;
-    const copyLabel = document.getElementById('copyLabel');
-    
-    navigator.clipboard.writeText(code).then(() => {
-      copyLabel.innerText = "Copié !";
-      setTimeout(() => {
-        copyLabel.innerText = "Copier";
-      }, 2000);
+    if (!uuid) {
+      toast.info('Référence inconnue : consultez le confirmation reçue par e-mail.');
+      return;
+    }
+
+    navigator.clipboard.writeText(uuid).then(() => {
+      toast.success('Référence copiée.');
     }).catch(() => {
-      toast.info("Numéro de référence : " + code);
+      toast.info('Référence : ' + uuid);
     });
   };
 
-  const handleRefreshStatus = () => {
-    const btn = document.getElementById('refreshStatusBtn');
-    const text = document.getElementById('refreshBtnText');
-    const spinner = document.getElementById('refreshSpinner');
+  const handleRefreshStatus = async () => {
+    if (!uuid) {
+      toast.info(
+        'Saisissez votre référence dans l\'onglet « Vérifier ma demande » ' +
+        'pour connaître l\'état exact de votre dossier.'
+      );
+      return;
+    }
 
-    btn.disabled = true;
-    spinner.classList.add('animate-spin');
-    text.innerText = "Vérification en direct...";
+    setRefreshing(true);
+    try {
+      const data = await authService.checkStatus(uuid);
 
-    setTimeout(() => {
-      spinner.classList.remove('animate-spin');
-      btn.disabled = false;
-      text.innerText = "Statut à jour";
-      
-      setTimeout(() => {
-        text.innerText = "Actualiser le statut";
-      }, 2200);
+      if (data.status === 'APPROVED') {
+        toast.success('Demande approuvée : vous pouvez activer votre compte.');
+        navigate('/activate', { state: { email: data.email } });
+        return;
+      }
 
-      toast.info("Statut vérifié auprès de l'annuaire AZ Pulse :\nVotre dossier est toujours en attente (Revue administrateur). Vous recevrez un e-mail dès validation.");
-    }, 1200);
+      if (data.status === 'REJECTED') {
+        navigate('/rejected', {
+          state: { uuid, email: data.email, rejectionReason: data.rejectionReason, createdAt: data.createdAt },
+        });
+        return;
+      }
+
+      toast.success('Dossier toujours en attente de revue par un administrateur.');
+    } catch (err) {
+      toast.error(err.message || 'Vérification impossible pour le moment.');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleContactAdmin = () => {
@@ -134,7 +161,13 @@ const PendingAccess = () => {
               <div className="flex items-center justify-between pb-3 border-b border-slate-200/70">
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Réf. Ticket</span>
-                  <span className="font-mono text-xs sm:text-sm font-bold text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200" id="refTicketCode">REF-AZP-ENATTENTE</span>
+                  {uuid ? (
+                    <span className="font-mono text-xs sm:text-sm font-bold text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200" id="refTicketCode">{uuid}</span>
+                  ) : (
+                    <span className="text-xs italic text-slate-500">
+                      envoyée par e-mail — vérifiez-la dans l&apos;onglet « Vérifier ma demande »
+                    </span>
+                  )}
                 </div>
                 <button className="inline-flex items-center gap-1.5 text-xs font-semibold text-az-blue hover:text-az-navy transition-colors px-2 py-1 rounded-md hover:bg-blue-50 focus:outline-none" id="copyRefBtn" onClick={copyTicketRef} title="Copier la référence" type="button">
                   <svg className="w-3.5 h-3.5" fill="none" id="copyIcon" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,11 +229,11 @@ const PendingAccess = () => {
             </div>
 
             <div className="space-y-2.5 pt-1">
-              <button className="w-full py-3.5 px-6 rounded-xl font-semibold text-sm text-white bg-[#191919] hover:bg-black active:scale-[0.99] transition-all duration-200 shadow-md flex items-center justify-center gap-2 group" id="refreshStatusBtn" onClick={handleRefreshStatus} type="button">
-                <svg className="h-4 w-4 text-white group-hover:rotate-180 transition-transform duration-500" fill="none" id="refreshSpinner" stroke="currentColor" viewBox="0 0 24 24">
+              <button className="w-full py-3.5 px-6 rounded-xl font-semibold text-sm text-white bg-[#191919] hover:bg-black active:scale-[0.99] transition-all duration-200 shadow-md flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed" disabled={refreshing} id="refreshStatusBtn" onClick={handleRefreshStatus} type="button">
+                <svg className={`h-4 w-4 text-white group-hover:rotate-180 transition-transform duration-500 ${refreshing ? 'animate-spin' : ''}`} fill="none" id="refreshSpinner" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                 </svg>
-                <span id="refreshBtnText">Actualiser le statut</span>
+                <span id="refreshBtnText">{refreshing ? 'Vérification…' : 'Actualiser le statut'}</span>
               </button>
               <div className="flex items-center justify-between text-xs pt-1 px-1">
                 <button className="font-medium text-slate-500 hover:text-az-navy transition-colors flex items-center gap-1.5 focus:outline-none" onClick={handleContactAdmin} type="button">

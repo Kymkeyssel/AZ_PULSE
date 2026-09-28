@@ -1,4 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+
+
+
+import { API_BASE_URL, TOKEN_KEY } from '../services/config';
+
 import { toast } from 'sonner';
 
 // ─────────────────────────────────────────────
@@ -104,44 +109,25 @@ const AdminRequests = () => {
   // ── Data fetching ──────────────────────────
   const fetchRequests = async () => {
     try {
-      const token   = localStorage.getItem('az_pulse_token');
+      const token   = localStorage.getItem(TOKEN_KEY);
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const res = await fetch('http://localhost:8000/api/admin/access-requests', { headers });
+      const res = await fetch(`${API_BASE_URL}/admin/access-requests`, { headers });
       if (res.ok) {
         const data = await res.json();
         setRequests(data.data || []);
       } else {
-        // Fallback mock
-        setRequests([
-          {
-            id: 'REQ-2026-0849',
-            user: { fullName: 'Marie Nguimfack', email: 'marie.n@azpulse-enterprise.cm', phone: '+237 6 98 42 11 05' },
-            requestedDomain: 'Responsable Pipeline CRM',
-            motivation: 'Prise de poste en tant que Responsable Pipeline CRM au pôle Ventes B2B.',
-            status: 'PENDING',
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: 'REQ-2026-0848',
-            user: { fullName: 'Jean Dupont', email: 'jean.dupont@formation-az.cm', phone: '+237 6 77 12 34 56' },
-            requestedDomain: 'Instructeur Systèmes',
-            motivation: 'Prise en charge des cohortes Dev Web MINEFOP.',
-            status: 'PENDING',
-            createdAt: new Date(Date.now() - 3_600_000).toISOString(),
-          },
-          {
-            id: 'REQ-2026-0847',
-            user: { fullName: 'Alice Fouda', email: 'alice.f@azpulse.cm', phone: '+237 6 55 11 22 33' },
-            requestedDomain: 'Support IT',
-            motivation: 'Rejoindre la cellule support interne.',
-            status: 'APPROVED',
-            createdAt: new Date(Date.now() - 86_400_000).toISOString(),
-          },
-        ]);
+        // Un administrateur ne doit jamais arbitrer des demandes fictives : on
+        // affiche l'échec et une file vide, jamais de données d'exemple.
+        setRequests([]);
+        toast.error(
+          res.status === 403
+            ? 'Vos droits ne permettent pas de consulter les demandes d\'accès.'
+            : 'Impossible de charger les demandes d\'accès.'
+        );
       }
 
-      const roleRes = await fetch('http://localhost:8000/api/admin/roles-permissions', { headers });
+      const roleRes = await fetch(`${API_BASE_URL}/admin/roles-permissions`, { headers });
       if (roleRes.ok) {
         const rData = await roleRes.json();
         setRoles(rData.roles || []);
@@ -149,13 +135,14 @@ const AdminRequests = () => {
         setProfiles(rData.collaboratorProfiles || []);
         if (rData.collaboratorRoleCode) setCollaboratorRoleCode(rData.collaboratorRoleCode);
       } else {
-        setRoles([
-          { code: 'ADMIN',       label: 'Administrateur' },
-          { code: 'COLLABORATEUR', label: 'Collaborateur' },
-        ]);
+        setRoles([]);
+        setPermissions([]);
+        setProfiles([]);
       }
     } catch (err) {
       console.error(err);
+      setRequests([]);
+      toast.error('API injoignable : vérifiez que le backend Symfony est démarré.');
     } finally {
       setLoaded(true);
     }
@@ -234,11 +221,11 @@ const AdminRequests = () => {
     }
 
     try {
-      const token   = localStorage.getItem('az_pulse_token');
+      const token   = localStorage.getItem(TOKEN_KEY);
       const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
       const reqId   = actionModal.reqId || selectedRequest?.id;
 
-      const res = await fetch(`http://localhost:8000/api/admin/access-requests/${reqId}/approve`, {
+      const res = await fetch(`${API_BASE_URL}/admin/access-requests/${reqId}/approve`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -269,11 +256,11 @@ const AdminRequests = () => {
   const handleReject = async (e) => {
     if (e) e.preventDefault();
     try {
-      const token   = localStorage.getItem('az_pulse_token');
+      const token   = localStorage.getItem(TOKEN_KEY);
       const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
       const reqId   = actionModal.reqId || selectedRequest?.id;
 
-      const res = await fetch(`http://localhost:8000/api/admin/access-requests/${reqId}/reject`, {
+      const res = await fetch(`${API_BASE_URL}/admin/access-requests/${reqId}/reject`, {
         method: 'POST', headers, body: JSON.stringify({ reason: rejectReason }),
       });
       if (res.ok) {

@@ -138,6 +138,53 @@ class AuthController extends AbstractController
         }
     }
 
+    #[Route('/forgot-password', name: 'api_auth_forgot_password', methods: ['POST'])]
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $email = $data['email'] ?? '';
+
+        try {
+            $this->authService->forgotPassword($email);
+            // On retourne toujours OK, même si l'email n'existe pas
+            return $this->json([
+                'success' => true,
+                'message' => 'Si l\'adresse existe, un email de récupération a été envoyé.',
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Une erreur est survenue lors de la demande de réinitialisation.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/reset-password', name: 'api_auth_reset_password', methods: ['POST'])]
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $token = $data['token'] ?? '';
+        $newPassword = $data['password'] ?? '';
+
+        try {
+            $this->authService->resetPassword($token, $newPassword);
+            return $this->json([
+                'success' => true,
+                'message' => 'Votre mot de passe a été réinitialisé avec succès.',
+            ]);
+        } catch (HttpExceptionInterface $e) {
+            return $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], $e->getStatusCode());
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     #[Route('/logout', name: 'api_auth_logout', methods: ['POST'])]
     public function logout(Request $request, #[CurrentUser] ?User $user): JsonResponse
     {

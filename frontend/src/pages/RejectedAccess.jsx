@@ -1,10 +1,35 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import './Auth.css';
 
+/**
+ * Écran « accès refusé ».
+ *
+ * Le motif, la date de dépôt et la référence proviennent du dossier réel, transmis
+ * par l'écran de connexion après un appel à `GET /api/auth/status`. Sans
+ * référence, on n'invente rien : les valeurs d'exemple ont été retirées.
+ */
 const RejectedAccess = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
+
+  const uuid = state?.uuid ?? '';
+  const details = {
+    email: state?.email ?? '',
+    reason: state?.rejectionReason ?? null,
+    createdAt: state?.createdAt ?? null,
+  };
+
+  const formatDate = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime())
+      ? null
+      : d.toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
+  };
+
+  const submittedAt = formatDate(details.createdAt);
 
   const handleNewRequest = (e) => {
     e.preventDefault();
@@ -106,26 +131,36 @@ const RejectedAccess = () => {
               </div>
 
               <div className="bg-white border border-slate-200/70 rounded-xl p-3.5 text-sm text-slate-800 leading-relaxed font-medium">
-                « Les informations fournies ne permettent pas de confirmer votre affiliation à un partenaire, un client ou une unité interne d'AZ Corporation. Veuillez vérifier l'adresse email professionnelle utilisée. »
+                {details.reason
+                  ? `« ${details.reason} »`
+                  : "Le motif détaillé n'a pas été communiqué. Contactez l'administrateur pour en connaître la raison exacte."}
               </div>
 
-              <div className="pt-2 border-t border-slate-200/70 flex flex-col gap-2">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Détails de la demande originale</span>
-                <ul className="text-xs text-slate-600 space-y-1.5">
-                  <li className="flex items-start gap-2">
-                    <strong className="text-slate-800 min-w-[70px]">Email :</strong>
-                    <span className="truncate">utilisateur@domaine-inconnu.com</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <strong className="text-slate-800 min-w-[70px]">Date :</strong>
-                    <span>14 Novembre 2024, 09:42 UTC</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <strong className="text-slate-800 min-w-[70px]">Réf. :</strong>
-                    <span className="font-mono text-[10px]">REF-AZP-994A2B</span>
-                  </li>
-                </ul>
-              </div>
+              {(details.email || submittedAt || uuid) && (
+                <div className="pt-2 border-t border-slate-200/70 flex flex-col gap-2">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Détails de la demande originale</span>
+                  <ul className="text-xs text-slate-600 space-y-1.5">
+                    {details.email && (
+                      <li className="flex items-start gap-2">
+                        <strong className="text-slate-800 min-w-[70px]">Email :</strong>
+                        <span className="truncate">{details.email}</span>
+                      </li>
+                    )}
+                    {submittedAt && (
+                      <li className="flex items-start gap-2">
+                        <strong className="text-slate-800 min-w-[70px]">Date :</strong>
+                        <span>{submittedAt}</span>
+                      </li>
+                    )}
+                    {uuid && (
+                      <li className="flex items-start gap-2">
+                        <strong className="text-slate-800 min-w-[70px]">Réf. :</strong>
+                        <span className="font-mono text-[10px]">{uuid}</span>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

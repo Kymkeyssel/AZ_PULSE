@@ -9,32 +9,42 @@ from app.config import settings
 
 app = FastAPI(
     title="AZ Pulse - AI Service",
-    description="AI service powering intelligent analysis, recommendations, and agents for AZ Pulse",
-    version="1.0.0"
+    description=(
+        "Service IA d'AZ PULSE : orchestration d'agents, appel du fournisseur de "
+        "modèle, OCR, scoring et traitements spécialisés."
+    ),
+    version="1.0.0",
 )
 
-# CORS Middleware
+# CORS
+# Ce service n'est jamais appelé depuis un navigateur : seul Symfony l'appelle
+# (React -> Symfony -> FastAPI, §9). On n'autorise donc que les origines
+# explicitement configurées, et jamais "*" combiné à allow_credentials, qui est
+# refusé par les navigateurs et qui exposerait le service à tout site tiers.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["http://localhost:5173", "http://localhost:8000"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
-# Include Routers
+# Routers
 app.include_router(chat_router)
 app.include_router(analysis_router)
 app.include_router(projects_router)
 app.include_router(documents_router)
+
 
 @app.get("/")
 async def root():
     return {
         "service": "AZ Pulse AI Service",
         "status": "online",
-        "env": settings.app_env
+        "env": settings.app_env,
+        "provider": settings.active_provider,
     }
+
 
 @app.get("/health")
 def health():

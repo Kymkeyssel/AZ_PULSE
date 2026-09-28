@@ -60,17 +60,25 @@ class AcademyController extends AbstractController
     }
 
     #[Route('/grades', name: 'grades_list', methods: ['GET'])]
+    #[IsGranted('formation.read')]
     public function listGrades(EntityManagerInterface $em): JsonResponse
     {
-        // If the user is a student, we should ideally only return their grades.
-        // For simplicity in this demo, we'll return all grades if they are staff, 
-        // or filter if they are a student.
         $user = $this->getUser();
-        
-        if (in_array('ROLE_APPRENANT', $user->getRoles())) {
+
+        // Périmètre des notes : la visibilité suit le RBAC, jamais le rôle brut.
+        //  - formation.manage (responsable Formation, direction) : toutes les notes
+        //  - apprenant                                    : ses propres notes
+        //  - tout autre profil (parent, collaborateur, ...) : 403
+        // Un parent doit passer par son propre espace, qui filtrera par enfant.
+        $isManager = $this->isGranted('formation.manage');
+        $isLearner = $user->hasRoleCode('APPRENANT');
+
+        if ($isManager) {
+            $grades = $em->getRepository(Grade::class)->findBy([], ['createdAt' => 'DESC']);
+        } elseif ($isLearner) {
             $grades = $em->getRepository(Grade::class)->findBy(['student' => $user], ['createdAt' => 'DESC']);
         } else {
-            $grades = $em->getRepository(Grade::class)->findBy([], ['createdAt' => 'DESC']);
+            throw $this->createAccessDeniedException();
         }
 
         $data = [];

@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
+
+
+import { API_BASE_URL, TOKEN_KEY } from '../../../services/config';
+
 import { useOutletContext } from 'react-router-dom';
+
 
 import { academyService } from '../../../services/api';
 
@@ -34,8 +39,32 @@ export const ApprenantPaiements = () => {
     }
   };
 
-  const handleDownload = () => {
-    window.open('http://localhost:8000/api/dashboard/apprenant/download/attestation.pdf', '_blank');
+  const handleDownload = async () => {
+    // L'API étant stateless + protégée par jeton Bearer, un `window.open`
+    // direct n'enverrait pas l'en-tête d'autorisation (401). On récupère donc
+    // le fichier puis on déclenche le téléchargement via un objet Blob.
+    try {
+      const token = localStorage.getItem(TOKEN_KEY);
+      const res = await fetch(
+        `${API_BASE_URL}/dashboard/apprenant/download/attestation.pdf`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'attestation.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert('Téléchargement impossible.');
+    }
   };
 
   const amountPaid = financial.totalAmount !== undefined ? (financial.totalAmount - financial.remainingBalance) : 450000;

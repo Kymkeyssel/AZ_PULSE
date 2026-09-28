@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+import { API_BASE_URL, TOKEN_KEY } from '../services/config';
+
 const AuthContext = createContext(null);
 
 // Rôles admin pouvant accéder à /api/dashboard/admin
@@ -12,11 +14,11 @@ export const AuthProvider = ({ children }) => {
 
   // ── 1. Charger l'utilisateur connecté ──────────────────────────────────
   const fetchMe = useCallback(async () => {
-    const token = localStorage.getItem('az_pulse_token');
+    const token = localStorage.getItem(TOKEN_KEY);
     if (!token) { setLoadingUser(false); return; }
 
     try {
-      const res = await fetch('http://localhost:8000/api/auth/me', {
+      const res = await fetch($API_BASE_URL + '/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -34,7 +36,7 @@ export const AuthProvider = ({ children }) => {
 
   // ── 2. Charger les stats sidebar — UNIQUEMENT pour les admins ──────────
   const fetchSidebarStats = useCallback(async (currentUser) => {
-    const token = localStorage.getItem('az_pulse_token');
+    const token = localStorage.getItem(TOKEN_KEY);
     if (!token || !currentUser) return;
 
     // Extraire le rôle primaire depuis l'objet user
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     if (!ADMIN_ROLES.includes(roleCode)) return; // Pas admin → on ne fait pas l'appel
 
     try {
-      const res = await fetch('http://localhost:8000/api/dashboard/admin', {
+      const res = await fetch($API_BASE_URL + '/dashboard/admin', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -57,11 +59,11 @@ export const AuthProvider = ({ children }) => {
   // ── 3. Initialisation : fetch user d'abord, puis stats si admin ────────
   useEffect(() => {
     const init = async () => {
-      const token = localStorage.getItem('az_pulse_token');
+      const token = localStorage.getItem(TOKEN_KEY);
       if (!token) { setLoadingUser(false); return; }
 
       try {
-        const res = await fetch('http://localhost:8000/api/auth/me', {
+        const res = await fetch($API_BASE_URL + '/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

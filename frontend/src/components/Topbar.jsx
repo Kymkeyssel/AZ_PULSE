@@ -1,7 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+import { API_BASE_URL, TOKEN_KEY } from '../services/config';
+import { notificationService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+
 import { toast } from 'sonner';
+
 import { useAuth } from '../contexts/AuthContext';
+
+/**
+ * Formate un horodatage relatif (« il y a 3 min ») pour la cloche.
+ *
+ * `dayjs` est déjà une dépendance du projet ; on s'en sert ici plutôt que
+ * d'écrire un calcul de durée à la main, et on garde le repli sur la date
+ * absolue si la valeur servie par l'API n'est pas exploitable.
+ */
+function relativeTime(iso) {
+  if (!iso) return '';
+  const then = new Date(iso);
+  if (Number.isNaN(then.getTime())) return '';
+
+  const seconds = Math.round((Date.now() - then.getTime()) / 1000);
+  if (seconds < 0)     return 'à l\'instant';
+  if (seconds < 60)    return 'à l\'instant';
+  if (seconds < 3600)  return `il y a ${Math.floor(seconds / 60)} min`;
+  if (seconds < 86400) return `il y a ${Math.floor(seconds / 3600)} h`;
+
+  return then.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+}
+
+/** Teinte de pastille selon la gravité de la notification. */
+const SEVERITY_TONE = {
+  SUCCESS: 'bg-emerald-500',
+  WARNING: 'bg-amber-500',
+  DANGER:  'bg-rose-500',
+  INFO:    'bg-[#004ad1]',
+};
 
 const Topbar = () => {
   const [searchExpanded, setSearchExpanded] = useState(false);
@@ -14,6 +48,14 @@ const Topbar = () => {
   const notifRef   = useRef(null);
   const profileRef = useRef(null);
 
+  // File de notifications réelle, servie par /api/notifications.
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount,   setUnreadCount]   = useState(0);
+  const [notifLoading,  setNotifLoading]  = useState(false);
+  // `null` = pas encore chargé, `false` = échec. L'interface distingue les deux
+  // pour ne pas afficher « aucune notification » alors qu'on n'a rien su.
+  const [notifError,    setNotifError]    = useState(null);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (searchRef.current  && !searchRef.current.contains(e.target))  setSearchExpanded(false);
@@ -24,13 +66,87 @@ const Topbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const loadNotifications = useCallback(async () => {
+    setNotifLoading(true);
+    setNotifError(null);
+    try {
+      const res = await notificationService.list({ limit: 10 });
+      if (res?.success) {
+        setNotifications(res.data ?? []);
+        setUnreadCount(res.meta?.unreadCount ?? 0);
+      }
+    } catch {
+      // Pas de repli sur une liste fictive : on affiche l'échec.
+      setNotifications([]);
+      setUnreadCount(0);
+      setNotifError(true);
+    } finally {
+      setNotifLoading(false);
+    }
+  }, []);
+
+  // Rafraîchissement périodique : une notification d'approbation d'accès ou de
+  // paiement reçu doit apparaître sans rechargement de page.
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await notificationService.getUnreadCount();
+        if (!cancelled && res?.success) setUnreadCount(res.data?.count ?? 0);
+      } catch {
+        // Silencieux : le compteur est un confort, son absence ne doit pas
+        // interrompre la navigation.
+      }
+    };
+
+    poll();
+    const interval = setInterval(poll, 30_000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [user]);
+
+  // La liste complète n'est chargée qu'à l'ouverture du panneau : la charger en
+  // permanence sur toutes les pages serait inutile.
+  useEffect(() => {
+    if (notifOpen) loadNotifications();
+  }, [notifOpen, loadNotifications]);
+
   const handleLogout = () => {
-    localStorage.removeItem('az_pulse_token');
+    localStorage.removeItem(TOKEN_KEY);
     navigate('/');
   };
 
-  // Nombre de demandes en attente (réel)
+  // Demandes d'accès en attente — compteur d'arbitrage, distinct de la cloche
+  // (qui compte les notifications personnelles). reserved to admins.
   const pendingCount = sidebarStats?.requests?.pending ?? null;
+
+  const openNotification = async (n) => {
+    try {
+      await notificationService.markAsRead(n.id);
+    } catch {
+      // Le marquage est un confort ; on ouvre quand même la cible.
+    }
+    setNotifications(list => list.map(x => (x.id === n.id ? { ...x, isRead: true } : x)));
+    setUnreadCount(c => Math.max(0, c - 1));
+    setNotifOpen(false);
+    if (n.link) navigate(n.link);
+  };
+
+  const markAllRead = async () => {
+    try {
+      const res = await notificationService.markAllAsRead();
+      if (res?.success) {
+        const updated = res.data?.updated ?? 0;
+        setNotifications(list => list.map(n => ({ ...n, isRead: true })));
+        setUnreadCount(0);
+        if (updated === 0) toast.info('Toutes les notifications étaient déjà lues.');
+        else toast.success(`${updated} notification${updated > 1 ? 's' : ''} marquée${updated > 1 ? 's' : ''} comme lue${updated > 1 ? 's' : ''}.`);
+      }
+    } catch {
+      toast.error('Impossible de marquer les notifications comme lues.');
+    }
+  };
 
   return (
     <header className="fixed top-2 left-[17rem] right-4 h-16 bg-white/95 backdrop-blur-md z-40 px-6 flex items-center justify-between rounded-2xl border border-[#dfe3e7] shadow-sm">
@@ -73,57 +189,88 @@ const Topbar = () => {
           <button className="relative w-9 h-9 rounded-xl bg-[#f0f4f8] hover:bg-[#dfe3e7] text-[#001026] flex items-center justify-center transition-colors border border-[#dfe3e7] active:scale-95"
                   onClick={() => setNotifOpen(!notifOpen)} type="button" title="Notifications">
             <span className="material-symbols-outlined notranslate text-[20px] text-[#44474e]">notifications</span>
-            {pendingCount !== null && pendingCount > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#ba1a1a] text-white text-[9px] font-extrabold ring-2 ring-white">
-                {pendingCount > 99 ? '99+' : pendingCount}
+                {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-[#dfe3e7] p-3 z-50 animate-in fade-in slide-in-from-top-1">
+            <div className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-xl border border-[#dfe3e7] p-3 z-50 animate-in fade-in slide-in-from-top-1">
               <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#dfe3e7]">
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined notranslate text-[18px] text-[#004ad1]">notifications_active</span>
                   <span className="font-extrabold text-xs text-[#001026]">Notifications</span>
                 </div>
-                {pendingCount !== null && pendingCount > 0 && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                    {pendingCount} en attente
-                  </span>
+                {unreadCount > 0 && (
+                  <button
+                    className="text-[10px] font-bold text-[#004ad1] hover:underline"
+                    onClick={markAllRead}
+                  >
+                    Tout marquer comme lu
+                  </button>
                 )}
               </div>
 
-              <div className="space-y-2">
-                {/* Demandes en attente (réel) */}
-                {pendingCount !== null && pendingCount > 0 && (
-                  <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/70 hover:bg-amber-100 transition-colors cursor-pointer"
-                       onClick={() => { navigate('/superadmin/requests'); setNotifOpen(false); }}>
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse" />
-                        <span className="font-bold text-xs text-amber-900">{pendingCount} Demande{pendingCount > 1 ? 's' : ''} d'accès</span>
-                      </div>
-                      <span className="text-[9px] font-bold text-amber-800 bg-amber-200 px-1.5 py-0.5 rounded-full">En attente</span>
+              <div className="space-y-1.5 max-h-96 overflow-y-auto">
+                {notifLoading && notifications.length === 0 && (
+                  <p className="text-[11px] text-[#74777f] py-4 text-center">Chargement...</p>
+                )}
+
+                {/* Échec de l'API : on le dit, on n'invente pas une file vide qui
+                    laisserait croire qu'il n'y a rien à signaler. */}
+                {notifError && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="material-symbols-outlined notranslate text-[14px] text-rose-600">error</span>
+                      <span className="font-bold text-[11px] text-rose-800">Notifications indisponibles</span>
                     </div>
-                    <p className="text-[11px] text-[#44474e]">Arbitrage requis — cliquez pour examiner.</p>
+                    <p className="text-[11px] text-rose-700">Le service n'a pas répondu. Réessayez dans un instant.</p>
                   </div>
                 )}
 
-                {/* Alertes système — placeholder */}
-                <div className="p-2.5 rounded-xl bg-[#f0f4f8] border border-[#dde3ef]">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className="material-symbols-outlined notranslate text-[14px] text-[#9aa3b5]">smart_toy</span>
-                    <span className="font-bold text-xs text-[#44474e]">Alertes IA Copilot</span>
-                  </div>
-                  <p className="text-[11px] text-[#9aa3b5] italic">Bientôt disponible</p>
-                </div>
+                {!notifLoading && !notifError && notifications.length === 0 && (
+                  <p className="text-[11px] text-[#74777f] py-6 text-center">Aucune notification.</p>
+                )}
+
+                {notifications.map(n => (
+                  <button
+                    key={n.id}
+                    onClick={() => openNotification(n)}
+                    className={`w-full text-left p-2.5 rounded-xl border transition-colors ${
+                      n.isRead
+                        ? 'bg-white border-[#e8ecf1] hover:bg-[#f7f9fc]'
+                        : 'bg-[#f0f5ff] border-[#c7d9f7] hover:bg-[#e4edfd]'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className={`w-2 h-2 rounded-full mt-1 flex-shrink-0 ${SEVERITY_TONE[n.severity] ?? 'bg-[#004ad1]'}`} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="font-bold text-xs text-[#001026] truncate">{n.title}</span>
+                          <span className="text-[9px] text-[#9aa3b5] flex-shrink-0">{relativeTime(n.createdAt)}</span>
+                        </div>
+                        <p className="text-[11px] text-[#44474e] mt-0.5 break-words">{n.body}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
               </div>
 
-              <div className="mt-2 pt-2 border-t border-[#dfe3e7] flex items-center justify-between text-[11px]">
-                <span className="text-[#74777f]">Mis à jour en temps réel</span>
-                <button className="text-[#004ad1] font-bold hover:underline" onClick={() => setNotifOpen(false)}>Fermer</button>
-              </div>
+              {/* Compteur d'arbitrage réservé aux administrateurs : ce n'est pas
+                  une notification, c'est une file d'attente à traiter. */}
+              {pendingCount !== null && pendingCount > 0 && (
+                <button
+                  onClick={() => { navigate('/superadmin/requests'); setNotifOpen(false); }}
+                  className="w-full mt-2 pt-2 border-t border-[#dfe3e7] flex items-center gap-1.5 text-left"
+                >
+                  <span className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse" />
+                  <span className="text-[11px] font-bold text-amber-900">
+                    {pendingCount} demande{pendingCount > 1 ? 's' : ''} d'accès à arbitrer
+                  </span>
+                </button>
+              )}
             </div>
           )}
         </div>

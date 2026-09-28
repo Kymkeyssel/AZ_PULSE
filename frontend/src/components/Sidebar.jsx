@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
+
+
+import { API_BASE_URL, TOKEN_KEY } from '../services/config';
 import { NavLink, useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../contexts/AuthContext';
 
 const Sidebar = () => {
@@ -11,6 +15,11 @@ const Sidebar = () => {
   const pendingReqs  = sidebarStats?.requests?.pending  ?? null;
   const totalUsers   = sidebarStats?.totalUsers         ?? null;
   const activeUsers  = sidebarStats?.activeUsers        ?? null;
+
+  // Le journal d'audit est monté sous chacun des deux espaces de gouvernance,
+  // parce que la permission `audit.read` est accordée à la fois au Super
+  // Administrateur et à la Direction. Le lien suit le rôle de l'utilisateur.
+  const auditPath = primaryRole === 'SUPER_ADMIN' ? '/superadmin/audit' : '/admin/audit';
 
   return (
     <aside className="fixed left-2 top-2 bottom-2 h-[calc(100vh-1rem)] w-64 bg-[#0b2545] text-white z-50 flex flex-col shadow-xl rounded-2xl border border-[#001026]/40 select-none overflow-hidden">
@@ -105,7 +114,7 @@ const Sidebar = () => {
               className={({ isActive }) =>
                 `flex items-center justify-between py-1.5 px-2.5 rounded transition-colors ${isActive ? 'text-[#fbbf24] font-semibold bg-white/5' : 'text-[#b5c4ff] hover:text-[#fbbf24] hover:bg-white/5'}`
               }>
-              <span>└ Demandes d'accès</span>
+              <span>├ Demandes d'accès</span>
               {pendingReqs !== null && pendingReqs > 0 ? (
                 <span className="text-[9px] bg-amber-500 text-slate-950 font-bold px-1.5 rounded-full">
                   {pendingReqs > 99 ? '99+' : pendingReqs}
@@ -113,6 +122,19 @@ const Sidebar = () => {
               ) : (
                 <span className="text-[10px] text-white/40">0</span>
               )}
+            </NavLink>
+
+            {/* Journal d'audit — réel, et accessible aux deux rôles qui en
+                ont le droit en lecture. Le chemin suit le rôle parce que la
+                barre latérale est commune aux espaces Super Admin et
+                Direction : un lien figé sur `/superadmin` renverrait l'Admin
+                vers son propre tableau de bord sans lui montrer le journal. */}
+            <NavLink to={auditPath}
+              className={({ isActive }) =>
+                `flex items-center justify-between py-1.5 px-2.5 rounded transition-colors ${isActive ? 'text-[#fbbf24] font-semibold bg-white/5' : 'text-[#b5c4ff] hover:text-[#fbbf24] hover:bg-white/5'}`
+              }>
+              <span>└ Journal d'audit</span>
+              <span className="material-symbols-outlined notranslate text-[13px] text-white/30">history</span>
             </NavLink>
           </div>
         </div>
@@ -202,7 +224,7 @@ const Sidebar = () => {
           </div>
           <button className="text-[#b5c4ff] hover:text-[#ba1a1a] transition-colors flex-shrink-0"
                   title="Déconnexion"
-                  onClick={() => { localStorage.removeItem('az_pulse_token'); navigate('/'); }}>
+                  onClick={() => { localStorage.removeItem(TOKEN_KEY); navigate('/'); }}>
             <span className="material-symbols-outlined notranslate text-[16px]">logout</span>
           </button>
         </div>

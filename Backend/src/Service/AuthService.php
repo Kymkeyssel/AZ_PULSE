@@ -6,6 +6,7 @@ use App\Entity\AccessRequest;
 use App\Entity\ApiToken;
 use App\Entity\User;
 use App\Enum\CollaboratorProfile;
+use App\Event\AccessRequestSubmittedEvent;
 use App\Repository\ApiTokenRepository;
 use App\Repository\UserRepository;
 use App\Repository\AccessRequestRepository;
@@ -19,6 +20,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AuthService
 {
@@ -34,6 +36,7 @@ class AuthService
         private readonly RateLimiterFactory $registerLimiter,
         private readonly AccessRequestRepository $accessRequestRepository,
         private readonly EmailSender $emailSender,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -109,7 +112,15 @@ class AuthService
         $this->entityManager->flush();
 
         $uuid = $request->getId()->toBase32(); // using base32 for more compact UUID
-        
+
+        // Avertit les administrateurs qu'une décision est attendue. Sans cet
+        // événement, une demande déposée le soir resterait invisible jusqu'au
+        // lendemain matin : le demandeur, lui, a déjà reçu son e-mail.
+        $this->eventDispatcher->dispatch(
+            new AccessRequestSubmittedEvent($request),
+            AccessRequestSubmittedEvent::NAME
+        );
+
         // Envoi de l'email asynchrone
         $this->emailSender->sendAccessRequestPending($email, $firstName . ' ' . $lastName, $uuid);
 
@@ -243,11 +254,71 @@ class AuthService
             throw new BadRequestException('Aucune demande trouvée avec cette référence.');
         }
 
+        // La référence UUID est le seul secret connu du demandeur : elle lui a
+        // été remise par e-mail à l'inscription. On peut donc lui communiquer
+        // l'état réel de son dossier (motif de refus, horodatages) sans céder
+        // la moindre donnée d'un tiers. Aucun droit n'est accordé pour autant :
+        // l'activation reste bloquée tant qu'un administrateur n'a pas approuvé.
         return [
             'success' => true,
             'status' => $request->getStatus(),
             'email' => $request->getUser()->getEmail(),
+            'reference' => $uuid,
+            'rejectionReason' => $request->getRejectionReason(),
+            'createdAt' => $request->getCreatedAt()->format(DATE_ATOM),
+            'processedAt' => $request->getProcessedAt()?->format(DATE_ATOM),
         ];
+    }
+
+    public function forgotPassword(string $email): void
+    {
+        $email = strtolower(trim($email));
+
+        $user = $this->userRepository->findOneByEmail($email);
+        
+        // Pour des raisons de sécurité, on ne signale pas si l'email existe ou non.
+        if (!$user) {
+            return;
+        }
+
+        // On vérifie le statut du compte, si le compte est rejeté, on ne peut pas reset
+        if ($user->getStatus() === User::STATUS_REJECTED || $user->getStatus() === User::STATUS_BLOCKED) {
+            return;
+        }
+
+        $resetToken = bin2hex(random_bytes(32));
+        $user->setResetToken($resetToken);
+        $user->setResetTokenExpiresAt(new \DateTimeImmutable('+1 hour'));
+
+        $this->entityManager->flush();
+
+        $this->emailSender->sendPasswordResetEmail($user->getEmail(), $resetToken);
+    }
+
+    public function resetPassword(string $token, string $newPassword): void
+    {
+        if (empty($token)) {
+            throw new BadRequestException('Jeton invalide.');
+        }
+
+        $user = $this->userRepository->findOneBy(['resetToken' => $token]);
+        if (!$user) {
+            throw new BadRequestException('Ce lien de réinitialisation est invalide ou a expiré.');
+        }
+
+        if ($user->getResetTokenExpiresAt() < new \DateTimeImmutable()) {
+            throw new BadRequestException('Ce lien de réinitialisation a expiré.');
+        }
+
+        if (strlen($newPassword) < 8) {
+            throw new BadRequestException('Le mot de passe doit comporter au minimum 8 caractères.');
+        }
+
+        $user->setPassword($this->passwordHasher->hashPassword($user, $newPassword));
+        $user->setResetToken(null);
+        $user->setResetTokenExpiresAt(null);
+
+        $this->entityManager->flush();
     }
 
 

@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
+use App\Event\TaskCompletedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class WorkspaceTaskController extends AbstractController
 {
@@ -87,9 +89,23 @@ class WorkspaceTaskController extends AbstractController
         return $this->json(['success' => true, 'data' => ['id' => $task->getId()]], 201);
     }
 
+    /**
+     * Statuts qui signifient « la tâche est finie ».
+     *
+     * La liste fait foi (cf. `AppFixtures` pour les valeurs réellement
+     * utilisées). Toute valeur inconnue n'est pas traitée comme une fin de
+     * tâche : mieux vaut manquer une notification qu'en déclencher une sur un
+     * simple brouillon de saisie.
+     */
+    private const COMPLETED_STATUSES = ['DONE'];
+
     #[Route('/api/workspace/tasks/{id}', name: 'api_workspace_tasks_update', methods: ['PATCH'])]
-    public function updateTask(Task $task, Request $request, EntityManagerInterface $em): JsonResponse
-    {
+    public function updateTask(
+        Task $task,
+        Request $request,
+        EntityManagerInterface $em,
+        EventDispatcherInterface $eventDispatcher
+    ): JsonResponse {
         /** @var User $user */
         $user = $this->getUser();
         $project = $task->getProject();
@@ -103,6 +119,11 @@ class WorkspaceTaskController extends AbstractController
 
         $payload = json_decode($request->getContent(), true);
 
+        // Relevé avant écriture : l'événement ne doit partir que sur le
+        // *franchissement* du statut, sinon un simple enregistrement de la tâche
+        // déjà terminée notifierait le chef de projet à chaque sauvegarde.
+        $previousStatus = $task->getStatus();
+
         if (isset($payload['title'])) $task->setTitle($payload['title']);
         if (isset($payload['description'])) $task->setDescription($payload['description']);
         if (isset($payload['status'])) $task->setStatus($payload['status']);
@@ -111,6 +132,17 @@ class WorkspaceTaskController extends AbstractController
         
         $task->setUpdatedAt(new \DateTime());
         $em->flush();
+
+        if (in_array($task->getStatus(), self::COMPLETED_STATUSES, true)
+            && !in_array($previousStatus, self::COMPLETED_STATUSES, true)
+        ) {
+            $eventDispatcher->dispatch(
+                (new TaskCompletedEvent($task))
+                    ->withActor($user)
+                    ->withContext(['previousStatus' => $previousStatus, 'status' => $task->getStatus()]),
+                TaskCompletedEvent::NAME
+            );
+        }
 
         return $this->json(['success' => true, 'data' => ['id' => $task->getId()]]);
     }

@@ -7,6 +7,8 @@ use App\Entity\Role;
 use App\Entity\User;
 use App\Entity\UserPermissionOverride;
 use App\Enum\CollaboratorProfile;
+use App\Event\AccessRequestApprovedEvent;
+use App\Event\AccessRequestRejectedEvent;
 use App\Repository\AccessRequestRepository;
 use App\Repository\PermissionRepository;
 use App\Repository\RoleRepository;
@@ -15,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AccessRequestService
 {
@@ -30,6 +33,7 @@ class AccessRequestService
         private readonly RoleRepository $roleRepository,
         private readonly PermissionRepository $permissionRepository,
         private readonly EmailSender $emailSender,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -144,6 +148,22 @@ class AccessRequestService
 
         $this->entityManager->flush();
 
+        // L'état est définitif : on diffuse ensuite, pour que la trace d'audit
+        // et la notification décrivent un accès réellement accordé. L'acteur
+        // porté par l'événement est l'administrateur, pas le demandeur.
+        $this->eventDispatcher->dispatch(
+            (new AccessRequestApprovedEvent($request))
+                ->withActor($admin)
+                ->withContext([
+                    'roleCode'         => $role->getCode(),
+                    'roleLabel'        => $role->getLabel(),
+                    'profile'          => $profile?->value,
+                    'granted'          => $grants,
+                    'revoked'          => $revokes,
+                ]),
+            AccessRequestApprovedEvent::NAME
+        );
+
         // Envoi de l'email asynchrone
         $this->emailSender->sendAccessRequestApproved(
             $user->getEmail(),
@@ -179,6 +199,20 @@ class AccessRequestService
         $user->setStatus(User::STATUS_REJECTED);
 
         $this->entityManager->flush();
+
+        // Le motif de refus est transmis dans le contexte : c'est la première
+        // chose qu'un administrateur relira dans la trace six mois plus tard.
+        $this->eventDispatcher->dispatch(
+            (new AccessRequestRejectedEvent($request))->withActor($admin),
+            AccessRequestRejectedEvent::NAME
+        );
+
+        // Envoi de l'email asynchrone
+        $this->emailSender->sendAccessRequestRejected(
+            $user->getEmail(),
+            $user->getFirstName() . ' ' . $user->getLastName(),
+            trim($reason)
+        );
 
         return [
             'success' => true,

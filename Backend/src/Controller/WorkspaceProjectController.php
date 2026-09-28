@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Entity\Customer;
 use App\Entity\User;
+use App\Event\ProjectCreatedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/api/workspace/projects', name: 'api_workspace_projects_')]
 class WorkspaceProjectController extends AbstractController
@@ -48,8 +50,11 @@ class WorkspaceProjectController extends AbstractController
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $em): JsonResponse
-    {
+    public function create(
+        Request $request,
+        EntityManagerInterface $em,
+        EventDispatcherInterface $eventDispatcher
+    ): JsonResponse {
         if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write')) {
             return $this->json(['success' => false, 'error' => 'Access Denied'], 403);
         }
@@ -85,6 +90,15 @@ class WorkspaceProjectController extends AbstractController
 
         $em->persist($project);
         $em->flush();
+
+        // Le chef de projet est prévenu qu'il a une charge à piloter. À noter :
+        // `ProjectCreationSubscriber` produit aussi un projet à partir d'une
+        // opportunité gagnée, et cet événement couvre ce chemin-là comme le
+        // présent. Ce n'est pas un doublon — l'un crée, l'autre prévient.
+        $eventDispatcher->dispatch(
+            (new ProjectCreatedEvent($project))->withActor($project->getManager()),
+            ProjectCreatedEvent::NAME
+        );
 
         return $this->json(['success' => true, 'data' => ['id' => $project->getId()]], 201);
     }

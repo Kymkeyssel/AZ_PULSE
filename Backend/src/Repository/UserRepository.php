@@ -38,4 +38,35 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * Comptes actifs portant au moins un des codes de rôles demandés.
+     *
+     * Utilisé pour router une notification vers une population
+     * (« prévenir les administrateurs ») sans énumérer les destinataires à la
+     * main. Les comptes en attente d'approbation sont exclus : leur laisser
+     * croire qu'une action est attendue d'eux n'a pas de sens.
+     *
+     * @param string[] $roleCodes
+     *
+     * @return User[]
+     */
+    public function findActiveByRoleCodes(array $roleCodes): array
+    {
+        $roleCodes = array_values(array_filter(array_map('trim', $roleCodes)));
+
+        if ($roleCodes === []) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.roles', 'r')
+            ->andWhere('UPPER(r.code) IN (:codes)')
+            ->andWhere('u.status = :status')
+            ->setParameter('codes', array_map('strtoupper', $roleCodes))
+            ->setParameter('status', User::STATUS_ACTIVE)
+            ->orderBy('u.email', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Opportunity;
+use App\Event\OpportunityStageChangedEvent;
 use App\Event\OpportunityWonEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -26,6 +27,11 @@ class OpportunityService
             throw new \InvalidArgumentException(sprintf('Invalid stage "%s".', $newStage));
         }
 
+        // L'ancienne phase est relevée avant écriture : `Opportunity` ne garde
+        // que l'état courant, et une trace sans point de départ ne permet pas
+        // de reconstituer l'historique d'une opportunité.
+        $previousStage = $opportunity->getStage() ?? '';
+
         $opportunity->setStage($newStage);
 
         if ($newStage === 'WON') {
@@ -35,6 +41,19 @@ class OpportunityService
         }
 
         $this->em->flush();
+
+        // Diffusé après le flush, pour que la trace décrive une phase
+        // effectivement enregistrée. `handleWon` a déjà diffusé son propre
+        // événement plus haut : `WON` produit donc deux lignes d'audit
+        // distinctes — le franchissement de phase, puis le gain — ce qui est le
+        // comportement voulu.
+        if ($previousStage !== $newStage) {
+            $this->eventDispatcher->dispatch(
+                (new OpportunityStageChangedEvent($opportunity, $previousStage, $newStage))
+                    ->withContext(['previousStage' => $previousStage, 'newStage' => $newStage]),
+                OpportunityStageChangedEvent::NAME
+            );
+        }
     }
 
     /**

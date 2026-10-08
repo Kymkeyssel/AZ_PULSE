@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Error500 = () => {
+  const [errorId] = React.useState(() => Math.random().toString(36).substr(2, 6));
   return (
     <div className="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-secondary-fixed selection:text-on-secondary-fixed">
       <style dangerouslySetInnerHTML={{__html: `
@@ -55,7 +56,7 @@ const Error500 = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm font-body-sm text-body-sm">
                   <div className="flex flex-col gap-0.5 bg-primary/40 p-space-xs rounded">
                     <span className="font-label-sm text-label-sm text-outline-variant uppercase">Incident ID</span>
-                    <span className="font-semibold text-primary-fixed font-mono select-all">err_srv_500_{Math.random().toString(36).substr(2, 6)}</span>
+                    <span className="font-semibold text-primary-fixed font-mono select-all">err_srv_500_{errorId}</span>
                   </div>
                   <div className="flex flex-col gap-0.5 bg-primary/40 p-space-xs rounded">
                     <span className="font-label-sm text-label-sm text-outline-variant uppercase">Horodatage</span>

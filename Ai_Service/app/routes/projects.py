@@ -40,8 +40,10 @@ def analyze_project(
     except json.JSONDecodeError:
         parsed_result = {"analysis": result_str, "risks": [], "recommendations": []}
 
+    status = parsed_result.get("status", "completed")
+
     return ProjectAnalysisResponse(
-        status="completed",
+        status=status,
         project_id=request.project_id,
         analysis=parsed_result.get("analysis", ""),
         risks=parsed_result.get("risks", []),

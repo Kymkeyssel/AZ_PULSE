@@ -1,0 +1,17 @@
+$kind: http-request
+description: |-
+  Action la plus fréquente : elle dispose d'**une route dédiée** plutôt que d'un `PATCH` générique, pour être appelable en un clic depuis l'interface.
+
+  L'opération est **idempotente** : relancer le test ne crée pas d'effet de bord.
+url: "{{baseUrl}}/reminders/{{reminderId}}/complete"
+method: POST
+headers:
+  Authorization: Bearer {{tokenCrm}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — relance clôturée', () => pm.response.to.have.status(200));
+      pm.test('statut = DONE', () => pm.expect(pm.response.json().data.status).to.eql('DONE'));
+      pm.test('un horodatage de clôture est posé', () => pm.expect(pm.response.json().data.completedAt).to.be.a('string'));
+    language: text/javascript
+order: 9000

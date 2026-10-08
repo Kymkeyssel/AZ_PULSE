@@ -1,0 +1,10 @@
+$kind: collection
+description: |-
+  Module **Workspace** — pilotage de projets, tâches et jalons.
+
+  Couvre : création de projet, tâches, et **analyse IA contextuelle** d'un projet.
+
+  > ⚠️ **Deux tests de ce module sont aujourd'hui en erreur 500** (tests 03.3 et 03.4) à cause de la classe `TaskRepository` manquante. Le diagnostic et le correctif sont documentés dans le dossier `00 · Amorçage` (tests 00.3 et 00.4). **Un seul correctif débloque les deux modules** Workspace et Analytics.
+
+  **Captures d'écran suggérées** : `/collaborateur/projets` (cartes projets + to-do + modale Analyse IA).
+order: 4000

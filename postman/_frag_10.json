@@ -1,0 +1,161 @@
+{
+  "name": "10 · AI Workspace",
+  "description": "Module **AI** — analyse de projet par intelligence artificielle.\n\n```\nReact  ──▶  Symfony /api/projects/{id}/ai-analysis\n                 │  ProjectContextBuilder — filtre le projet,\n                 │  ne transmet QUE les champs autorisés\n                 ▼\n          FastAPI  :8001  /api/v1/projects/analyze\n                 │  Ollama / qwen2.5:0.5b\n                 ▼\n          « completed » + résumé + risques + recommandations\n```\n\nDeux points de conception importants :\n1. **Le contexte est filtré côté Symfony**, jamais construit par le client — un appelant ne peut pas élargir ce que l'IA voit.\n2. **La latence est réelle** : 8 à 10 secondes en local. Augmenter le timeout du runner, sinon le test expire avant la réponse.",
+  "item": [
+    {
+      "name": "10.0 · Healthcheck du micro-service IA",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{aiServiceUrl}}/health",
+        "description": "Vérifie que FastAPI répond **avant** de lancer une analyse qui prend 9 secondes. Utile en début de campagne pour distinguer « le module IA est cassé » de « le micro-service est arrêté ».",
+        "auth": { "type": "noauth" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — micro-service IA joignable', () => pm.response.to.have.status(200));",
+              "pm.test('statut reported = ok', () => pm.expect(pm.response.text()).to.include('ok'));",
+              "",
+              "console.log('🤖 FastAPI en ligne :', pm.response.text());"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10.1 · Analyser un projet",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"question\": \"Quels sont les principaux risques de ce projet et quelles actions prioriser ?\"\n}"
+        },
+        "url": "{{baseUrl}}/projects/{{projectId}}/ai-analysis",
+        "description": "Exige `PROJECT_ANALYZE` via `ProjectVoter`.\n\n`question` est facultative : sans elle, l'IA applique « Analyse générale du projet et de ses risques. »\n\nLe contrôleur renvoie **directement** le JSON de FastAPI — Symfony n'ajoute ni n'enlève rien. Une exception devient un 500 `{ error: \"Erreur lors de l'appel au service IA.\", details: … }`.",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — analyse produite', () => pm.response.to.have.status(200));",
+              "",
+              "const j = pm.response.json();",
+              "pm.test('project_id cohérent avec la requête', () => pm.expect(j.project_id).to.eql(Number(pm.collectionVariables.get('projectId'))));",
+              "pm.test('statut completed', () => pm.expect(j.status).to.eql('completed'));",
+              "pm.test('une réponse textuelle est produite', () => {",
+              "  pm.expect(j.response).to.be.a('string');",
+              "  pm.expect(j.response.length).to.be.above(0);",
+              "});",
+              "",
+              "console.log('⏱️  Latence :', pm.response.responseTime, 'ms');",
+              "console.log('🤖 Réponse IA :', (j.response || '').substring(0, 180) + '…');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10.2 · Analyse sans question (défaut)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{baseUrl}}/projects/{{projectId}}/ai-analysis",
+        "description": "Corps vide : le contrôleur applique la question par défaut « Analyse générale du projet et de ses risques. ». Vérifie que le chemin par défaut fonctionne — c'est le cas réel du bouton « Analyser » de l'interface, qui n'envoie rien.",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — analyse par défaut produite', () => pm.response.to.have.status(200));",
+              "pm.test('statut completed', () => pm.expect(pm.response.json().status).to.eql('completed'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10.3 · Analyse d'un projet inexistant = 404",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": { "mode": "raw", "raw": "{\n  \"question\": \"Test de resistance\"\n}" },
+        "url": "{{baseUrl}}/projects/999999/ai-analysis",
+        "description": "Le paramètre `Project` est résolu par le ParamConverter **avant** le contrôleur : un identifiant inconnu produit un 404, jamais une analyse vide ni une erreur 500.",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('404 — projet inexistant', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10.4 · Périmètre — un apprenant ne peut pas déclencher d'analyse",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "body": { "mode": "raw", "raw": "{\n  \"question\": \"Tentative hors perimetre\"\n}" },
+        "url": "{{baseUrl}}/projects/{{projectId}}/ai-analysis",
+        "description": "`ProjectVoter::ANALYZE` refuse le profil `APPRENANT`. Un appel IA coûte une ressource GPU/CPU : le droit d'y accéder doit être réservé à l'encadrement du projet."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — analyse réservée à l encadrement', () => pm.response.to.have.status(403));",
+              "",
+              "console.log('🔒 Périmètre IA vérifié : un apprenant ne déclenche pas d analyse.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10.5 · Audit de l'analyse IA",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/audit?category=AI&limit=10",
+        "description": "Chaque appel à l'IA laisse une trace de catégorie `AI` : action, acteur, cible et latence. Le journal est le seul moyen de répondre à « qui a lancé cette analyse et sur quel projet ? »."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — journal filtré sur la catégorie AI', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('toutes les lignes sont bien de catégorie AI', () => {",
+              "  j.data.forEach(a => pm.expect(a.category).to.eql('AI'));",
+              "});",
+              "",
+              "console.log('📋 Traces IA :', j.meta.total);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/notifications?unread=true"
+method: GET
+queryParams:
+  unread: "true"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — filtre appliqué', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('toutes les notifications renvoyées sont non lues', () => {
+        j.data.forEach(n => pm.expect(n.isRead, 'isRead de la notif ' + n.id).to.be.false);
+      });
+      pm.test('le compteur reste cohérent', () => pm.expect(j.data.length).to.be.at.most(j.meta.total));
+    language: text/javascript
+order: 3000

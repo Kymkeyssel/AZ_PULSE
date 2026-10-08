@@ -1,0 +1,24 @@
+$kind: http-request
+description: "Lecture refusée ne signifie pas écriture refusée : chaque opération est contrôlée par **une permission distincte** (`crm.read`, `crm.create`, `crm.update`, `crm.delete`). Un rôle peut lire sans pouvoir créer."
+url: "{{baseUrl}}/crm/customers"
+method: POST
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+body:
+  type: text
+  content: |-
+    {
+      "firstName": "Tentative",
+      "lastName": "Interdite",
+      "email": "interdit-{{suffix}}@azpulse.local",
+      "phone": "+237699000000",
+      "company": "Aucune"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — crm.create absent du rôle APPRENANT', () => pm.response.to.have.status(403));
+
+      console.log('🔒 read et create sont deux permissions distinctes.');
+    language: text/javascript
+order: 4000

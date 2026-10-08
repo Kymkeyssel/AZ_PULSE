@@ -1,0 +1,15 @@
+$kind: http-request
+description: Chaque utilisateur voit **sa propre** cloche. Le test 09.6 a vidé la file du Super Admin ; celle de l'apprenant est indépendante et a été alimentée par les étapes précédentes (paiement validé en 07.3, dépose de justificatif).
+url: "{{baseUrl}}/notifications/unread-count"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — cloche propre à l apprenant', () => pm.response.to.have.status(200));
+      pm.test('compteur entier', () => pm.expect(pm.response.json().data.count).to.be.a('number'));
+
+      console.log('🔔 Apprenant — non lues :', pm.response.json().data.count);
+    language: text/javascript
+order: 8000

@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/audit/filters"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — filtres renvoyés', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('8 catégories de domaine', () => pm.expect(j.categories).to.have.lengthOf(8));
+      pm.test('catégories : IAM, CRM, WORKSPACE, FORMATION, KNOWLEDGE, INFRA, AI, SECURITY', () => {
+        pm.expect(j.categories).to.include.members(['IAM', 'CRM', 'WORKSPACE', 'FORMATION', 'KNOWLEDGE', 'INFRA', 'AI', 'SECURITY']);
+      });
+      pm.test('3 niveaux de sévérité', () => pm.expect(j.severities).to.have.lengthOf(3));
+    language: text/javascript
+order: 24000

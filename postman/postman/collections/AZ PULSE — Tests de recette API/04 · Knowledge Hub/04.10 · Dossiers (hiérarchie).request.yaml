@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/knowledge/folders"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — dossiers renvoyés', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+      pm.test('chaque dossier expose son parent (hiérarchie récursive)', () => {
+        j.data.forEach(f => pm.expect(f).to.have.property('parent_id'));
+      });
+    language: text/javascript
+order: 10000

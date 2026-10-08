@@ -1,0 +1,11 @@
+$kind: http-request
+description: "Le journal est une trace **nominative** — qui, quoi, depuis quelle IP. Le diffuser à tous le viderait de son intérêt. L'attribut `#[IsGranted('audit.read')]` est posé sur la classe entière : ajouter une route ici plus tard ne peut pas ouvrir un accès par inadvertance."
+url: "{{baseUrl}}/audit"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: pm.test('403 — audit.read non accordé à APPRENANT', () => pm.response.to.have.status(403));
+    language: text/javascript
+order: 9000

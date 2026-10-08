@@ -1,0 +1,117 @@
+$kind: collection
+description: |-
+  # AZ PULSE — Tests de recette API
+
+  Collection de tests couvrant **les 11 modules** de la plateforme AZ PULSE.
+
+  ## Mode d'emploi
+  1. Importer l'environnement `AZPULSE.postman_environment.json`.
+  2. Sélectionner l'environnement **AZ PULSE — Local** en haut à droite.
+  3. Lancer le dossier **« 00 · Amorçage »** en premier, puis les modules dans l'ordre.
+
+  > ⚠️ **Ordre obligatoire.** Chaque module lit les identifiants écrits par le module précédent (`customerId`, `opportunityId`, `projectId`…). Un dossier lancé seulpakera des tests en erreur.
+
+  ## Prérequis
+  - Backend Symfony sur `http://localhost:8000`
+  - Service IA FastAPI sur `http://localhost:8001` (uniquement pour le module 10)
+  - Données de formation chargées : `php bin/console app:seed-dashboard-data`
+
+  ## Règle de nommage
+  Le suffixe `{{suffix}}` (par défaut `PM01`) est ajouté au nom de toutes les entités créées. Il permet de repérer d'un coup d'œil les données de test dans l'interface React et de les nettoyer ensuite.
+
+  ## Modules couverts
+  | # | Module | Dossier |
+  |---|---|---|
+  | 00 | Amorçage & diagnostic | `00 · Amorçage` |
+  | 01 | Authentification & IAM | `01 · Authentification & IAM` |
+  | 02 | CRM | `02 · CRM` |
+  | 03 | Workspace (projets) | `03 · Workspace` |
+  | 04 | Knowledge Hub | `04 · Knowledge Hub` |
+  | 05 | Infrastructure & IT | `05 · Infrastructure & IT` |
+  | 06 | Formation — Académie | `06 · Formation — Academie` |
+  | 07 | Formation — Paiements | `07 · Formation — Paiements` |
+  | 08 | Dashboards | `08 · Dashboards` |
+  | 09 | Notifications | `09 · Notifications` |
+  | 10 | AI Workspace | `10 · AI Workspace` |
+  | 11 | Analytics | `11 · Analytics` |
+  | 12 | Sécurité / RBAC | `12 · Securite — tests negatifs` |
+
+  Deux endpoints sont **actuellement en erreur 500** à cause d'un bug connu (classe `TaskRepository` manquante). Ils sont isolés dans le dossier `00 · Amorçage` avec le diagnostic exact.
+variables:
+  - key: baseUrl
+    value: http://localhost:8000/api
+    disabled: false
+  - key: suffix
+    value: PM01
+    disabled: false
+  - key: token
+    value: ""
+    disabled: false
+  - key: tokenSuperAdmin
+    value: ""
+    disabled: false
+  - key: tokenAdmin
+    value: ""
+    disabled: false
+  - key: tokenCrm
+    value: ""
+    disabled: false
+  - key: tokenWorkspace
+    value: ""
+    disabled: false
+  - key: tokenIt
+    value: ""
+    disabled: false
+  - key: tokenFormation
+    value: ""
+    disabled: false
+  - key: tokenApprenant
+    value: ""
+    disabled: false
+  - key: tokenParent
+    value: ""
+    disabled: false
+  - key: aiServiceUrl
+    value: http://localhost:8001
+    disabled: false
+  - key: reminderDueDate
+    value: ""
+    disabled: false
+  - key: bearer_token_0bpf
+    secret: true
+    disabled: false
+  - key: computerId
+    value: ""
+    disabled: false
+  - key: accessRequestUuid
+    value: ""
+    disabled: false
+  - key: candidateEmail
+    value: ""
+    disabled: false
+  - key: customerId
+    value: ""
+    disabled: false
+  - key: opportunityId
+    value: ""
+    disabled: false
+  - key: reminderId
+    value: ""
+    disabled: false
+  - key: projectId
+    value: ""
+    disabled: false
+scripts:
+  - type: http:beforeRequest
+    code: |-
+      // Horodatage : apparaît dans le nom des entités créées.
+      if (!pm.collectionVariables.get('suffix') || pm.collectionVariables.get('suffix') === 'PM01') {
+        pm.collectionVariables.set('suffix', 'PM' + String(Date.now()).slice(-5));
+      }
+    language: text/javascript
+auth:
+  - id: dac571f8-80ca-40d6-8190-6e0d463e748e
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

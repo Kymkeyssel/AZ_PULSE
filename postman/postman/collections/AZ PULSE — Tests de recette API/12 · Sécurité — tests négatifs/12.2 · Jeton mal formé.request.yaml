@@ -1,0 +1,13 @@
+$kind: http-request
+description: Un jeton signé mais inconnu ne passe pas `ApiTokenAuthenticator`. La réponse est un 401 — jamais un 403, qui laisserait croire qu'une session valide existait.
+url: "{{baseUrl}}/crm/customers"
+method: GET
+headers:
+  Authorization: "{{bearer_token_0bpf}}"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: pm.test('401 — jeton inconnu refusé', () => pm.response.to.have.status(401));
+    language: text/javascript
+order: 2000

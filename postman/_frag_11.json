@@ -1,0 +1,134 @@
+﻿{
+  "name": "11 · Analytics",
+  "description": "Module **Analytics** — indicateurs agrégés de la plateforme.\n\nUn seul endpoint, `GET /api/analytics/kpis`, regroupé par domaine :\n\n```json\n{\n  \"crm\":       { prospects, clients, opportunities, wonOpportunities, pipelineValue, wonValue },\n  \"workspace\": { projects, activeProjects, openTasks, overdueTasks },\n  \"knowledge\": { published, drafts },\n  \"it\":        { openIncidents },\n  \"generatedAt\": \"2026-…\"\n}\n```\n\nExige la permission `analytics.read`.\n\n> ⚠️ **Endpoint actuellement cassé** : voir 11.1.",
+  "item": [
+    {
+      "name": "11.1 · KPIs globaux — BUG CONSTATÉ",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/analytics/kpis",
+        "description": "**Ce test échoue : le module Analytics est actuellement hors service.**\n\n`AnalyticsController::kpis()` appelle `$em->getRepository(Task::class)->count([…])` à la ligne 58. L'entité `Task` déclare `repositoryClass=\"App\\\\Repository\\\\TaskRepository\"`, une classe qui n'existe pas dans le projet : Doctrine lève\n\n```\nThe \"App\\Entity\\Task\" entity has a repositoryClass set to \"App\\Repository\\TaskRepository\",\nbut this is not a valid class.\n```\n\net la requête entière répond **HTTP 500**. Le blocage survient à la dernière ligne de calcul : tout ce qui précède (pipeline CRM, projets, incidents, documents) fonctionne parfaitement, mais la réponse ne part jamais.\n\n**Correctif** : créer `Backend/src/Repository/TaskRepository.php` (`extends ServiceEntityRepository`), faire de même pour `MilestoneRepository` et `DeliverableRepository`, et le bloc entier répond 200. Aucun test n'est nécessaire pour le vérifier : relancer 11.1 suffit."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const status = pm.response.code;",
+              "",
+              "if (status === 200) {",
+              "  pm.test('✅ 200 — module réparé, KPIs complets', () => {",
+              "    const d = pm.response.json().data;",
+              "    pm.expect(d).to.have.all.keys('crm', 'workspace', 'knowledge', 'it', 'generatedAt');",
+              "  });",
+              "  pm.test('bloc CRM cohérent', () => {",
+              "    const c = pm.response.json().data.crm;",
+              "    pm.expect(c.prospects).to.be.a('number');",
+              "    pm.expect(c.clients).to.be.a('number');",
+              "    pm.expect(c.wonOpportunities).to.be.at.most(c.opportunities);",
+              "    pm.expect(c.pipelineValue).to.be.at.least(0);",
+              "  });",
+              "  pm.test('bloc Workspace cohérent', () => {",
+              "    const w = pm.response.json().data.workspace;",
+              "    pm.expect(w.activeProjects).to.be.at.most(w.projects);",
+              "    pm.expect(w.overdueTasks).to.be.a('number');",
+              "  });",
+              "  pm.test('knowledge et IT comptés', () => {",
+              "    pm.expect(pm.response.json().data.knowledge).to.have.all.keys('published', 'drafts');",
+              "    pm.expect(pm.response.json().data.it.openIncidents).to.be.a('number');",
+              "  });",
+              "  pm.test('horodatage de génération ISO 8601', () => {",
+              "    pm.expect(pm.response.json().data.generatedAt).to.match(/^\\d{4}-\\d{2}-\\d{2}T/);",
+              "  });",
+              "} else {",
+              "  console.error('❌ MODULE ANALYTICS INDISPONIBLE — HTTP ' + status);",
+              "  pm.test('❌ BUG CONFIRMÉ — TaskRepository manquante', () => {",
+              "    pm.expect(status).to.eql(500);",
+              "    pm.expect(pm.response.text()).to.include('TaskRepository');",
+              "  });",
+              "  console.error('   Correctif : créer TaskRepository, MilestoneRepository et DeliverableRepository.');",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11.2 · Périmètre — un profil sans analytics.read est écarté",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/analytics/kpis",
+        "description": "L'attribut `#[IsGranted('analytics.read')]` est posé sur **la classe entière** : ajouter une route dans ce contrôleur plus tard sans y penser ne peut pas ouvrir un accès par inadvertance.\n\nUn `APPRENANT` n'a pas cette permission → **403**. L'ordre de vérification compte : le contrôle d'accès est évalué **avant** l'exécution du code, donc un apprenant reçoit 403 même si le bug `TaskRepository` n'était pas corrigé — la sécurité ne dépend pas de laCorrection des bugs."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — accès refusé avant même d atteindre le bug', () => pm.response.to.have.status(403));",
+              "",
+              "console.log('🔒 L autorisation est évaluée avant le contrôleur : 403, pas 500.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11.3 · Périmètre — le Responsable CRM lit bien les KPIs",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/analytics/kpis",
+        "description": "`RESPONSABLE_CRM` possède bien `analytics.read` (« lecture sur les autres domaines »). Il franchit donc le contrôle d'accès, puis **rencontre le bug `TaskRepository`** et reçoit 500.\n\nCe test est la démonstration la plus nette de la séparation des deux sujets : l'autorisation est correcte, l'implémentation ne l'est pas. Il recevra un 200 après création des repositories manquants."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const status = pm.response.code;",
+              "",
+              "pm.test('l autorisation passe — le blocage est applicatif, pas RBAC', () => pm.expect(status).to.not.eql(403));",
+              "",
+              "if (status === 500) {",
+              "  pm.test('❌ BUG CONFIRMÉ — le rôle est légitime, le code est cassé', () => {",
+              "    pm.expect(pm.response.text()).to.include('TaskRepository');",
+              "  });",
+              "  console.warn('⚠️ 403 exclu : RESPONSABLE_CRM a bien analytics.read. Le 500 est un bug de code.');",
+              "} else {",
+              "  pm.test('✅ 200 — KPIs accessibles au Responsable CRM', () => pm.expect(pm.response.json().data).to.have.property('crm'));",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11.4 · Périmètre — le Responsable IT est écarté",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/analytics/kpis",
+        "description": "Contre-exemple volontaire : `RESPONSABLE_IT` possède `it.read`, `it.manage`, `workspace.read`, `knowledge.read`, `ai.read` — **mais pas** `analytics.read`.\n\nUn responsable IT peut donc gérer le parc et les incidents, sans accès aux indicateurs décisionnels. Le RBAC n'est pas « tout ou rien » : il distingue module par module."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — analytics.read absent du rôle IT', () => pm.response.to.have.status(403));",
+              "",
+              "console.log('🔒 Cloisonnement par module : IT gere le parc, pas la decisionnel.');"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

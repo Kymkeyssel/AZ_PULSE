@@ -1,0 +1,15 @@
+$kind: http-request
+description: "Sixième et dernier test du bloc Formation côté API. Détail des limites connues : voir le test 06.1."
+url: "{{baseUrl}}/dashboard/apprenant"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — dashboard renvoyé', () => pm.response.to.have.status(200));
+      pm.test('les six blocs sont présents', () => {
+        pm.expect(pm.response.json()).to.have.all.keys('program', 'financial', 'schedule', 'grades', 'tasks', 'documents');
+      });
+    language: text/javascript
+order: 5000

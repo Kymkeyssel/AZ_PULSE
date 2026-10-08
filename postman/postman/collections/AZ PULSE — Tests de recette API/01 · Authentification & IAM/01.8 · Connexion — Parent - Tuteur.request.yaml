@@ -1,0 +1,29 @@
+$kind: http-request
+name: 01.8 · Connexion — Parent / Tuteur
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{accountParent}}",
+      "password": "{{pwdParent}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — connexion réussie', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('rôle = PARENT', () => pm.expect(j.user.primaryRole).to.eql('PARENT'));
+      pm.test('aiguillage = /parent', () => pm.expect(j.user.interfaceRoute).to.eql('/parent'));
+      pm.test('permissions minimales (formation seule)', () => pm.expect(j.user.permissions.length).to.be.below(4));
+
+
+      pm.collectionVariables.set('tokenParent', j.token);
+      pm.environment.set('tokenParent', j.token);
+    language: text/javascript
+order: 8000

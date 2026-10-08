@@ -1,0 +1,27 @@
+$kind: http-request
+description: "Le `customer_id` doit exister : l'API renvoie `404 — Customer not found` sinon. Le champ `owner` est forcé à l'utilisateur connecté : on ne peut pas atribuer une affaire à quelqu'un d'autre."
+url: "{{baseUrl}}/opportunities"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Refonte SI — {{suffix}}",
+      "customer_id": {{customerId}},
+      "amount": 1850000,
+      "probability": 30,
+      "expectedCloseDate": "2026-12-15"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — opportunité créée', () => pm.response.to.have.status(201));
+      const j = pm.response.json();
+      pm.test('étape initiale = PROSPECTING', () => pm.expect(j.data.stage).to.eql('PROSPECTING'));
+
+      pm.collectionVariables.set('opportunityId', j.data.id);
+      console.log('💼 Opportunité créée — id =', j.data.id);
+    language: text/javascript
+order: 4000

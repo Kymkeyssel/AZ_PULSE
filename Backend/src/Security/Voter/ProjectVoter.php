@@ -26,11 +26,22 @@ class ProjectVoter extends Voter
         $project = $subject;
 
         if ($attribute === self::ANALYZE) {
-            // Un utilisateur peut analyser un projet s'il en est membre ou manager.
+            if (!$user instanceof \App\Entity\User) {
+                return false;
+            }
+            if ($user->hasRoleCode('SUPER_ADMIN') || $user->hasRoleCode('ADMIN')) {
+                return true;
+            }
+            if ($user->hasPermission('workspace.manage') && $user->hasPermission('ai.read')) {
+                return true;
+            }
             if ($project->getManager() === $user) {
                 return true;
             }
             if ($project->getMembers()->contains($user)) {
+                return true;
+            }
+            if ($user->hasRoleCode('CLIENT') && $project->getCustomer()?->getEmail() === $user->getEmail()) {
                 return true;
             }
         }

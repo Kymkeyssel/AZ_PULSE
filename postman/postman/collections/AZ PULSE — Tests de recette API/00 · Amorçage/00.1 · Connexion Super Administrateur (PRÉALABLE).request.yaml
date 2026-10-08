@@ -1,0 +1,34 @@
+$kind: http-request
+description: Pose le jeton Bearer utilisé par tous les tests suivants. Le rôle `SUPER_ADMIN` dispose de **toutes** les permissions, ce qui en fait le compte le plus polyvalent pour la recette.
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{accountSuperAdmin}}",
+      "password": "{{pwdSuperAdmin}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — connexion réussie', () => pm.response.to.have.status(200));
+      pm.test('success = true', () => pm.response.json().success).to.be.true;
+      pm.test('un jeton Bearer est renvoyé', () => pm.expect(pm.response.json().token).to.be.a('string').and.not.empty);
+      pm.test('rôle = SUPER_ADMIN', () => pm.expect(pm.response.json().user.primaryRole).to.eql('SUPER_ADMIN'));
+      pm.test('route d aiguillage = /superadmin', () => pm.expect(pm.response.json().user.interfaceRoute).to.eql('/superadmin'));
+      pm.test('SUPER_ADMIN détient les 38 permissions du référentiel', () => pm.expect(pm.response.json().user.permissions).to.have.lengthOf(38));
+
+      const token = pm.response.json().token;
+      pm.collectionVariables.set('token', token);
+      pm.collectionVariables.set('tokenSuperAdmin', token);
+      pm.environment.set('token', token);
+      pm.environment.set('tokenSuperAdmin', token);
+
+      console.log('✅ Jeton posé — expiration :', pm.response.json().expiresAt);
+    language: text/javascript
+order: 1000

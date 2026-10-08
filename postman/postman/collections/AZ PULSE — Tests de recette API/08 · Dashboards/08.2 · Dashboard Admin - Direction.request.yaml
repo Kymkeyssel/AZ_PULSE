@@ -1,0 +1,20 @@
+$kind: http-request
+name: 08.2 · Dashboard Admin / Direction
+url: "{{baseUrl}}/dashboard/admin"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — dashboard renvoyé', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('répartition des utilisateurs par statut', () => {
+        pm.expect(d.usersByStatus).to.be.an('object');
+      });
+      pm.test('demandes d accès en attente', () => pm.expect(d.pendingRequests).to.be.a('number'));
+      pm.test('état des micro-services — sondé pour de vrai', () => {
+        pm.expect(d.systemStatus).to.be.an('object');
+      });
+
+      console.log('🗂 Admin :', d.pendingRequests, 'demande(s) en attente.');
+    language: text/javascript
+order: 2000

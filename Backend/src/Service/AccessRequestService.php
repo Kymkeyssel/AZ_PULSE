@@ -6,7 +6,6 @@ use App\Entity\AccessRequest;
 use App\Entity\Role;
 use App\Entity\User;
 use App\Entity\UserPermissionOverride;
-use App\Enum\CollaboratorProfile;
 use App\Event\AccessRequestApprovedEvent;
 use App\Event\AccessRequestRejectedEvent;
 use App\Repository\AccessRequestRepository;
@@ -21,11 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AccessRequestService
 {
-    /**
-     * Code du rôle « conteneur » qui accueille les spécialisations.
-     * Utilisé ici pour savoir quand un sous-rôle doit être exigé.
-     */
-    public const COLLABORATOR_ROLE_CODE = 'COLLABORATEUR';
+
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -87,37 +82,22 @@ class AccessRequestService
             throw new BadRequestException(sprintf('Le rôle "%s" est introuvable.', $roleCode));
         }
 
-        $isCollaborator = strtoupper($role->getCode()) === self::COLLABORATOR_ROLE_CODE;
-        $profile = null;
-
-        if ($isCollaborator) {
-            // Un collaborateur sans spécialisation n'aurait aucune interface :
-            // on retombe sur le profil générique plutôt que de bloquer l'admin.
-            $profile = CollaboratorProfile::fromCode($profileCode) ?? CollaboratorProfile::default();
-        } elseif ($profileCode !== null && $profileCode !== '') {
-            throw new BadRequestException('Une spécialisation ne peut être attribuée qu\'au rôle Collaborateur.');
-        }
-
         $user = $request->getUser();
 
         // 1. Mise à jour de la demande
         $request->setStatus(AccessRequest::STATUS_APPROVED);
         $request->setAssignedRole($role);
-        $request->setAssignedProfile($profile?->value);
         $request->setProcessedBy($admin);
         $request->setProcessedAt(new \DateTimeImmutable());
 
-        // 2. Activation du compte, assignation du rôle et de la spécialisation
+        // 2. Activation du compte, assignation du rôle
         $user->setStatus(User::STATUS_ACTIVE);
         $user->clearRoles();
         $user->addRole($role);
-        $user->setCollaboratorProfile($profile?->value);
 
         // 3. Droits accordés
-        //    Le sous-rôle fournit une suggestion ; l'administrateur reste maître
-        //    des droits réellement attribués (cases cochées/décochées de l'écran).
-        $grants = array_values(array_unique([...$customGrants, ...($profile?->grantedPermissions() ?? [])]));
-        $revokes = array_values(array_unique([...$customRevokes, ...($profile?->revokedPermissions() ?? [])]));
+        $grants = array_values(array_unique($customGrants));
+        $revokes = array_values(array_unique($customRevokes));
 
         // Un droit retiré ne doit jamais être resservi par une suggestion de spécialisation
         $grants = array_values(array_diff($grants, $revokes));
@@ -157,7 +137,6 @@ class AccessRequestService
                 ->withContext([
                     'roleCode'         => $role->getCode(),
                     'roleLabel'        => $role->getLabel(),
-                    'profile'          => $profile?->value,
                     'granted'          => $grants,
                     'revoked'          => $revokes,
                 ]),
@@ -172,9 +151,7 @@ class AccessRequestService
 
         return [
             'success' => true,
-            'message' => $profile !== null
-                ? sprintf('Demande validée. Compte activé avec le rôle %s, Spécialisation %s.', $role->getLabel(), $profile->label())
-                : sprintf('Demande validée. Compte activé avec le rôle %s (%s).', $role->getLabel(), $role->getCode()),
+            'message' => sprintf('Demande validée. Compte activé avec le rôle %s (%s).', $role->getLabel(), $role->getCode()),
             'request' => $this->formatRequest($request),
         ];
     }
@@ -243,36 +220,11 @@ class AccessRequestService
                 'code' => $req->getAssignedRole()->getCode(),
                 'label' => $req->getAssignedRole()->getLabel(),
             ] : null,
-            'requestedProfile' => $this->describeProfile($req->getRequestedProfile()),
-            'assignedProfile' => $this->describeProfile($req->getAssignedProfile()),
             'processedBy' => $req->getProcessedBy() ? $req->getProcessedBy()->getFullName() : null,
             'processedAt' => $req->getProcessedAt()?->format(\DateTimeInterface::ATOM),
             'createdAt' => $req->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ];
     }
 
-    /**
-     * Décrit une spécialisation de façon exploitable par l'interface
-     * d'administration (tableau prêt à afficher) ou renvoie null.
-     *
-     * @return array<string, mixed>|null
-     */
-    private function describeProfile(?string $code): ?array
-    {
-        $profile = CollaboratorProfile::fromCode($code);
 
-        if ($profile === null) {
-            return null;
-        }
-
-        return [
-            'code' => $profile->value,
-            'label' => $profile->label(),
-            'description' => $profile->description(),
-            'icon' => $profile->icon(),
-            'interfaceRoute' => $profile->interfaceRoute(),
-            'grantedPermissions' => $profile->grantedPermissions(),
-            'revokedPermissions' => $profile->revokedPermissions(),
-        ];
-    }
 }

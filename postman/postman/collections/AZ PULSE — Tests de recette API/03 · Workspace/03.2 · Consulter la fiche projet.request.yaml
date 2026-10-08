@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{baseUrl}}/workspace/projects/{{projectId}}"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — fiche renvoyée', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('nom et description présents', () => {
+        pm.expect(d.name).to.include('Refonte SI');
+        pm.expect(d.description).to.be.a('string').and.not.empty;
+      });
+      pm.test('statut et priorité', () => {
+        pm.expect(d.status).to.eql('ONGOING');
+        pm.expect(d.priority).to.eql('HIGH');
+      });
+      pm.test('budget transmis', () => pm.expect(d.budget).to.eql(1850000));
+      pm.test('le client du CRM est rattaché', () => pm.expect(d.customer_name).to.include('Recette'));
+      pm.test('chef de projet désigné', () => pm.expect(d.manager_name).to.be.a('string').and.not.empty);
+      pm.test('compteur de tâches présent', () => pm.expect(d.tasks_count).to.be.a('number'));
+    language: text/javascript
+order: 2000

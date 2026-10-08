@@ -1,0 +1,19 @@
+$kind: http-request
+description: "Le paramètre `Project` est résolu par le ParamConverter **avant** le contrôleur : un identifiant inconnu produit un 404, jamais une analyse vide ni une erreur 500."
+url: "{{baseUrl}}/projects/999999/ai-analysis"
+method: POST
+body:
+  type: text
+  content: |-
+    {
+      "question": "Test de resistance"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: pm.test('404 — projet inexistant', () => pm.response.to.have.status(404));
+    language: text/javascript
+order: 4000

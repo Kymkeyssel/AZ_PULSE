@@ -1,0 +1,531 @@
+AZ PULSE
+ARCHITECTURE FONCTIONNELLE DU PROJET
+Plateforme intégrée de pilotage et d’optimisation des activités d’AZ CORPORATION
+Version de travail consolidée — Septembre 2026
+Document fonctionnel de référence pour l’analyse, la conception et la réalisation
+Périmètre
+AZ PULSE est un système d’information web intégré d’AZ CORPORATION. Il n’est pas conçu comme un SaaS multi-tenant : la plateforme centralise les activités, les données et les services de l’entreprise tout en proposant des espaces et interfaces adaptés aux profils, rôles et permissions.
+Sommaire
+1. Objet et vision fonctionnelle
+2. Principes directeurs
+3. Périmètre fonctionnel
+4. Utilisateurs, rôles et espaces personnels
+5. Gouvernance des accès et authentification
+6. Modules fonctionnels
+7. Formation et gestion des paiements
+8. Infrastructure & IT et intégration GLPI
+9. Intelligence artificielle avec FastAPI
+10. Automatisation avec n8n
+11. Flux intermodules et événements métier
+12. Modèle de données et sources de vérité
+13. Architecture fonctionnelle et technique de référence
+14. Cas d’utilisation structurants
+15. Diagrammes d’état-transition retenus
+16. Périmètre MVP et stratégie d’évolution
+17. Règles structurantes à préserver
+1. Objet et vision fonctionnelle
+AZ PULSE est le système d’information web intégré d’AZ CORPORATION. Sa fonction est de centraliser les activités, relier les informations métier, faciliter le pilotage et fournir des capacités d’analyse, d’intelligence artificielle et d’automatisation sans transformer l’application en ensemble de modules isolés.
+Vision centrale
+Une donnée métier doit être créée une seule fois lorsque cela est pertinent, disposer d’une source de vérité, conserver ses relations et pouvoir alimenter d’autres processus selon les droits de l’utilisateur.
+CRM → Workspace → Knowledge Hub / Infrastructure → Analytics → Dashboard → AI Workspace → automatisations n8n
+L’objectif fonctionnel n’est donc pas seulement de proposer des écrans, mais de démontrer une circulation cohérente de l’information. Une opportunité commerciale peut par exemple aboutir à un projet ; le projet produit des tâches et des documents ; l’avancement alimente les indicateurs ; l’IA interprète les données autorisées ; une automatisation peut ensuite notifier un responsable.
+2. Principes directeurs
+Principe
+Règle fonctionnelle
+Source de vérité
+Chaque concept structurant possède un référentiel maître clairement identifié.
+Traçabilité
+Les actions significatives et les changements sensibles peuvent être historisés : auteur, date, contexte et résultat.
+Interconnexion
+Les modules communiquent par relations métier, API, services et événements plutôt que par duplication manuelle des données.
+Permissions par contexte
+L’accès dépend du rôle, des permissions et, lorsque nécessaire, du périmètre : département, projet, dossier documentaire, type d’actif ou sensibilité.
+IA augmentée
+L’IA interprète et recommande ; elle ne devient pas une seconde base métier et ne contourne pas les règles d’autorisation.
+Automatisation maîtrisée
+n8n exécute des workflows simples, déterministes et traçables ; la logique métier centrale reste dans Symfony.
+Évolutivité
+De nouveaux domaines comme RH, achats, budgets ou portail externe doivent pouvoir être ajoutés sans remettre en cause le noyau.
+3. Périmètre fonctionnel
+Le cœur actuel du projet comprend les modules Dashboard, CRM, Formation, Workspace, Knowledge Hub, Infrastructure & IT, Analytics et AI Workspace. Des services transverses complètent ces modules : identité et accès, notifications, recherche, audit, fichiers et intégrations externes.
+3.1. Périmètre public
+Landing page AZ PULSE et présentation de la plateforme.
+Authentification.
+Demande d’accès à la plateforme.
+Suivi de l’état de la demande d’accès.
+3.2. Périmètre privé
+Espaces personnels et interfaces contextualisées selon le profil, le rôle et les permissions.
+Accès aux modules métier selon autorisation.
+Administration et gouvernance des accès.
+Pilotage, intelligence artificielle et automatisation.
+4. Utilisateurs, rôles et espaces personnels
+AZ PULSE ne donne pas automatiquement la même interface à tous les utilisateurs qui accèdent à un même module. Le module définit un domaine fonctionnel ; l’expérience utilisateur dépend du profil, du rôle et des permissions.
+Rôle / profil
+Responsabilités principales
+Super Administrateur
+Contrôle complet de la plateforme, tous les modules, utilisateurs, administrateurs, rôles, permissions, demandes d’accès et configuration.
+Administrateur / Direction
+Administration des utilisateurs et des accès selon son périmètre, supervision transverse et accès aux modules opérationnels.
+Responsable métier
+Responsable Formation, CRM, Workspace, Analytics, Infrastructure & IT, Knowledge Hub, AI ; RH reste une évolution possible.
+Collaborateur
+Exécution des tâches confiées, consultation des projets et ressources autorisées, gestion de ses activités et incidents.
+Client
+Portail dédié aux projets, livrables, documents, échanges et demandes concernant sa relation avec AZ CORPORATION.
+Apprenant
+Espace académique centré sur formations, planning, évaluations, notes, paiements et documents.
+Parent / Tuteur
+Espace académique centré sur le suivi des apprenants dont il a la responsabilité, leurs résultats, inscriptions, paiements et documents.
+Formateur / Intervenant
+Profil académique avec interface propre pour sessions, apprenants suivis et évaluations selon permissions.
+4.1. Familles d’expérience
+Famille professionnelle : Responsables métier, Admin / Direction et Super Admin partagent le même langage visuel général, avec des contenus et niveaux de contrôle différents.
+Famille académique : Parent, Apprenant et Formateur partagent une base visuelle inspirée du domaine Formation, mais leurs interfaces et informations sont distinctes.
+Famille client : le portail Client possède une expérience spécifique, séparée de l’environnement interne d’AZ CORPORATION.
+Expérience publique : landing page et authentification restent séparées des espaces privés.
+5. Gouvernance des accès et authentification
+Principe de contrôle
+Le demandeur fournit son identité et le contexte de sa demande, mais ne choisit pas son rôle ni ses permissions. L’entreprise valide la demande, attribue les droits et conserve la traçabilité des décisions.
+5.1. Processus de demande d’accès
+Demandeur → demande d’accès → PENDING → validation entreprise → rôle + permissions → création du mot de passe → activation → espace personnel
+La demande initiale ne contient pas de mot de passe.
+Le demandeur renseigne son identité, sa situation/contexte et la justification de son besoin.
+Après approbation, l’écran de suivi permet de définir le mot de passe et sa confirmation.
+La validation du mot de passe active le compte et ouvre l’espace personnel correspondant au rôle attribué.
+Le statut d’une demande peut notamment être PENDING, MORE_INFO_REQUIRED, APPROVED, REJECTED ou CANCELLED.
+5.2. Répartition des pouvoirs
+Le Super Admin gouverne la plateforme, les administrateurs, les rôles, permissions et paramètres techniques.
+L’Admin / Direction gère les utilisateurs et les demandes d’accès selon son périmètre, sans administrer les autres administrateurs ni la configuration technique profonde.
+Les changements sensibles de rôle ou de permissions doivent être journalisés.
+5.3. Modèle d’autorisation
+Utilisateur + rôle + permission + périmètre = autorisation réelle
+Le backend Symfony reste l’autorité sur les autorisations. React ne fait qu’adapter l’expérience et masquer ou présenter des fonctionnalités selon les droits connus ; il ne constitue jamais la barrière de sécurité principale.
+6. Modules fonctionnels
+Module
+Responsabilité fonctionnelle
+Dashboard
+Cockpit de pilotage personnalisé. Affiche KPI, projets actifs, retards, tâches prioritaires, activité, alertes et insights IA selon le profil.
+Administration
+Gestion des utilisateurs, rôles, permissions et demandes d’accès pour les personnes habilitées. Le Super Admin dispose en plus de la gestion des administrateurs.
+CRM
+Prospects, clients, opportunités, activités, relances, pipeline et historique commercial.
+Formation
+Formations, sessions, apprenants, parents/tuteurs, inscriptions, paiements, évaluations, notes et documents académiques.
+Workspace
+Projets, tâches, échéances, dépendances, équipes, jalons, livrables, commentaires et fichiers liés.
+Knowledge Hub
+Documents, dossiers, catégories, tags, versions, procédures, référentiels, permissions, publication et historique.
+Infrastructure & IT
+Parc informatique, affectations, incidents, maintenance, licences, garanties/contrats et synchronisation avec GLPI.
+Analytics
+KPI, rapports, tendances et analyses calculées à partir des référentiels opérationnels.
+AI Workspace
+Chat IA, assistants spécialisés, recherche contextualisée, synthèse, analyse, détection de risque, recommandations et actions guidées.
+RH — évolution
+Domaine potentiel pour collaborateurs, compétences, équipes, charge et processus RH ; hors noyau fonctionnel obligatoire tant que le périmètre n’est pas validé.
+Dashboard — cockpit de pilotage
+Le Dashboard n’est pas une base de données métier autonome. Il agrège les informations produites par les modules autorisés.
+KPI et indicateurs
+Projets et tâches prioritaires
+Alertes
+Activité récente
+Insights IA / recommandations
+Raccourcis vers actions
+CRM — relation commerciale
+Le CRM porte le cycle commercial et la continuité entre prospect, client, opportunité et projet.
+Créer et qualifier un prospect
+Créer une opportunité
+Suivre les étapes et activités
+Enregistrer les relances
+Marquer une opportunité gagnée ou perdue
+Permettre la continuité vers Workspace
+Workspace — exécution opérationnelle
+Workspace représente le travail réel et la capacité d’exécution des équipes.
+Créer un projet
+Créer et affecter des tâches
+Suivre les échéances et dépendances
+Gérer jalons et livrables
+Associer documents
+Demander une analyse IA contextualisée du projet
+Knowledge Hub — capitalisation
+Le Knowledge Hub constitue la mémoire documentaire structurée de l’entreprise.
+Déposer et classer des documents
+Gérer les versions
+Publier des documents
+Rechercher et consulter selon permissions
+Fournir du contexte à l’IA
+Analytics — mesure
+Analytics transforme les données opérationnelles en indicateurs et restitutions sans devenir la source primaire des données.
+KPI
+Tendances
+Rapports
+Performance commerciale
+Performance projet
+Charge et incidents
+AI Workspace — intelligence augmentée
+AI Workspace fournit la couche conversationnelle et analytique au-dessus du SI.
+Recherche contextualisée
+Résumé
+Analyse
+Détection de risques
+Recommandations
+Actions guidées sous validation
+7. Formation et gestion des paiements
+Le domaine Formation possède une logique métier propre. Les paiements de formation ne sont pas effectués dans AZ PULSE : ils sont réalisés en banque. AZ PULSE sert à enregistrer et suivre la preuve de paiement, sans connexion directe à la banque.
+7.1. Principe financier
+Les frais de formation appartiennent à la Formation.
+L’inscription matérialise l’entrée de l’apprenant dans une session et porte les informations d’inscription correspondantes.
+Les paiements peuvent être réalisés en plusieurs tranches.
+Le paiement est enregistré dans AZ PULSE à partir d’un justificatif bancaire.
+7.2. Workflow d’enregistrement du paiement
+Banque → reçu bancaire → dépôt dans AZ PULSE → OCR / extraction Python → vérification → validation Formation → enregistrement du paiement → génération du reçu AZ PULSE → mise à jour du suivi Formation
+Le Parent ou l’Apprenant peut déposer le justificatif dans un espace de dépôt.
+Symfony contrôle le fichier, l’utilisateur et le contexte.
+FastAPI peut extraire les informations du justificatif avec un service OCR ; un LLM peut être utilisé en complément lorsqu’une interprétation plus complexe est nécessaire.
+Le système ne doit pas considérer automatiquement le paiement comme validé uniquement sur la base de l’OCR.
+Un responsable Formation vérifie les informations extraites et valide, corrige ou rejette le justificatif.
+Après validation, Symfony enregistre le paiement et génère un reçu AZ PULSE, imprimable ou téléchargeable.
+7.3. Données importantes du paiement
+Donnée
+Rôle
+Apprenant / inscription
+Permet d’identifier le bénéficiaire et le contexte de formation.
+Montant
+Montant effectivement justifié et enregistré.
+Date
+Date du paiement figurant sur le justificatif.
+Référence bancaire
+Référence de l’opération conservée pour la traçabilité.
+Justificatif source
+Fichier bancaire conservé comme preuve.
+Reçu AZ PULSE
+Pièce générée après validation par AZ CORPORATION.
+Statut
+Suivi du traitement : dépôt, extraction, vérification, validation ou rejet.
+8. Infrastructure & IT et intégration GLPI
+GLPI reste le système spécialisé pour l’inventaire technique du parc. AZ PULSE constitue la couche d’intégration, de consultation métier, de pilotage, d’analyse et de présentation adaptée aux utilisateurs.
+Principe d’intégration
+React ne communique pas directement avec GLPI. Le frontend appelle Symfony ; Symfony utilise un service d’intégration GLPI ; ce service communique avec l’API GLPI.
+GLPI Agent → GLPI → API GLPI → service d’intégration Symfony → données Infrastructure AZ PULSE → Dashboard / Analytics / IA
+8.1. Données d’inventaire à restituer
+Famille
+Exemples de données
+Identifiants
+id, name, serial, otherserial, uuid
+Catégorisation
+modèle, type, fabricant
+Affectation
+contact, contact_num, utilisateur GLPI, technicien, entité
+Cycle de vie
+état, localisation, réseau, commentaire, TCO
+Inventaire
+méthode d’inventaire, dernière remontée, dernier démarrage, dynamique, dates de création/modification
+Attributs GLPI
+template, nom du template, suppression, récursivité
+8.2. Interface Parc informatique
+L’ensemble du parc est affiché dans un écran principal de type tableau, inspiré de la logique de GLPI.
+Il n’est pas nécessaire de créer une page dédiée à chaque équipement.
+La table peut être dense, filtrable et extensible afin de restituer l’ensemble des champs techniques sans sacrifier la lisibilité.
+Un panneau latéral peut présenter le détail d’une ligne sélectionnée sans quitter le Parc informatique.
+Les données provenant de GLPI doivent être identifiables comme telles et ne pas être confondues avec les données métiers natives d’AZ PULSE.
+9. Intelligence artificielle avec FastAPI
+AZ PULSE n’entraîne pas et n’héberge pas son propre modèle de langage. Le service Python/FastAPI orchestre des agents et appelle un fournisseur de modèles par API avec une clé secrète conservée côté service IA.
+React → Symfony → FastAPI → fournisseur LLM / services IA → FastAPI → Symfony → React
+9.1. Responsabilités
+Composant
+Responsabilité
+React
+Expérience utilisateur, saisie de la demande, affichage du résultat.
+Symfony
+Authentification, RBAC, récupération des données autorisées, construction du contexte, exécution métier et audit.
+FastAPI
+Orchestration des agents, appel du LLM, OCR, scoring, détection de risque et traitements spécialisés.
+LLM externe
+Compréhension du langage, génération, synthèse et raisonnement assisté.
+n8n
+Automatisations simples déclenchées par des événements ; pas de décision métier centrale.
+9.2. Agents actuels et évolutifs
+Project Agent : analyse des projets, tâches, échéances, charge, risques et recommandations.
+Analytics Agent : interprétation des indicateurs et tendances.
+Document Agent : extraction, lecture, synthèse et contexte documentaire.
+Strategic Agent : synthèses et recommandations transversales de niveau supérieur.
+Agents futurs : commercial, IT, formation, selon le périmètre effectivement développé.
+9.3. Demander une analyse de projet
+Utilisateur autorisé → Symfony contrôle les droits → contexte projet autorisé → FastAPI → analyse IA → constats / risques / recommandations → Symfony → React
+FastAPI ne doit pas accéder directement à PostgreSQL pour contourner Symfony.
+Les informations envoyées au modèle sont limitées au contexte autorisé.
+Une recommandation ayant un impact métier ne devient une action qu’après validation par un utilisateur habilité et exécution par Symfony.
+10. Automatisation avec n8n
+n8n est utilisé comme moteur d’orchestration d’événements et de tâches simples. Il ne remplace ni Symfony ni le moteur IA.
+Déclencheur
+Automatisation
+Opportunité sans activité depuis X jours
+Créer une tâche de relance et notifier le commercial.
+Tâche critique à J-1
+Notifier le responsable.
+Garantie proche de l’expiration
+Alerter IT / Direction.
+Rapport hebdomadaire
+Collecter les KPI et diffuser le rapport.
+Document publié
+Déclencher un traitement externe simple ou une notification.
+Incident critique
+Envoyer une alerte immédiate.
+Paiement validé
+Notification éventuelle au Parent / Apprenant.
+Frontière de responsabilité
+Symfony décide et exécute les règles métier. FastAPI analyse. n8n orchestre. React présente. PostgreSQL conserve les données.
+11. Flux intermodules et événements métier
+11.1. Flux commercial vers projet
+Prospect → qualification → opportunité → gagnée → projet → tâches → documents → KPI → analyse IA
+Une opportunité gagnée peut déclencher la création guidée d’un projet.
+Le projet reprend les informations commerciales pertinentes afin d’éviter une ressaisie inutile.
+11.2. Flux projet vers pilotage
+Tâches / avancement → Dashboard → Analytics → analyse de risque IA → recommandation
+11.3. Flux documentaire
+Document → classement / version → publication → recherche → contexte IA
+11.4. Flux IT
+GLPI → inventaire → Infrastructure → incident / maintenance → Analytics → analyse IA
+11.5. Principaux événements
+Événement
+Producteur
+Consommateurs possibles
+PROSPECT_CREATED
+CRM
+Dashboard, Analytics, n8n
+OPPORTUNITY_WON
+CRM
+Workspace, Analytics, n8n
+PROJECT_CREATED
+Workspace
+Dashboard, Analytics, Knowledge Hub
+TASK_OVERDUE
+Workspace
+Dashboard, n8n, AI
+DOCUMENT_PUBLISHED
+Knowledge Hub
+Recherche, AI, n8n
+ASSET_IMPORTED
+Infrastructure / GLPI
+Dashboard, Analytics
+INCIDENT_CREATED
+Infrastructure / GLPI
+Dashboard, n8n, Analytics
+MAINTENANCE_DONE
+Infrastructure
+Analytics, Dashboard
+KPI_THRESHOLD
+Analytics
+Dashboard, AI, n8n
+AI_RECOMMENDATION
+AI / Python
+Dashboard, module concerné
+12. Modèle de données et sources de vérité
+Les relations entre les objets métiers sont plus importantes que les écrans, car elles déterminent la capacité à croiser les informations et à éviter les doublons.
+Objet
+Fonction
+Source maître / service
+Utilisateur
+Identité, rôle, permissions, statut, contexte organisationnel
+Symfony / PostgreSQL
+Client / Prospect
+Continuité commerciale et identité du tiers
+CRM / Symfony
+Opportunité
+Affaire commerciale et étapes du pipeline
+CRM / Symfony
+Projet
+Unité principale d’exécution
+Workspace / Symfony
+Tâche
+Unité de travail exécutable
+Workspace / Symfony
+Document
+Objet documentaire, versions, permissions
+Knowledge Hub / Symfony
+Apprenant / Parent
+Profils académiques et relations
+Formation / Symfony
+Formation / Session / Inscription
+Parcours et organisation de la formation
+Formation / Symfony
+Paiement
+Somme versée, justificatif et statut de validation
+Formation / Symfony
+Évaluation / Note
+Résultats académiques
+Formation / Symfony
+Équipement IT
+Inventaire technique
+GLPI, exposé via intégration Symfony
+Incident / Maintenance
+Suivi des opérations IT selon le périmètre retenu
+GLPI et/ou Symfony via intégration
+KPI / Rapport
+Mesures et restitutions
+Analytics
+Conversation / Message IA
+Historique des interactions IA
+AI Workspace / Symfony
+13. Architecture fonctionnelle et technique de référence
+13.1. Architecture de développement locale
+PC de développement → Front React + Backend Symfony + AI Service FastAPI, avec PostgreSQL + service mail + n8n exécutés dans Docker
+Composant
+Technologie / emplacement
+Responsabilité
+Frontend
+React JS + Vite + Tailwind CSS + Motion + Lucide
+Interfaces, navigation, expériences par rôle et profil
+Backend
+Symfony + Doctrine
+API, métier, sécurité, RBAC, transactions, audit, intégrations
+Base de données
+PostgreSQL / Docker
+Référentiels, relations et historique métier
+AI Service
+Python + FastAPI / local
+Agents, LLM API, OCR, scoring, traitements spécialisés
+Automatisation
+n8n / Docker
+Workflows événementiels et récurrents simples
+Mail
+Service mail / Docker
+Notifications et échanges email
+Temps réel
+Mercure lorsque retenu
+Notifications et mises à jour temps réel
+IT
+GLPI + API
+Inventaire technique spécialisé
+Stockage
+Local ou objet via service contrôlé
+Fichiers, justificatifs et documents
+13.2. Frontières de responsabilité
+Composant
+Ne doit pas devenir
+Doit rester
+React
+Le moteur des règles métier ou de sécurité
+La couche d’expérience utilisateur
+Symfony
+Un moteur IA complet
+Le cœur métier et le point de contrôle
+FastAPI
+Une base métier parallèle
+Le moteur IA / data spécialisé
+n8n
+Le backend principal
+Le moteur d’automatisation
+GLPI
+Le portail métier d’AZ CORPORATION
+Le système spécialisé du parc IT
+Analytics
+La source primaire des données
+La couche de mesure et restitution
+14. Cas d’utilisation structurants
+Les cas détaillés retenus pour les diagrammes de communication, de séquence et d’activité sont formulés comme des actions concrètes, et non comme des intitulés généraux tels que « gérer » ou « piloter ».
+Cas concret
+Acteur principal
+Finalité
+S’authentifier
+Utilisateur
+Ouvrir une session et accéder à l’espace autorisé.
+Demander un accès à la plateforme
+Visiteur / demandeur
+Soumettre une demande d’accès à l’état PENDING sans définir de rôle ni de mot de passe.
+Créer une opportunité commerciale
+Commercial / Responsable CRM
+Créer une opportunité rattachée à un prospect ou client.
+Créer un projet
+Chef de projet / responsable habilité
+Créer un projet avec ses informations et relations nécessaires.
+Enregistrer un paiement à partir d’un justificatif bancaire
+Responsable Formation, avec dépôt du justificatif par Parent/Apprenant
+Extraire, vérifier, valider et enregistrer un paiement réalisé en banque puis générer le reçu AZ PULSE.
+Demander une analyse de projet
+Tout utilisateur autorisé sur le projet
+Obtenir une analyse IA contextualisée sans modifier directement les données métier.
+14.1. Cas de gestion englobants
+Gérer les accès → Demander un accès à la plateforme.
+Gérer les opportunités commerciales → Créer une opportunité commerciale.
+Gérer les projets → Créer un projet ; Demander une analyse de projet.
+Gérer les paiements de formation → Enregistrer un paiement à partir d’un justificatif bancaire.
+14.2. État-transition retenus
+Demande d’accès : PENDING → APPROVED / REJECTED.
+Opportunité : NEW → QUALIFIED → NEGOTIATION → WON / LOST.
+Prospect / Client : PROSPECT → CLIENT.
+15. Diagrammes d’état-transition retenus
+15.1. Demande d’accès
+PENDING → APPROVED / REJECTED
+Une demande approuvée poursuit vers la définition du mot de passe et l’activation du compte. Une demande rejetée reste sans accès jusqu’à une nouvelle démarche autorisée.
+15.2. Opportunité commerciale
+NEW → QUALIFIED → NEGOTIATION → WON / LOST
+L’état WON est particulièrement important car il peut produire l’événement OPPORTUNITY_WON et déclencher le flux vers Workspace.
+15.3. Prospect / Client
+PROSPECT → CLIENT
+La transition matérialise la continuité du référentiel commercial plutôt qu’une duplication d’un même tiers dans plusieurs objets.
+16. Périmètre MVP et stratégie d’évolution
+Le MVP doit privilégier un noyau réellement fonctionnel et interconnecté plutôt qu’une implémentation superficielle de tous les modules.
+Priorité
+Bloc
+Périmètre indicatif
+P0
+IAM / accès
+Authentification, demandes d’accès, rôles, permissions
+P0
+CRM
+Prospects, clients, opportunités
+P0
+Workspace
+Projets, tâches, statuts, échéances
+P0
+Formation
+Cœur Formation + paiement par justificatif si retenu dans le périmètre effectif
+P0
+Knowledge Hub
+Documents, permissions, recherche de base
+P0
+Infrastructure
+Parc IT via GLPI, affectations et incidents selon périmètre
+P0
+Dashboard
+Synthèse des flux du noyau
+P1
+Analytics
+KPI et rapports de base
+P1
+AI Workspace
+Analyse projet + synthèse documentaire comme premiers cas IA
+P1
+n8n
+3 à 5 automatisations simples
+P1
+Temps réel
+Mercure sur événements clés lorsque nécessaire
+16.1. Scénario transversal de démonstration
+Prospect → Opportunité → WON → Projet → Tâches → Document → Equipement → KPI → Analyse IA → notification n8n
+17. Règles structurantes à préserver
+Une donnée métier structurante ne doit pas être dupliquée inutilement dans plusieurs modules.
+Le backend Symfony reste l’autorité sur les données, les permissions et l’exécution des actions métier.
+Le frontend React ne doit pas servir d’autorité de sécurité.
+FastAPI ne doit pas devenir une base métier parallèle ni contourner Symfony pour accéder à PostgreSQL.
+L’IA reçoit uniquement le contexte autorisé pour l’utilisateur concerné.
+Une recommandation IA ayant un impact métier doit être validée par une personne habilitée avant son exécution.
+n8n ne doit pas contenir les règles métier centrales ; il orchestre des workflows simples.
+GLPI reste le système spécialisé pour l’inventaire technique ; l’intégration passe par Symfony.
+Le paiement de formation est réalisé en banque ; AZ PULSE enregistre la preuve et le résultat de validation, sans connexion bancaire directe.
+Les interfaces changent selon les profils, rôles et permissions, même lorsque plusieurs utilisateurs accèdent au même module.
+Les changements sensibles d’accès et de permissions doivent laisser une trace d’audit.
+Les cas d’utilisation détaillés doivent rester des actions concrètes, avec un début, un traitement et un résultat observable.
+Conclusion
+AZ PULSE est conçu comme un système d’information intégré : le CRM génère le contexte commercial, Workspace organise l’exécution, Formation gère le parcours académique, Knowledge Hub capitalise l’information, Infrastructure s’appuie sur GLPI pour le parc IT, Analytics mesure, Dashboard pilote, FastAPI apporte l’intelligence spécialisée et n8n automatise les flux simples. Symfony reste le noyau métier, de sécurité et de contrôle.
+Synthèse fonctionnelle
+Une donnée métier → un référentiel maître → des relations explicites → des événements → pilotage / IA / automatisation selon les droits
+La valeur d’AZ PULSE repose sur l’interconnexion des espaces et des modules, tout en maintenant des expériences distinctes pour les utilisateurs. Les mêmes données peuvent être consultées ou exploitées différemment selon le profil, le rôle, les permissions et le périmètre autorisé.
+Points à verrouiller en conception détaillée
+Référentiel maître et règles de modification pour chaque donnée structurante.
+Permissions et périmètres exacts de chaque rôle, notamment Admin, Direction et Responsables métier.
+États et règles de transition détaillés pour les demandes d’accès, opportunités, projets et parcours Formation.
+Contrat d’échange Symfony → FastAPI et format structuré des réponses IA.
+Périmètre exact de synchronisation GLPI et responsabilités respectives entre GLPI et AZ PULSE.
+KPI réellement retenus pour la Direction et pour chaque responsable de module.

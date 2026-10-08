@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  Bascule `DRAFT → PUBLISHED` et horodate `publishedAt`. Autorisé par `DocumentVoter::PUBLISH`, qui accorde le droit au propriétaire, à qui détient `knowledge.write`, ou à l'encadrement (`knowledge.manage`).
+
+  Effet de bord : l'événement `document.published` est publié → **notification** au propriétaire + tous les Super Administrateurs + **journal d'audit**.
+url: "{{baseUrl}}/knowledge/documents/{{documentId}}/publish"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — document publié', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('statut = PUBLISHED', () => pm.expect(d.status).to.eql('PUBLISHED'));
+      pm.test('horodatage de publication posé', () => pm.expect(d.publishedAt).to.be.a('string'));
+
+      console.log('📢 Document publié — le public du Knowledge Hub peut maintenant le consulter.');
+    language: text/javascript
+order: 4000

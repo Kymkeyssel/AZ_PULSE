@@ -1,0 +1,13 @@
+$kind: http-request
+description: "`markAsRead()` est **idempotent** : marquer deux fois ne réécrit pas l'horodatage de première lecture. C'est pourquoi `readAt` n'est pas écrasé par un second appel."
+url: "{{baseUrl}}/notifications/{{notificationId}}/read"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — notification marquée lue', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('isRead passe à true', () => pm.expect(d.isRead).to.be.true);
+      pm.test('readAt est horodaté', () => pm.expect(d.readAt).to.be.a('string'));
+    language: text/javascript
+order: 4000

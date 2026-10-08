@@ -1,0 +1,35 @@
+$kind: http-request
+name: 02.12 · Règle métier — passage à WON (bascule du prospect en client)
+description: |-
+  ⭐ **Test le plus important du module CRM.**
+
+  L'API n'enregistre pas seulement la nouvelle étape : elle applique les règles métier de `OpportunityService::handleWon()` —
+
+  1. `probability` passe à **100** ;
+  2. `closedAt` est horodaté ;
+  3. le **prospect bascule en `CLIENT`** ;
+  4. l'événement `opportunity.won` est publié.
+
+  L'événement déclenche alors deux effets observables : une **notification** au propriétaire de l'affaire, et la **création automatique d'un projet Workspace** par `ProjectCreationSubscriber`.
+url: "{{baseUrl}}/opportunities/{{opportunityId}}/stage"
+method: PATCH
+headers:
+  Authorization: Bearer {{tokenCrm}}
+body:
+  type: text
+  content: |-
+    {
+      "stage": "WON"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — étape mise à jour', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('étape = WON', () => pm.expect(d.stage).to.eql('WON'));
+      pm.test('règle métier : probabilité forcée à 100', () => pm.expect(d.probability).to.eql(100));
+      pm.test('règle métier : le prospect est devenu CLIENT', () => pm.expect(d.customer_status).to.eql('CLIENT'));
+
+      console.log('🤝 Opportunité gagnée → le contact passe de PROSPECT à CLIENT.');
+    language: text/javascript
+order: 12000

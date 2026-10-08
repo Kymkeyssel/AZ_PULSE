@@ -1,0 +1,15 @@
+$kind: http-request
+description: |-
+  Contre-exemple volontaire : `RESPONSABLE_IT` possède `it.read`, `it.manage`, `workspace.read`, `knowledge.read`, `ai.read` — **mais pas** `analytics.read`.
+
+  Un responsable IT peut donc gérer le parc et les incidents, sans accès aux indicateurs décisionnels. Le RBAC n'est pas « tout ou rien » : il distingue module par module.
+url: "{{baseUrl}}/analytics/kpis"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — analytics.read absent du rôle IT', () => pm.response.to.have.status(403));
+
+      console.log('🔒 Cloisonnement par module : IT gere le parc, pas la decisionnel.');
+    language: text/javascript
+order: 4000

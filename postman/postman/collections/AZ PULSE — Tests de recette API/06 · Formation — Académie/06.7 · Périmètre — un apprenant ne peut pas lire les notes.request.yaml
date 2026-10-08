@@ -1,0 +1,24 @@
+$kind: http-request
+name: 06.7 · Périmètre — un apprenant ne peut pas lire les notes des autres
+description: |-
+  Contrôle d'accès du bloc Notes. Le périmètre dépend du rôle :
+
+  | Rôle | Périmètre des notes |
+  |---|---|
+  | `formation.manage` (Responsable Formation, Admin, Super Admin) | **toutes** les notes |
+  | `APPRENANT` | **ses** notes |
+  | tout autre profil (dont `PARENT`) | **403 – accès refusé** |
+
+  Un parent ne consulte donc pas les notes de son enfant par cette route ; il passe par le dashboard parent.
+url: "{{baseUrl}}/academy/grades"
+method: GET
+headers:
+  Authorization: Bearer {{tokenParent}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — un parent n accède pas aux notes', () => pm.response.to.have.status(403));
+
+      console.log('🔒 Cloisonnement vérifié : le profil PARENT est écarté du bloc notes.');
+    language: text/javascript
+order: 7000

@@ -1,0 +1,18 @@
+$kind: http-request
+name: 11.2 · Périmètre — un profil sans analytics.read est écarté
+description: |-
+  L'attribut `#[IsGranted('analytics.read')]` est posé sur **la classe entière** : ajouter une route dans ce contrôleur plus tard sans y penser ne peut pas ouvrir un accès par inadvertance.
+
+  Un `APPRENANT` n'a pas cette permission → **403**. L'ordre de vérification compte : le contrôle d'accès est évalué **avant** l'exécution du code, donc un apprenant reçoit 403 même si le bug `TaskRepository` n'était pas corrigé — la sécurité ne dépend pas de laCorrection des bugs.
+url: "{{baseUrl}}/analytics/kpis"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — accès refusé avant même d atteindre le bug', () => pm.response.to.have.status(403));
+
+      console.log('🔒 L autorisation est évaluée avant le contrôleur : 403, pas 500.');
+    language: text/javascript
+order: 2000

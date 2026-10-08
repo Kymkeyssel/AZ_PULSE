@@ -1,0 +1,29 @@
+$kind: http-request
+name: "12.6 · Journal d'audit : qui a fait quoi, depuis quelle IP"
+description: |-
+  Aucune écriture possible depuis cette API : ni POST, ni PUT, ni DELETE. Une ligne s'écrit **par le code qui a commis l'action**, jamais depuis l'extérieur — sans quoi un administrateur pourrait fabriquer une trace accusant un collègue.
+
+  Le filtre `actor` accepte une partie d'adresse ; `since` ignore une date illisible plutôt que de renvoyer une erreur 500.
+url: "{{baseUrl}}/audit?limit=15"
+method: GET
+queryParams:
+  limit: "15"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — journal renvoyé', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+      pm.test('répartition par catégorie fournie', () => pm.expect(j.meta.byCategory).to.be.an('object'));
+      pm.test('chaque trace est nominative et datée', () => {
+        j.data.forEach(a => {
+          pm.expect(a.action).to.be.a('string').and.not.empty;
+          pm.expect(a.category).to.be.oneOf(['IAM', 'CRM', 'WORKSPACE', 'FORMATION', 'KNOWLEDGE', 'INFRA', 'AI', 'SECURITY']);
+          pm.expect(a.severity).to.be.oneOf(['info', 'warning', 'critical']);
+          pm.expect(a.createdAt).to.be.a('string');
+        });
+      });
+
+      console.log('📋 Journal :', j.meta.total, 'trace(s) —', JSON.stringify(j.meta.byCategory));
+    language: text/javascript
+order: 6000

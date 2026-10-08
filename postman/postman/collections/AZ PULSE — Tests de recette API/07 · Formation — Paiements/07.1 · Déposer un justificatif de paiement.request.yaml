@@ -1,0 +1,41 @@
+$kind: http-request
+description: |-
+  Envoi `multipart/form-data`. Le fichier est stocké sous un nom « slugifié » + `uniqid()` ; seul ce nom est conservé en base.
+
+  Le justificatif est créé en statut **`PENDING`** et rattaché à l'échéancier du demandeur. Le champ `student_id` permet à un Responsable Formation ou à un parent de déposer pour le compte d'un apprenant.
+
+  > **Limite connue** : l'API ne renvoie que le **nom** du fichier dans `documentUrl` — aucun endpoint ne permet de le télécharger ensuite. L'interface doit reconstruire le chemin, ce qui n'est pas fait.
+  > **OCR non implémenté** : la documentation évoque une analyse automatique du justificatif ; elle n'existe pas. Un dossier de test le prouve en affichant de fausses confiances (98 %, 65 %, 100 %).
+url: "{{baseUrl}}/academy/payments"
+method: POST
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - ./fixtures/justificatif-test.txt
+    - type: text
+      key: amount
+      value: "250000"
+    - type: text
+      key: reference
+      value: VIR-{{suffix}}-0001
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — justificatif déposé', () => pm.response.to.have.status(201));
+      const d = pm.response.json().data;
+      pm.test('statut initial = PENDING', () => pm.expect(d.status).to.eql('PENDING'));
+      pm.test('montant enregistré', () => pm.expect(d.amount).to.eql(250000));
+      pm.test('référence bancaire conservée', () => pm.expect(d.reference).to.include('VIR-'));
+      pm.test('l identifiant est un UUID', () => pm.expect(d.id).to.match(/^[0-9a-f-]{36}$/));
+      pm.test('l apprenant est rattaché', () => pm.expect(d.studentEmail).to.include('@'));
+      pm.test('le fichier a été stocké', () => pm.expect(d.documentUrl).to.be.a('string').and.not.empty);
+
+      pm.collectionVariables.set('paymentId', d.id);
+      console.log('💳 Justificatif déposé (PENDING) — id =', d.id);
+    language: text/javascript
+order: 1000

@@ -1,0 +1,26 @@
+$kind: http-request
+description: |-
+  Renvoie le **binaire** du fichier, pas du JSON. Le test contrôle donc le type de contenu et la taille, et non un corps JSON.
+
+  Contrôle d'accès assuré par `DocumentVoter::DOWNLOAD` : un document publié exige `knowledge.read`, un brouillon est réservé à son propriétaire ou à l'encadrement.
+url: "{{baseUrl}}/knowledge/documents/{{documentId}}/download"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — fichier renvoyé', () => pm.response.to.have.status(200));
+
+      pm.test('le contenu est bien un binaire texte', () => {
+        pm.expect(pm.response.text()).to.include('AZ PULSE');
+      });
+      pm.test('taille non nulle', () => pm.expect(pm.response.text().length).to.be.above(10));
+      pm.test('en-tête de téléchargement joint', () => {
+        const cd = pm.response.headers.get('Content-Disposition');
+        pm.expect(cd, 'Content-Disposition').to.be.a('string');
+        pm.expect(cd).to.include('attachment');
+        pm.expect(cd).to.include('document-test.txt');
+      });
+
+      console.log('⬇️ Document téléchargé avec succès.');
+    language: text/javascript
+order: 6000

@@ -1,0 +1,36 @@
+$kind: http-request
+description: |-
+  Prérequis du test 01.14 : dépose une **seconde** demande, distincte de la première, pour illustrer le chemin du refus.
+
+  Le corps envoie volontairement **aucun** `password` : l'inscription n'en exige pas, un mot de passe aléatoire est généré côté serveur.
+url: "{{baseUrl}}/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "candidat.{{suffix}}.refus@azpulse.local",
+      "firstName": "Candidat",
+      "lastName": "Refuse",
+      "phone": "+237690000002",
+      "requestedDomain": "Workspace",
+      "motivation": "Recette Postman — second dossier, destiné à illustrer la voie du refus."
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — seconde demande créée', () => pm.response.to.have.status(201));
+
+      const j = pm.response.json();
+      pm.test('success = true', () => pm.expect(j.success).to.be.true);
+      pm.test('statut = PENDING_APPROVAL', () => pm.expect(j.status).to.eql('PENDING_APPROVAL'));
+      pm.test('référence UUID base32 renvoyée', () => pm.expect(j.uuid).to.match(/^[0-9A-Z]{26}$/));
+
+      pm.collectionVariables.set('accessRequestUuidReject', j.uuid);
+      pm.collectionVariables.set('candidateEmailReject', 'candidat.' + pm.collectionVariables.get('suffix') + '.refus@azpulse.local');
+
+      console.log('📧 Seconde demande (à refuser) :', j.uuid);
+    language: text/javascript
+order: 13000

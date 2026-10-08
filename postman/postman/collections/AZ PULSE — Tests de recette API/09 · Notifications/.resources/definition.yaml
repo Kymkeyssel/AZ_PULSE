@@ -1,0 +1,10 @@
+$kind: collection
+description: |-
+  Module **Notifications** — cloche de l'application.
+
+  Le contrôleur est entièrement **scopé à l'utilisateur connecté** : il passe par `getUser()` et jamais par un identifiant présent dans l'URL. Un `GET /api/notifications/42` ne peut donc pas lire la notification d'un collègue — et une notification appartenant à quelqu'un d'autre répond **404**, pas 403, pour ne pas confirmer l'existence d'une donnée qui n'est pas la sienne.
+
+  **Aucune écriture n'est possible depuis l'API** : ni POST, ni PUT, ni DELETE. Une ligne se crée par l'action métier qui l'a méritée (`incident.opened`, `tuition.payment_received`, `access_request.approved`…). Autoriser l'écriture ici permettrait à n'importe qui de fabriquer des messages au nom de la plateforme.
+
+  **Captures d'écran suggérées** : composant de cloche du header, page `/notifications`.
+order: 10000

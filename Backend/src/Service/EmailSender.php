@@ -76,7 +76,7 @@ final readonly class EmailSender
             'emails/access_request_approved.html.twig',
             [
                 'fullName' => $fullName,
-                'loginUrl' => 'http://localhost:5173/login'
+                'activationUrl' => 'http://localhost:5173/activate'
             ]
         );
 

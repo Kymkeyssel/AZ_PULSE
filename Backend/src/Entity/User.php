@@ -43,16 +43,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 30)]
     private string $status = self::STATUS_PENDING_APPROVAL;
 
-    /**
-     * Spécialisation du rôle COLLABORATEUR (ex. COMMERCIAL, FORMATEUR).
-     *
-     * Ce champ n'est jamais utilisé pour autoriser quoi que ce soit : il sert
-     * uniquement à déterminer l'interface de l'espace personnel. Les droits
-     * effectifs restent portés par le rôle COLLABORATEUR et les
-     * UserPermissionOverride posés à l'approbation.
-     */
-    #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    private ?string $collaboratorProfile = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $lastLoginAt = null;
@@ -227,6 +217,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return trim($this->firstName . ' ' . $this->lastName);
     }
 
+    /** Alias utilisé par les contrôleurs académiques (`getName()`). */
+    public function getName(): string
+    {
+        return $this->getFullName();
+    }
+
     public function getPhone(): ?string
     {
         return $this->phone;
@@ -254,19 +250,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->status === self::STATUS_ACTIVE;
     }
 
-    public function getCollaboratorProfile(): ?string
-    {
-        return $this->collaboratorProfile;
-    }
-
-    public function setCollaboratorProfile(?string $collaboratorProfile): self
-    {
-        $this->collaboratorProfile = $collaboratorProfile !== null
-            ? strtoupper(trim($collaboratorProfile))
-            : null;
-
-        return $this;
-    }
 
     public function getLastLoginAt(): ?\DateTimeImmutable
     {
@@ -403,7 +386,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             return true;
         }
 
-        return in_array($permissionCode, $this->getComputedPermissions(), true);
+        $computed = $this->getComputedPermissions();
+        if (in_array($permissionCode, $computed, true)) {
+            return true;
+        }
+
+        // Les contrôleurs historiques testent `*.write` alors que le catalogue
+        // RBAC expose create/update/manage. Sans alias, un responsable légitime
+        // recevait un 403 sur des actions du MVP.
+        $aliases = [
+            'workspace.write' => ['workspace.create', 'workspace.update', 'workspace.manage'],
+            'knowledge.write' => ['knowledge.create', 'knowledge.update', 'knowledge.manage'],
+            'knowledge.read_all' => ['knowledge.manage', 'knowledge.update'],
+        ];
+
+        foreach ($aliases[$permissionCode] ?? [] as $alt) {
+            if (in_array($alt, $computed, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

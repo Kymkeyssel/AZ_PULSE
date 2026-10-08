@@ -54,6 +54,7 @@ class InitRbacCommand extends Command
             ['code' => 'workspace.update', 'module' => 'Workspace', 'desc' => 'Modifier les assignations et statuts'],
             ['code' => 'workspace.delete', 'module' => 'Workspace', 'desc' => 'Supprimer des tâches ou documents'],
             ['code' => 'workspace.manage', 'module' => 'Workspace', 'desc' => 'Administration complète du Workspace'],
+            ['code' => 'workspace.write', 'module' => 'Workspace', 'desc' => 'Écrire dans le Workspace (alias create/update)'],
 
             // Knowledge Hub
             ['code' => 'knowledge.read', 'module' => 'Knowledge Hub', 'desc' => 'Consulter la base de connaissances'],
@@ -61,6 +62,8 @@ class InitRbacCommand extends Command
             ['code' => 'knowledge.update', 'module' => 'Knowledge Hub', 'desc' => 'Modifier la documentation'],
             ['code' => 'knowledge.delete', 'module' => 'Knowledge Hub', 'desc' => 'Supprimer des articles'],
             ['code' => 'knowledge.manage', 'module' => 'Knowledge Hub', 'desc' => 'Administration du Knowledge Hub'],
+            ['code' => 'knowledge.write', 'module' => 'Knowledge Hub', 'desc' => 'Déposer et publier des documents'],
+            ['code' => 'knowledge.read_all', 'module' => 'Knowledge Hub', 'desc' => 'Voir les brouillons en plus des documents publiés'],
 
             // Infrastructure & IT
             ['code' => 'it.read', 'module' => 'Infrastructure/IT', 'desc' => 'Consulter l\'état des parcs et serveurs'],
@@ -155,7 +158,7 @@ class InitRbacCommand extends Command
                 'desc' => 'Gestion intégrale des Projets et Workspace',
                 'is_system' => false,
                 'permissions' => [
-                    'workspace.read', 'workspace.create', 'workspace.update', 'workspace.delete', 'workspace.manage',
+                    'workspace.read', 'workspace.create', 'workspace.update', 'workspace.delete', 'workspace.manage', 'workspace.write',
                     'knowledge.read', 'analytics.read', 'ai.read'
                 ],
             ],
@@ -170,18 +173,42 @@ class InitRbacCommand extends Command
                 ],
             ],
             [
-                'code' => 'COLLABORATEUR',
-                'label' => 'Collaborateur',
-                'desc' => 'Rôle générique multi-vocations. La spécialisation (Commercial, Formateur, Support IT...) est choisie à la validation et détermine l\'interface affichée. Droits de lecture étendus granted par la spécialisation retenue.',
+                'code' => 'RESPONSABLE_KNOWLEDGE',
+                'label' => 'Responsable Knowledge Hub',
+                'desc' => 'Administration du Knowledge Hub et de la base de connaissances',
+                'is_system' => false,
+                'permissions' => [
+                    'knowledge.read', 'knowledge.create', 'knowledge.update', 'knowledge.delete', 'knowledge.manage', 'knowledge.write', 'knowledge.read_all',
+                    'workspace.read', 'ai.read'
+                ],
+            ],
+            [
+                'code' => 'RESPONSABLE_ANALYTICS',
+                'label' => 'Responsable Analytics',
+                'desc' => 'Pilotage des indicateurs calculés à partir des référentiels opérationnels',
+                'is_system' => false,
+                'permissions' => [
+                    'analytics.read', 'analytics.manage',
+                    'crm.read', 'workspace.read', 'formation.read', 'it.read', 'knowledge.read', 'ai.read'
+                ],
+            ],
+            [
+                'code' => 'FORMATEUR',
+                'label' => 'Formateur / Intervenant',
+                'desc' => 'Sessions, apprenants suivis et évaluations',
                 'is_system' => true,
                 'permissions' => [
-                    // Socle de lecture commun à tous les collaborateurs
-                    'crm.read',
-                    'workspace.read',
-                    'knowledge.read',
-                    'analytics.read',
-                    'ai.read',
-                    'formation.read',
+                    'formation.read', 'formation.update',
+                    'knowledge.read', 'workspace.read', 'ai.read'
+                ],
+            ],
+            [
+                'code' => 'COLLABORATEUR',
+                'label' => 'Collaborateur',
+                'desc' => 'Exécution des tâches confiées et consultation des ressources autorisées',
+                'is_system' => true,
+                'permissions' => [
+                    'workspace.read', 'workspace.update', 'knowledge.read', 'ai.read'
                 ],
             ],
             [
@@ -200,6 +227,15 @@ class InitRbacCommand extends Command
                 'is_system' => true,
                 'permissions' => [
                     'formation.read'
+                ],
+            ],
+            [
+                'code' => 'CLIENT',
+                'label' => 'Client Entreprise B2B',
+                'desc' => 'Espace client B2B, suivi des projets, contrats et facturation',
+                'is_system' => true,
+                'permissions' => [
+                    'workspace.read'
                 ],
             ],
         ];

@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{baseUrl}}/dashboard/responsable"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      const status = pm.response.code;
+
+      if (status === 200) {
+        const d = pm.response.json().data;
+        pm.test('200 — statistiques responsable renvoyées', () => pm.response.to.have.status(200));
+        pm.test('tâches assignées et terminées comptées', () => {
+          pm.expect(d.assignedTasks).to.be.a('number');
+          pm.expect(d.completedTasks).to.be.a('number');
+        });
+        pm.test('CONSTATÉ — hoursWorked est codé en dur à 32', () => pm.expect(d.hoursWorked).to.eql(32));
+        console.warn('⚠️ hoursWorked = 32 en dur — aucune source de données réelle.');
+      } else {
+        pm.test('CONSTATÉ — endpoint indisponible', () => pm.expect([404, 500]).to.include(status));
+      }
+    language: text/javascript
+order: 7000

@@ -1,0 +1,28 @@
+$kind: http-request
+description: |-
+  > ⚠️ **Important pour la démonstration.** Deux contrôleurs déclarent cette route : `ParentDashboardController` (données réelles par enfant) et `DashboardController::parentStats()` (valeurs codées en dur). C'est **le second qui l'emporte** à l'exécution : la réponse observée est `{ enrolledChildren: 1, balance: 0 }`.
+
+  Autrement dit, l'espace Parent affiche aujourd'hui des **valeurs statiques**, alors que l'API détaillée existe et fonctionne. Le correctif consiste à supprimer la route `/parent` de `DashboardController` pour laisser la place à `ParentDashboardController`.
+
+  Ce test **consigne le comportement actuel** — il sert de point de comparaison après correction.
+url: "{{baseUrl}}/dashboard/parent"
+method: GET
+headers:
+  Authorization: Bearer {{tokenParent}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — endpoint accessible', () => pm.response.to.have.status(200));
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+
+      const d = pm.response.json().data;
+      pm.test('constat — la route masque le contrôleur détaillé', () => {
+        pm.expect(d).to.have.property('enrolledChildren');
+        pm.expect(d).to.have.property('balance');
+      });
+
+      console.warn('⚠️ Réponse STATIQUE : collision de route avec DashboardController::parentStats().');
+      console.warn('   Corriger en supprimant la route /parent de DashboardController pour');
+      console.warn('   rendre la main à ParentDashboardController (données réelles par enfant).');
+    language: text/javascript
+order: 6000

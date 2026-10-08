@@ -1,0 +1,788 @@
+<!DOCTYPE html><html lang="fr" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-surface": "#181c1f", "primary-fixed-dim": "#b1c7f0", "on-secondary-fixed-variant": "#003cac", "on-secondary": "#ffffff", "surface-tint": "#495f82", "on-secondary-fixed": "#00164d", "secondary-container": "#1a62fe", "secondary": "#004ad1", "on-surface-variant": "#44474e", "surface-container-high": "#e5e9ed", "on-tertiary-container": "#b78300", "error": "#ba1a1a", "error-container": "#ffdad6", "primary-container": "#0b2545", "surface": "#f6fafe", "secondary-fixed": "#dce1ff", "on-error-container": "#93000a", "on-error": "#ffffff", "on-tertiary": "#ffffff", "inverse-primary": "#b1c7f0", "tertiary-fixed-dim": "#ffba20", "tertiary-fixed": "#ffdea8", "primary-fixed": "#d5e3ff", "on-primary-fixed-variant": "#314769", "secondary-fixed-dim": "#b5c4ff", "on-tertiary-fixed-variant": "#5e4200", "on-secondary-container": "#f3f3ff", "surface-container": "#eaeef2", "outline": "#74777f", "inverse-surface": "#2c3134", "on-primary-fixed": "#001c3b", "primary": "#001026", "background": "#f6fafe", "on-primary": "#ffffff", "surface-variant": "#dfe3e7", "surface-container-highest": "#dfe3e7", "tertiary-container": "#332200", "surface-dim": "#d7dade", "outline-variant": "#c4c6cf", "on-tertiary-fixed": "#271900", "surface-container-low": "#f0f4f8", "surface-container-lowest": "#ffffff", "on-primary-container": "#778db2", "tertiary": "#180e00", "on-background": "#181c1f", "inverse-on-surface": "#edf1f5", "surface-bright": "#f6fafe" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-sm": "0.5rem", "margin": "2rem", "gutter-lg": "2rem", "gutter-sm": "1rem", "margin-lg": "3rem", "space-xl": "2.5rem", "space-xs": "0.25rem", "gutter": "1.5rem", "margin-sm": "1rem", "space-md": "1rem", "space-lg": "1.5rem" }, "fontFamily": { "label-lg": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "display-hero-mobile": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"] }, "fontSize": { "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-hero-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400" }], "display-hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "700" }], "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-4 top-4 bottom-4 w-72 bg-primary rounded-2xl z-50 flex flex-col shadow-[0_12px_32px_-4px_rgba(11,37,69,0.35)] overflow-hidden"><div class="p-space-lg flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm"><img alt="AZ PULSE_logo.png" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XqEXkizcdoEtMT8f8RNRDWQIbH-JBSp6UTRn97ZEZHE2WyunDVdrFbMyYUzhmrOWm0SB4UQ6eKZbzUSijcDfqcy0WXgTTkJh0O-xUpAWQR08DEzXxYrFU_wI7oZCwnGVinp8qynFcjVcSp6obcuLOEQonm0MihvHT5a2Ojptf_x7Y3FVhppkms4Ror0JTl7d0n3CYiEuUv-cLkEjtVvCWL3i5XpPxlPWIwNs9vbZMq7DIAqtymf16YRuBLJI6BEsXU1ZW4Kms3"><span class="text-headline-sm font-headline-sm text-on-primary tracking-tight font-bold">AZ PULSE</span></div><div class="mt-space-xs"><span class="inline-flex items-center px-space-sm py-0.5 rounded-full bg-primary-container text-on-primary-container text-label-sm font-label-sm uppercase tracking-wider font-bold">DIRECTEUR GÉNÉRAL</span></div></div><div class="flex-1 overflow-y-auto px-space-md py-space-xs"><nav class="flex flex-col gap-space-xs" data-active-classes="bg-secondary-container text-on-secondary-container font-headline-sm"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl transition-all duration-200 bg-secondary-container text-on-secondary-container font-headline-sm" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="text-label-lg font-label-lg">Dashboard</span></a><div class="flex flex-col"><div class="flex items-center justify-between px-space-md py-2 text-on-primary-container text-label-sm font-label-sm uppercase tracking-wider font-bold cursor-pointer select-none hover:text-on-primary transition-colors"><span class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">admin_panel_settings</span><span class="">Administration</span></span><span class="material-symbols-outlined text-[16px]">expand_more</span></div><div class="flex flex-col ml-space-md pl-space-xs gap-space-xs border-b border-surface-container/10"><a class="flex items-center gap-space-sm px-space-sm py-1.5 rounded-lg text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-colors text-label-md font-label-md" data-path="utilisateurs" href="#"><span class="material-symbols-outlined text-[16px]">group</span><span class="">Utilisateurs</span></a><a class="flex items-center gap-space-sm px-space-sm py-1.5 rounded-lg text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-colors text-label-md font-label-md" data-path="roles-permissions" href="#"><span class="material-symbols-outlined text-[16px]">lock_person</span><span class="">Rôles &amp; permissions</span></a><a class="flex items-center gap-space-sm px-space-sm py-1.5 rounded-lg text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-colors text-label-md font-label-md" data-path="demandes-acces" href="#"><span class="material-symbols-outlined text-[16px]">how_to_reg</span><span class="">Demandes d'accès</span></a></div></div><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-all duration-200" data-path="crm" href="#"><span class="material-symbols-outlined text-[20px]">hub</span><span class="text-label-lg font-label-lg">CRM</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-all duration-200" data-path="formation" href="#"><span class="material-symbols-outlined text-[20px]">school</span><span class="text-label-lg font-label-lg">Formation</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-all duration-200" data-path="workspace" href="#"><span class="material-symbols-outlined text-[20px]">workspaces</span><span class="text-label-lg font-label-lg">Workspace</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-all duration-200" data-path="knowledge-hub" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span><span class="text-label-lg font-label-lg">Knowledge Hub</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-all duration-200" data-path="infrastructure-it" href="#"><span class="material-symbols-outlined text-[20px]">dns</span><span class="text-label-lg font-label-lg">Infrastructure &amp; IT</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-all duration-200" data-path="analytics" href="#"><span class="material-symbols-outlined text-[20px]">query_stats</span><span class="text-label-lg font-label-lg">Analytics</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-primary-container hover:bg-primary-container hover:text-on-primary transition-all duration-200" data-path="ai-workspace" href="#"><span class="material-symbols-outlined text-[20px]">auto_awesome</span><span class="text-label-lg font-label-lg">AI Workspace</span></a></nav></div><div class="p-space-md mt-auto border-t border-surface-container/20 flex flex-col gap-space-sm bg-primary/40"><div class="flex items-center gap-space-sm p-space-xs rounded-xl hover:bg-primary-container transition-colors cursor-pointer"><div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary font-bold flex items-center justify-center text-label-md shrink-0 ring-2 ring-surface-container-lowest/20">MV</div><div class="flex flex-col min-w-0 flex-1"><span class="text-label-md font-label-md text-on-primary font-bold truncate leading-tight">Dr. Marc V.</span><span class="text-body-sm text-[11px] text-primary-fixed-dim truncate">DG • Administrateur</span></div></div><div class="flex items-center gap-space-xs pt-space-xs border-t border-surface-container/10"><a class="flex-1 inline-flex items-center justify-center gap-1.5 px-space-xs py-2 rounded-xl text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container transition-all text-label-sm font-label-sm" data-path="parametres" href="#"><span class="material-symbols-outlined text-[16px]">settings</span><span class="">Paramètres</span></a><a class="inline-flex items-center justify-center gap-1.5 px-space-sm py-2 rounded-xl text-primary-fixed-dim hover:text-on-error-container hover:bg-error-container transition-all text-label-sm font-label-sm" data-path="connexion" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span class="">Quitter</span></a></div></div></aside><div class="pl-80 pr-4"><header class="fixed top-4 left-80 right-4 h-20 bg-surface-container-lowest/80 backdrop-blur-xl rounded-2xl shadow-[0_4px_20px_-2px_rgba(11,37,69,0.06)] z-40 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-lg"><img alt="AZ PULSE_logo.png" class="h-8 w-auto object-contain md:hidden" src="https://lh3.googleusercontent.com/aida/AEtjO1XqEXkizcdoEtMT8f8RNRDWQIbH-JBSp6UTRn97ZEZHE2WyunDVdrFbMyYUzhmrOWm0SB4UQ6eKZbzUSijcDfqcy0WXgTTkJh0O-xUpAWQR08DEzXxYrFU_wI7oZCwnGVinp8qynFcjVcSp6obcuLOEQonm0MihvHT5a2Ojptf_x7Y3FVhppkms4Ror0JTl7d0n3CYiEuUv-cLkEjtVvCWL3i5XpPxlPWIwNs9vbZMq7DIAqtymf16YRuBLJI6BEsXU1ZW4Kms3"><div class="flex flex-col"><div><span class="text-headline-md font-headline-md text-primary tracking-tight font-bold">Dashboard</span></div><span class="text-body-sm font-body-sm text-on-surface-variant hidden sm:inline">Supervision et gouvernance de l'organisation AZ PULSE</span></div><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container-low text-on-surface-variant text-label-sm font-label-sm"><span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span></div></div><div class="flex items-center gap-space-md"><div class="relative flex items-center"><div class="relative flex items-center"><input class="w-9 focus:w-60 focus:px-space-md pl-9 pr-space-xs py-2 bg-surface-container-low text-on-surface rounded-full text-body-sm font-body-sm placeholder:text-on-surface-variant focus:outline-none transition-all duration-300 ease-out" placeholder="Rechercher..." type="text"><span class="material-symbols-outlined absolute left-2 text-on-surface-variant text-[20px] pointer-events-none">search</span></div></div><button class="relative p-2 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-secondary-container ring-2 ring-surface-container-lowest"></span></button><div class="relative group flex items-center gap-space-sm pl-space-xs cursor-pointer"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden md:flex flex-col text-left"><span class="text-label-md font-label-md text-on-surface font-bold leading-tight">Dr. Marc V.</span><span class="text-label-sm font-label-sm text-on-surface-variant">Directeur Général</span></div><span class="material-symbols-outlined text-on-surface-variant text-[18px] hidden md:inline">expand_more</span><div class="absolute right-0 top-full mt-2 w-56 bg-surface-container-lowest rounded-2xl shadow-[0_12px_32px_-4px_rgba(11,37,69,0.12)] py-space-xs hidden group-hover:block transition-all"><div class="px-space-md py-space-xs border-b border-surface-container"><p class="text-label-md font-label-md text-on-surface font-bold">Dr. Marc V.</p><p class="text-label-sm font-label-sm text-on-surface-variant">DG / Direction Générale</p></div><a class="flex items-center gap-space-sm px-space-md py-2 text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="profil" href="#"><span class="material-symbols-outlined text-[18px]">account_circle</span><span class="">Profil</span></a><a class="flex items-center gap-space-sm px-space-md py-2 text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="parametres" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span class="">Paramètres</span></a><a class="flex items-center gap-space-sm px-space-md py-2 text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="journal-activite" href="#"><span class="material-symbols-outlined text-[18px]">history</span><span class="">Journal d'activité</span></a><div class="my-1"></div><a class="flex items-center gap-space-sm px-space-md py-2 text-label-md font-label-md text-error hover:bg-error-container hover:text-on-error-container transition-colors" data-path="connexion" href="#"><span class="material-symbols-outlined text-[18px]">logout</span><span class="">Se déconnecter</span></a></div></div></div></header><main class="w-full pt-20 px-space-sm pb-space-lg"><div class="flex flex-col w-full gap-space-lg">
+<!-- 1. EN-TÊTE / BANNIÈRE DE BIENVENUE DG -->
+<section class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary-container to-primary text-on-primary shadow-xl p-space-lg lg:p-space-xl">
+<div class="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-secondary-container/10 blur-3xl pointer-events-none"></div>
+<div class="absolute right-48 -bottom-24 w-80 h-80 rounded-full bg-tertiary-fixed-dim/10 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs max-w-2xl">
+<div class="inline-flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-lowest/10 backdrop-blur-md text-on-primary text-label-sm font-label-sm w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim animate-pulse"></span>
+<span class="">DIRECTION GÉNÉRALE • GOUVERNANCE AZ PULSE</span>
+</div>
+<h1 class="text-headline-xl font-headline-xl text-on-primary tracking-tight">Bonjour, Dr. Marc V. <span class="inline-block animate-bounce">👋</span></h1>
+<p class="text-body-md font-body-md text-primary-fixed-dim">
+          Supervision et administration d’AZ PULSE • Hubs opérationnels Yaoundé &amp; Paris
+        </p>
+</div>
+<div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-start sm:items-center lg:items-end xl:items-center gap-space-md">
+<div class="flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-surface-container-lowest/10 backdrop-blur-md text-on-primary">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+<span class="text-label-md font-label-md">Plateforme opérationnelle</span>
+<span class="text-body-sm font-body-sm text-primary-fixed-dim">• 10:42</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-secondary-container hover:bg-secondary text-on-secondary text-label-md font-label-md shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span class="">+ Nouvel Utilisateur</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-tertiary-fixed-dim hover:bg-tertiary-fixed text-on-tertiary-fixed text-label-md font-label-md shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+<span class="">Traiter les Accès (12)</span>
+</button>
+</div>
+</div>
+</div><div class="relative z-10 mt-space-md p-space-md rounded-xl bg-surface-container-lowest/10 backdrop-blur-md border border-surface-container-lowest/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-tertiary-fixed-dim/20 flex items-center justify-center text-tertiary-fixed-dim shrink-0"><span class="material-symbols-outlined text-[20px]">auto_awesome</span></div><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="text-label-md font-label-md text-on-primary font-bold">Synthèse Prédictive AZ Copilot</span><span class="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold tracking-wide">Confiance 98.4%</span></div><p class="text-body-sm font-body-sm text-primary-fixed-dim">Pic d'activité estimé à +18% sur le pôle CRM cette semaine. 2 accès B2B recommandés pour approbation immédiate sans anomalie de sécurité.</p></div></div><button class="inline-flex items-center gap-1 px-space-sm py-1 rounded-lg bg-surface-container-lowest/20 hover:bg-surface-container-lowest/30 text-on-primary text-label-sm font-label-sm transition-colors shrink-0" type="button"><span class="material-symbols-outlined text-[16px]">insights</span><span class="">Détails prédictifs</span></button></div>
+</section>
+<!-- 2. BLOC ACTIONS REQUISES & ALERTES MÉTIER PRIORITAIRES -->
+<section class="rounded-2xl bg-surface-container-lowest shadow-md p-space-md lg:p-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-amber-500/15 flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-sm font-headline-sm text-on-surface">Actions Requises &amp; Arbitrages Prioritaires</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Décisions d'administration nécessitant validation du Directeur Général</span>
+</div>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface text-label-sm font-label-sm w-fit">
+        4 points de vigilance
+      </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-sm">
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface">12 demandes d'accès</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">En attente d'arbitrage</span>
+</div>
+</div>
+<button class="px-space-xs py-1 rounded-lg bg-surface-container-lowest text-secondary text-label-sm font-label-sm shadow-sm hover:bg-secondary-fixed transition-colors" type="button">
+          Arbitrer
+        </button>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-error shrink-0"></span>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface">3 comptes suspendus</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">À surveiller / Revue</span>
+</div>
+</div>
+<button class="px-space-xs py-1 rounded-lg bg-surface-container-lowest text-secondary text-label-sm font-label-sm shadow-sm hover:bg-secondary-fixed transition-colors" type="button">
+          Vérifier
+        </button>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container shrink-0"></span>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface">4 sans département</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Profils non affiliés</span>
+</div>
+</div>
+<button class="px-space-xs py-1 rounded-lg bg-surface-container-lowest text-secondary text-label-sm font-label-sm shadow-sm hover:bg-secondary-fixed transition-colors" type="button">
+          Résoudre
+        </button>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed-dim shrink-0"></span>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface">2 droits sensibles</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Délégations modifiées</span>
+</div>
+</div>
+<button class="px-space-xs py-1 rounded-lg bg-surface-container-lowest text-secondary text-label-sm font-label-sm shadow-sm hover:bg-secondary-fixed transition-colors" type="button">
+          Audit
+        </button>
+</div>
+</div>
+</section>
+<!-- 3. RANGÉE ACTIONS RAPIDES CLÉS -->
+<section class="flex items-center gap-space-xs overflow-x-auto pb-1">
+<a class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-surface-container-lowest text-on-surface hover:bg-secondary-container hover:text-on-secondary transition-all shadow-sm shrink-0 text-label-md font-label-md" data-path="utilisateurs" href="#">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span class="">+ Ajouter utilisateur</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-surface-container-lowest text-on-surface hover:bg-secondary-container hover:text-on-secondary transition-all shadow-sm shrink-0 text-label-md font-label-md" data-path="demandes-acces" href="#">
+<span class="material-symbols-outlined text-[18px]">rule</span>
+<span class="">✓ Traiter demandes d'accès</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-surface-container-lowest text-on-surface hover:bg-secondary-container hover:text-on-secondary transition-all shadow-sm shrink-0 text-label-md font-label-md" data-path="roles-permissions" href="#">
+<span class="material-symbols-outlined text-[18px]">shield</span>
+<span class="">🔐 Gérer rôles &amp; permissions</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-surface-container-lowest text-on-surface hover:bg-secondary-container hover:text-on-secondary transition-all shadow-sm shrink-0 text-label-md font-label-md" data-path="utilisateurs" href="#">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+<span class="">👥 Voir annuaire complet</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-surface-container-lowest text-on-surface hover:bg-secondary-container hover:text-on-secondary transition-all shadow-sm shrink-0 text-label-md font-label-md" data-path="analytics" href="#">
+<span class="material-symbols-outlined text-[18px]">priority_high</span>
+<span class="">⚠ Voir alertes prioritaires</span>
+</a>
+</section>
+<!-- 4. 6 CARTES KPIS PRINCIPAUX -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-space-md">
+<!-- KPI 1 -->
+<a class="group rounded-2xl bg-surface-container-lowest p-space-md shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between" data-path="utilisateurs" href="#">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Utilisateurs actifs</span>
+<div class="w-8 h-8 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[18px]">group</span>
+</div>
+</div>
+<div class="flex flex-col gap-0.5 mt-space-sm">
+<span class="text-headline-xl font-headline-xl text-on-surface tracking-tight">248</span>
+<span class="text-body-sm font-body-sm text-emerald-600 font-medium">+14 ce mois • 96% actif</span>
+</div>
+</a>
+<!-- KPI 2 -->
+<a class="group rounded-2xl bg-surface-container-lowest p-space-md shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between" data-path="demandes-acces" href="#">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Demandes d'accès</span>
+<div class="w-8 h-8 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-container group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+</div>
+</div>
+<div class="flex flex-col gap-0.5 mt-space-sm">
+<span class="text-headline-xl font-headline-xl text-on-surface tracking-tight">12</span>
+<span class="text-body-sm font-body-sm text-on-tertiary-container font-semibold">En attente • 4 B2B</span>
+</div>
+</a>
+<!-- KPI 3 -->
+<div class="group rounded-2xl bg-surface-container-lowest p-space-md shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Comptes suspendus</span>
+<div class="w-8 h-8 rounded-xl bg-error-container flex items-center justify-center text-on-error-container group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[18px]">person_off</span>
+</div>
+</div>
+<div class="flex flex-col gap-0.5 mt-space-sm">
+<span class="text-headline-xl font-headline-xl text-on-surface tracking-tight">3</span>
+<span class="text-body-sm font-body-sm text-error font-semibold">Revue requise</span>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="group rounded-2xl bg-surface-container-lowest p-space-md shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Activité du jour</span>
+<div class="w-8 h-8 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</div>
+</div>
+<div class="flex flex-col gap-0.5 mt-space-sm">
+<span class="text-headline-xl font-headline-xl text-on-surface tracking-tight">184</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Actions / 24h</span>
+</div>
+</div>
+<!-- KPI 5 -->
+<a class="group rounded-2xl bg-surface-container-lowest p-space-md shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between" data-path="workspace" href="#">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Projets actifs</span>
+<div class="w-8 h-8 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+</div>
+</div>
+<div class="flex flex-col gap-0.5 mt-space-sm">
+<span class="text-headline-xl font-headline-xl text-on-surface tracking-tight">26</span>
+<span class="text-body-sm font-body-sm text-secondary font-medium">Workspace actif</span>
+</div>
+</a>
+<!-- KPI 6 -->
+<div class="group rounded-2xl bg-surface-container-lowest p-space-md shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Alertes métier</span>
+<div class="w-8 h-8 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-700 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[18px]">notifications_active</span>
+</div>
+</div>
+<div class="flex flex-col gap-0.5 mt-space-sm">
+<span class="text-headline-xl font-headline-xl text-on-surface tracking-tight">7</span>
+<span class="text-body-sm font-body-sm text-amber-700 font-semibold">Attention admin</span>
+</div>
+</div>
+</section>
+<!-- 5. BLOC PRINCIPAL : DEMANDES D'ACCÈS & RÉPARTITION -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+<!-- GAUCHE : DEMANDES D'ACCÈS À TRAITER (7 COLS) -->
+<div class="xl:col-span-7 flex flex-col rounded-2xl bg-surface-container-lowest shadow-md p-space-md lg:p-space-lg gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-secondary-container text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Demandes d'accès à traiter</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Arbitrages et validations hiérarchiques des rôles</p>
+</div>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-sm font-label-sm font-bold">
+          12 en attente
+        </span>
+</div>
+<!-- Liste des demandes -->
+<div class="flex flex-col gap-space-sm max-h-[380px] overflow-y-auto pr-1">
+<!-- Demande 1 -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary font-bold flex items-center justify-center text-label-md font-label-md shrink-0">
+              JD
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="text-label-lg font-label-lg text-on-surface">Jean Dupont</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-sm font-label-sm">Collaborateur</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">• Pôle Formation</span>
+</div>
+<div class="flex items-center gap-space-xs text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+<span class="">Rôle demandé : <strong class="text-on-surface font-label-md">Instructeur Systèmes</strong></span>
+<span class="">• Score eIDAS : 98%</span>
+</div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary-container/10 text-secondary text-[11px] font-medium mt-1 w-fit"><span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">auto_awesome</span><span class="">Recommandation IA : <strong>Approuver</strong> (Risque calculé: 0.02%)</span></div>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Il y a 12 min
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end sm:self-center">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface text-label-sm font-label-sm shadow-sm transition-colors" type="button">
+              Examiner
+            </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-secondary-container hover:bg-secondary text-on-secondary text-label-sm font-label-sm shadow-sm transition-colors" type="button">
+              Approuver
+            </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-on-surface-variant text-label-sm font-label-sm transition-colors" type="button">
+              Rejeter
+            </button>
+</div>
+</div>
+<!-- Demande 2 -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary font-bold flex items-center justify-center text-label-md font-label-md shrink-0">
+              MX
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="text-label-lg font-label-lg text-on-surface">Marie X</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface text-label-sm font-label-sm">Responsable</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">• AZ Corp Yaoundé</span>
+</div>
+<div class="flex items-center gap-space-xs text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+<span class="">Rôle demandé : <strong class="text-on-surface font-label-md">Responsable Pipeline CRM</strong></span>
+<span class="">• Justificatif RH validé</span>
+</div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary-container/10 text-secondary text-[11px] font-medium mt-1 w-fit"><span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">auto_awesome</span><span class="">Recommandation IA : <strong>Approuver</strong> (Risque calculé: 0.02%)</span></div>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Il y a 28 min
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end sm:self-center">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface text-label-sm font-label-sm shadow-sm transition-colors" type="button">
+              Examiner
+            </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-secondary-container hover:bg-secondary text-on-secondary text-label-sm font-label-sm shadow-sm transition-colors" type="button">
+              Approuver
+            </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-on-surface-variant text-label-sm font-label-sm transition-colors" type="button">
+              Rejeter
+            </button>
+</div>
+</div>
+<!-- Demande 3 -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary font-bold flex items-center justify-center text-label-md font-label-md shrink-0">
+              DY
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="text-label-lg font-label-lg text-on-surface">David Y</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-label-sm font-label-sm">Client B2B</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">• Global Tech SARL</span>
+</div>
+<div class="flex items-center gap-space-xs text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+<span class="">Rôle demandé : <strong class="text-on-surface font-label-md">Portail Projets &amp; Facturation</strong></span>
+<span class="">• Score eIDAS : 94%</span>
+</div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary-container/10 text-secondary text-[11px] font-medium mt-1 w-fit"><span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">auto_awesome</span><span class="">Recommandation IA : <strong>Approuver</strong> (Partenaire certifié vérifié)</span></div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary-container/10 text-secondary text-[11px] font-medium mt-1 w-fit"><span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">auto_awesome</span><span class="">Recommandation IA : <strong>Approuver</strong> (Risque calculé: 0.02%)</span></div>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Il y a 1h
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end sm:self-center">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface text-label-sm font-label-sm shadow-sm transition-colors" type="button">
+              Examiner
+            </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-secondary-container hover:bg-secondary text-on-secondary text-label-sm font-label-sm shadow-sm transition-colors" type="button">
+              Approuver
+            </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-on-surface-variant text-label-sm font-label-sm transition-colors" type="button">
+              Rejeter
+            </button>
+</div>
+</div>
+<!-- Demande 4 -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all gap-space-sm">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold flex items-center justify-center text-label-md font-label-md shrink-0">
+              BF
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="text-label-lg font-label-lg text-on-surface">Blandine Fotso</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed-dim/30 text-on-surface text-label-sm font-label-sm">Apprenante</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">• Certifiée MINEFOP</span>
+</div>
+<div class="flex items-center gap-space-xs text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+<span class="">Rôle demandé : <strong class="text-on-surface font-label-md">Accès E-Learning Avancé</strong></span>
+<span class="">• Matricule certifié</span>
+</div><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary-container/10 text-secondary text-[11px] font-medium mt-1 w-fit"><span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">auto_awesome</span><span class="">Recommandation IA : <strong>Approuver</strong> (Risque calculé: 0.02%)</span></div>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Il y a 1h 40min
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end sm:self-center">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface text-label-sm font-label-sm shadow-sm transition-colors" type="button">
+              Examiner
+            </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-secondary-container hover:bg-secondary text-on-secondary text-label-sm font-label-sm shadow-sm transition-colors" type="button">
+              Approuver
+            </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-on-surface-variant text-label-sm font-label-sm transition-colors" type="button">
+              Rejeter
+            </button>
+</div>
+</div>
+</div>
+<div class="pt-space-xs flex justify-end">
+<a class="inline-flex items-center gap-space-xs text-secondary hover:text-secondary-container font-label-md text-label-md" data-path="demandes-acces" href="#">
+<span class="">Voir toutes les 12 demandes</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- DROITE : SYNTHÈSE DES COMPTES & RÉPARTITION (5 COLS) -->
+<div class="xl:col-span-5 flex flex-col rounded-2xl bg-surface-container-lowest shadow-md p-space-md lg:p-space-lg gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Synthèse des comptes</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Statut global des 271 identités</p>
+</div>
+</div>
+</div>
+<!-- Statuts rapides -->
+<div class="grid grid-cols-4 gap-space-xs">
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col items-center text-center">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-headline-sm font-headline-sm text-on-surface">248</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Actifs</span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col items-center text-center">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-headline-sm font-headline-sm text-on-surface">12</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Attente</span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col items-center text-center">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-headline-sm font-headline-sm text-on-surface">3</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Suspendus</span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col items-center text-center">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="text-headline-sm font-headline-sm text-on-surface">8</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Inactifs</span>
+</div>
+</div>
+<!-- Répartition graphique (Donut SVG + Légendes) -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<span class="text-label-md font-label-md text-on-surface font-bold">Répartition par collège d'utilisateurs</span>
+<div class="flex items-center gap-space-md">
+<!-- Donut SVG -->
+<div class="relative w-36 h-36 shrink-0 flex items-center justify-center">
+<svg class="w-36 h-36 -rotate-90" viewBox="0 0 100 100">
+<!-- Collaborateurs 38% -->
+<circle cx="50" cy="50" fill="none" r="38" stroke="#004ad1" stroke-dasharray="238.76" stroke-dashoffset="0" stroke-width="12"></circle>
+<!-- Clients 25% -->
+<circle cx="50" cy="50" fill="none" r="38" stroke="#1a62fe" stroke-dasharray="238.76" stroke-dashoffset="-90.73" stroke-width="12"></circle>
+<!-- Apprenants 23% -->
+<circle cx="50" cy="50" fill="none" r="38" stroke="#ffba20" stroke-dasharray="238.76" stroke-dashoffset="-150.42" stroke-width="12"></circle>
+<!-- Parents 11% -->
+<circle cx="50" cy="50" fill="none" r="38" stroke="#0b2545" stroke-dasharray="238.76" stroke-dashoffset="-205.33" stroke-width="12"></circle>
+<!-- Responsables 3% -->
+<circle cx="50" cy="50" fill="none" r="38" stroke="#74777f" stroke-dasharray="238.76" stroke-dashoffset="-231.6" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="text-headline-md font-headline-md text-on-surface font-bold">248</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Membres</span>
+</div>
+</div>
+<!-- Légendes avec effectifs -->
+<div class="flex flex-col gap-1.5 flex-1 text-label-sm font-label-sm">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 text-on-surface"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>Collaborateurs (38%)</span>
+<span class="text-on-surface-variant font-bold">94</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 text-on-surface"><span class="w-2.5 h-2.5 rounded-full bg-secondary-container"></span>Clients Entreprises (25%)</span>
+<span class="text-on-surface-variant font-bold">61</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 text-on-surface"><span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed-dim"></span>Apprenants MINEFOP (23%)</span>
+<span class="text-on-surface-variant font-bold">58</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 text-on-surface"><span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>Parents d'élèves (11%)</span>
+<span class="text-on-surface-variant font-bold">27</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 text-on-surface"><span class="w-2.5 h-2.5 rounded-full bg-outline"></span>Responsables Pôles (3%)</span>
+<span class="text-on-surface-variant font-bold">8</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-space-xs flex justify-end">
+<a class="inline-flex items-center gap-space-xs text-secondary hover:text-secondary-container font-label-md text-label-md" data-path="utilisateurs" href="#">
+<span class="">Gérer l'annuaire des utilisateurs</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+<!-- 6. VUE MÉTIER GLOBALE : PILOTAGE DES 5 PÔLES AZ CORP -->
+<section class="flex flex-col rounded-2xl bg-surface-container-lowest shadow-md p-space-md lg:p-space-lg gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">domain</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Vue Métier Globale • 5 Pôles Opérationnels</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Pilotage exécutif des divisions stratégiques AZ Corporation</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm"><span class="text-label-sm font-label-sm text-on-surface-variant hidden sm:inline">Semaine 42 • Q4</span><button class="inline-flex items-center gap-1 px-space-sm py-1 rounded-lg bg-surface-container-low hover:bg-secondary-fixed/40 text-secondary font-label-sm text-label-sm transition-colors cursor-pointer border border-secondary-container/20"><span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">auto_awesome</span><span class="">Audit IA des Pôles</span></button></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-space-md">
+<!-- Pôle 1 : CRM & Ventes -->
+<a class="group p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between gap-space-sm" data-path="crm" href="#">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">hub</span>
+<span class="text-label-md font-label-md text-on-surface font-bold">CRM &amp; Ventes</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-headline-lg font-headline-lg text-on-surface">14</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">opportunités actives</span>
+<div class="mt-1 pt-2 border-t border-surface-container flex flex-col gap-0.5">
+<span class="text-label-sm font-label-sm text-secondary font-bold">48.2M FCFA</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">3 contrats prêts à signer</span>
+</div>
+</div>
+</a>
+<!-- Pôle 2 : Formation -->
+<a class="group p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between gap-space-sm" data-path="formation" href="#">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-on-tertiary-container text-[20px]">school</span>
+<span class="text-label-md font-label-md text-on-surface font-bold">Formation MINEFOP</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-headline-lg font-headline-lg text-on-surface">86</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">apprenants inscrits</span>
+<div class="mt-1 pt-2 border-t border-surface-container flex flex-col gap-0.5">
+<span class="text-label-sm font-label-sm text-on-tertiary-container font-bold">6 cohortes actives</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">42 cours programmés</span>
+</div>
+</div>
+</a>
+<!-- Pôle 3 : Workspace -->
+<a class="group p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between gap-space-sm" data-path="workspace" href="#">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary-container text-[20px]">workspaces</span>
+<span class="text-label-md font-label-md text-on-surface font-bold">Workspace &amp; Projets</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-headline-lg font-headline-lg text-on-surface">21</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">projets en cours</span>
+<div class="mt-1 pt-2 border-t border-surface-container flex flex-col gap-0.5">
+<span class="text-label-sm font-label-sm text-on-surface font-bold">Douala Edge: 85%</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Refonte Cloud: 62%</span>
+</div>
+</div>
+</a>
+<!-- Pôle 4 : IT & Infrastructure -->
+<a class="group p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between gap-space-sm" data-path="infrastructure-it" href="#">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">dns</span>
+<span class="text-label-md font-label-md text-on-surface font-bold">IT &amp; Systèmes</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-headline-lg font-headline-lg text-on-surface">8</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">incidents ouverts</span>
+<div class="mt-1 pt-2 border-t border-surface-container flex flex-col gap-0.5">
+<span class="text-label-sm font-label-sm text-emerald-600 font-bold">0 critique bloquant</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">7 maintenances planifiées</span>
+</div>
+</div>
+</a>
+<!-- Pôle 5 : Knowledge Hub -->
+<a class="group p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between gap-space-sm" data-path="knowledge-hub" href="#">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-on-surface text-[20px]">menu_book</span>
+<span class="text-label-md font-label-md text-on-surface font-bold">Knowledge Hub</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-headline-lg font-headline-lg text-on-surface">34</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">documents publiés</span>
+<div class="mt-1 pt-2 border-t border-surface-container flex flex-col gap-0.5">
+<span class="text-label-sm font-label-sm text-on-surface font-bold">12 procédures RH</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">22 manuels techniques</span>
+</div>
+</div>
+</a>
+</div>
+</section>
+<!-- 7. SECTION DU BAS : ACTIVITÉ RÉCENTE (ACTIONS MÉTIER) & DISPONIBILITÉ DES MODULES -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+<!-- ACTIVITÉ RÉCENTE (8 COLS) -->
+<div class="xl:col-span-8 flex flex-col rounded-2xl bg-surface-container-lowest shadow-md p-space-md lg:p-space-lg gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">history_toggle_off</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Activité Récente • Gouvernance &amp; Organisation</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Journal des décisions administratives et mouvements RH</p>
+</div>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Aujourd'hui</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md text-on-surface">Rôle attribué par DG (Dr. Marc V.)</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">10:42</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Attribution du rôle <strong class="text-on-surface">Responsable CRM</strong> au collaborateur <strong class="text-on-surface">Jean Dupont</strong> avec permissions devis.
+            </p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md text-on-surface">Demande d'accès #REQ-8849 approuvée</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">10:31</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Validation de l'onboarding pour <strong class="text-on-surface">Marie X</strong> (Responsable CRM AZ Corp Yaoundé).
+            </p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="w-8 h-8 rounded-full bg-error-container text-on-error-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">lock_clock</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md text-error">Compte suspendu : Boris Deffo</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">10:18</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Fin de contrat de stage N1. Les accès aux modules Workspace et Knowledge Hub ont été révoqués par sécurité.
+            </p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">key</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md text-on-surface">Permission sensible modifiée</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">09:52</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Mise à jour de la délégation de signature financière pour les propositions commerciales excédant <strong class="text-on-surface">5 000 000 FCFA</strong>.
+            </p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md text-on-surface">Nouveau collaborateur enregistré</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">09:40</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Création du profil de <strong class="text-on-surface">Samuel Ekwalla</strong> (Ingénieur DevOps, Bureau Douala).
+            </p>
+</div>
+</div>
+</div>
+<div class="pt-space-xs flex justify-end">
+<a class="inline-flex items-center gap-space-xs text-secondary hover:text-secondary-container font-label-md text-label-md" data-path="journal-activite" href="#">
+<span class="">Consulter le journal d'activité complet</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- DISPONIBILITÉ DES 7 MODULES OPÉRATIONNELS (4 COLS) -->
+<div class="xl:col-span-4 flex flex-col rounded-2xl bg-surface-container-lowest shadow-md p-space-md lg:p-space-lg gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">toggle_on</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Modules Opérationnels</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">État des services plateforme</p>
+</div>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between p-space-xs px-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">hub</span>
+<span class="text-label-md font-label-md text-on-surface">CRM Commercial</span>
+</div>
+<span class="inline-flex items-center gap-1.5 text-emerald-600 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="">Opérationnel</span>
+</span>
+</div>
+<div class="flex items-center justify-between p-space-xs px-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-on-tertiary-container text-[18px]">school</span>
+<span class="text-label-md font-label-md text-on-surface">Formation Institut</span>
+</div>
+<span class="inline-flex items-center gap-1.5 text-emerald-600 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="">Opérationnel</span>
+</span>
+</div>
+<div class="flex items-center justify-between p-space-xs px-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary-container text-[18px]">workspaces</span>
+<span class="text-label-md font-label-md text-on-surface">Workspace &amp; Projets</span>
+</div>
+<span class="inline-flex items-center gap-1.5 text-emerald-600 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="">Opérationnel</span>
+</span>
+</div>
+<div class="flex items-center justify-between p-space-xs px-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-on-surface text-[18px]">menu_book</span>
+<span class="text-label-md font-label-md text-on-surface">Knowledge Hub</span>
+</div>
+<span class="inline-flex items-center gap-1.5 text-emerald-600 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="">Opérationnel</span>
+</span>
+</div>
+<div class="flex items-center justify-between p-space-xs px-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">dns</span>
+<span class="text-label-md font-label-md text-on-surface">Infrastructure &amp; IT</span>
+</div>
+<span class="inline-flex items-center gap-1.5 text-emerald-600 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="">Opérationnel</span>
+</span>
+</div>
+<div class="flex items-center justify-between p-space-xs px-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">query_stats</span>
+<span class="text-label-md font-label-md text-on-surface">Analytics Direction</span>
+</div>
+<span class="inline-flex items-center gap-1.5 text-emerald-600 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="">Opérationnel</span>
+</span>
+</div>
+<div class="flex items-center justify-between p-space-xs px-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">auto_awesome</span>
+<span class="text-label-md font-label-md text-on-surface">AI Workspace</span>
+</div>
+<span class="inline-flex items-center gap-1.5 text-emerald-600 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="">Opérationnel</span>
+</span>
+</div>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low mt-auto flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-on-surface font-bold">Disponibilité globale</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">SLA 99.98% respecté</span>
+</div>
+<span class="material-symbols-outlined text-emerald-600 text-[22px]">verified</span>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // Interactions légères pour approbation rapide
+  document.querySelectorAll('button').forEach(btn => {
+    if (btn.textContent.trim() === 'Approuver') {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const card = btn.closest('.rounded-xl');
+        if (card) {
+          card.classList.add('opacity-40', 'pointer-events-none');
+          btn.textContent = 'Approuvé ✓';
+          btn.classList.remove('bg-secondary-container');
+          btn.classList.add('bg-emerald-600');
+        }
+      });
+    }
+  });
+</script><aside class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 group"><div class="hidden group-hover:flex flex-col w-80 bg-surface-container-lowest rounded-2xl shadow-[0_12px_32px_-4px_rgba(11,37,69,0.35)] border border-secondary-container/20 p-space-md transition-all duration-200 animate-pulse-none"><div class="flex items-center justify-between pb-space-xs border-b border-surface-container"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-tertiary-fixed-dim"><span class="material-symbols-outlined text-[18px]">auto_awesome</span></div><div><h4 class="text-label-md font-label-md text-on-surface font-bold">AZ Copilot IA</h4><p class="text-[11px] text-emerald-600 font-medium">● Prêt pour analyse DG</p></div></div><span class="px-1.5 py-0.5 rounded-full bg-secondary-fixed text-secondary text-[10px] font-bold uppercase">v2.4</span></div><div class="py-space-xs flex flex-col gap-1.5 text-body-sm font-body-sm"><p class="text-on-surface-variant text-[12px]">Suggestions d'actions exécutives :</p><button class="text-left px-2.5 py-1.5 rounded-lg bg-surface-container-low hover:bg-secondary-fixed/30 text-on-surface text-[12px] transition-colors flex items-center justify-between"><span class="">"Résumer les alertes de la semaine"</span><span class="material-symbols-outlined text-[14px] text-secondary">arrow_forward</span></button><button class="text-left px-2.5 py-1.5 rounded-lg bg-surface-container-low hover:bg-secondary-fixed/30 text-on-surface text-[12px] transition-colors flex items-center justify-between"><span class="">"Auditer les permissions sensibles"</span><span class="material-symbols-outlined text-[14px] text-secondary">arrow_forward</span></button><button class="text-left px-2.5 py-1.5 rounded-lg bg-surface-container-low hover:bg-secondary-fixed/30 text-on-surface text-[12px] transition-colors flex items-center justify-between"><span class="">"Générer rapport d'arbitrage 12 accès"</span><span class="material-symbols-outlined text-[14px] text-secondary">arrow_forward</span></button></div><div class="relative flex items-center mt-1"><input class="w-full pl-3 pr-8 py-1.5 bg-surface-container-low text-on-surface rounded-xl text-body-sm font-body-sm placeholder:text-on-surface-variant focus:outline-none text-[12px]" placeholder="Poser une question à l'IA..." type="text"><span class="material-symbols-outlined absolute right-2 text-secondary text-[18px] cursor-pointer">send</span></div></div><button class="flex items-center gap-space-xs px-space-md py-3 rounded-full bg-primary hover:bg-primary-container text-on-primary shadow-[0_12px_32px_-4px_rgba(11,37,69,0.35)] hover:shadow-xl transition-all duration-200 cursor-pointer border border-tertiary-fixed-dim/30"><span class="material-symbols-outlined text-[20px] text-tertiary-fixed-dim animate-bounce">auto_awesome</span><span class="text-label-md font-label-md">AZ Copilot IA</span><span class="w-2 h-2 rounded-full bg-emerald-400"></span></button></aside></main></div>
+
+
+
+
+
+</body></html>

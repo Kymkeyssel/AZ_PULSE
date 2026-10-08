@@ -22,11 +22,15 @@ export const ApprenantLayout = () => {
   }, []);
 
   return (
-    <div className="bg-surface font-body-md text-on-surface antialiased min-h-screen flex relative">
+    <div className="bg-[#f8fafc] font-body-md text-on-surface antialiased min-h-screen flex relative overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="bg-blob-shape bg-indigo-200/50 w-[500px] h-[500px] top-[-100px] left-[10%]"></div>
+      <div className="bg-blob-shape bg-pink-200/40 w-[600px] h-[600px] bottom-[-200px] right-[-100px]" style={{ animationDelay: '3s' }}></div>
+      
       <ApprenantSidebar />
-      <div className="pl-72 flex-1 min-h-screen flex flex-col">
+      <div className="pl-72 flex-1 min-h-screen flex flex-col relative z-10">
         <ApprenantTopbar />
-        <main className="relative pt-16 bg-surface min-h-screen w-full px-space-lg">
+        <main className="relative pt-16 min-h-screen w-full px-space-lg">
           <div className="flex flex-col w-full pb-space-xl">
             {loading ? (
               <div className="flex items-center justify-center min-h-[60vh]">
@@ -36,10 +40,10 @@ export const ApprenantLayout = () => {
                 </div>
               </div>
             ) : error ? (
-              <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-600">
+              <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-600 glass-panel">
                 <h3 className="font-bold text-lg mb-2">Erreur de connexion</h3>
                 <p>{error}</p>
-                <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700">Réessayer</button>
+                <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">Réessayer</button>
               </div>
             ) : (
               <Outlet context={{ data }} />

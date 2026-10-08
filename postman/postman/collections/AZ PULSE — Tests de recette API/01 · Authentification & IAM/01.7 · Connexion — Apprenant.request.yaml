@@ -1,0 +1,32 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{accountApprenant}}",
+      "password": "{{pwdApprenant}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — connexion réussie', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('rôle = APPRENANT', () => pm.expect(j.user.primaryRole).to.eql('APPRENANT'));
+      pm.test('aiguillage = /apprenant', () => pm.expect(j.user.interfaceRoute).to.eql('/apprenant'));
+      pm.test('profil restreint : ni crm ni it ni audit', function () {
+        pm.expect(j.user.permissions).to.not.include('crm.read');
+        pm.expect(j.user.permissions).to.not.include('it.read');
+        pm.expect(j.user.permissions).to.not.include('audit.read');
+      });
+
+
+      pm.collectionVariables.set('tokenApprenant', j.token);
+      pm.environment.set('tokenApprenant', j.token);
+    language: text/javascript
+order: 7000

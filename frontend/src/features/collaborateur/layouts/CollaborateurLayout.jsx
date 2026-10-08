@@ -28,14 +28,18 @@ const CollaborateurLayout = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  if (primaryRole !== 'COLLABORATEUR') {
+  if (primaryRole !== 'COLLABORATEUR' && !primaryRole.startsWith('RESPONSABLE_')) {
     return <Navigate to="/activate" replace />;
   }
 
   return (
-    <div className="bg-[#f6fafe] text-[#181c1f] font-sans antialiased min-h-screen flex relative">
+    <div className="bg-[#f8fafc] text-[#181c1f] font-sans antialiased min-h-screen flex relative overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="bg-blob-shape bg-cyan-200/40 w-[450px] h-[450px] top-[-50px] right-[20%]" style={{ animationDelay: '1s' }}></div>
+      <div className="bg-blob-shape bg-blue-300/30 w-[550px] h-[550px] bottom-[10%] left-[-100px]" style={{ animationDelay: '5s' }}></div>
+      
       <CollaborateurSidebar />
-      <div className="pl-64 flex-1 min-h-screen flex flex-col bg-[#f6fafe]">
+      <div className="pl-64 flex-1 min-h-screen flex flex-col relative z-10">
         <main className="w-full px-6 py-6 flex-1">
           <Outlet />
         </main>

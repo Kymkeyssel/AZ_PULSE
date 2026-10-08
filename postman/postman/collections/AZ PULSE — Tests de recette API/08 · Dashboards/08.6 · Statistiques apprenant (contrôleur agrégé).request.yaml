@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{baseUrl}}/dashboard/apprenant"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — endpoint accessible', () => pm.response.to.have.status(200));
+
+      const j = pm.response.json();
+      const isStub = j.hasOwnProperty('activeCourses') || j.hasOwnProperty('averageGrade');
+
+      if (isStub) {
+        console.warn('⚠️ Route dupliquée : DashboardController::apprenantStats() a gagné la course');
+        console.warn('   et renvoie des VALEURS CODÉES EN DUR (' + JSON.stringify(j) + ').');
+        console.warn('   Supprimer la route /apprenant de DashboardController pour');
+        console.warn('   laisser la place à ApprenantDashboardController (données réelles).');
+        pm.test('CONSTATÉ — valeurs statiques en base de données', () => {
+          pm.expect(j.activeCourses).to.eql(3);
+          pm.expect(j.averageGrade).to.eql('15.5 / 20');
+        });
+      } else {
+        pm.test('✅ Données réelles — le contrôleur détaillé est prioritaire', () => pm.expect(j.program).to.not.be.undefined);
+      }
+    language: text/javascript
+order: 6000

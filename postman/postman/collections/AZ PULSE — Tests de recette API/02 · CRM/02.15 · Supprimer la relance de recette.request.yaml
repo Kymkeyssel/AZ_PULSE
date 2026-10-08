@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/reminders/{{reminderId}}"
+method: DELETE
+headers:
+  Authorization: Bearer {{tokenCrm}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — relance supprimée', () => pm.response.to.have.status(200));
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+
+      console.log('🧹 Relance de recette nettoyée.');
+    language: text/javascript
+order: 15000

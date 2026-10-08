@@ -21,6 +21,15 @@ class OpportunityService
      */
     public function changeStage(Opportunity $opportunity, string $newStage): void
     {
+        // Le document d'architecture (§15.2) retient NEW → QUALIFIED → NEGOTIATION.
+        // Le CRM opérationnel conserve un pipeline plus fin ; ces alias évitent
+        // deux vocabulaires incompatibles.
+        $aliases = [
+            'NEW' => 'PROSPECTING',
+            'QUALIFIED' => 'QUALIFICATION',
+        ];
+        $newStage = $aliases[$newStage] ?? $newStage;
+
         $validStages = ['PROSPECTING', 'QUALIFICATION', 'PROPOSAL', 'NEGOTIATION', 'WON', 'LOST'];
         
         if (!in_array($newStage, $validStages, true)) {

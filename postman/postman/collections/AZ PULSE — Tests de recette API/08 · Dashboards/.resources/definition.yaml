@@ -1,0 +1,18 @@
+$kind: collection
+description: |-
+  Module **Dashboard** — synthèse multi-rôle consolidée.
+
+  Un contrôleur unique expose sept points d'entrée, un par profil :
+
+  | Endpoint | Rôle | État |
+  |---|---|---|
+  | `/dashboard/super-admin` | Super Admin | ✅ données réelles |
+  | `/dashboard/admin` | Admin / Direction | ✅ données réelles |
+  | `/dashboard/workspace` | Responsable Workspace | ❌ **500** — bug `TaskRepository` |
+  | `/dashboard/crm` | Responsable CRM | ✅ données réelles |
+  | `/dashboard/it` | Responsable IT | ✅ données réelles |
+  | `/dashboard/apprenant` | Apprenant | ✅ données réelles |
+  | `/dashboard/parent` | Parent | 🟡 **statique** — collision de route |
+
+  **Captures d'écran suggérées** : `/superadmin`, `/admin`, `/apprenant`, `/collaborateur`.
+order: 9000

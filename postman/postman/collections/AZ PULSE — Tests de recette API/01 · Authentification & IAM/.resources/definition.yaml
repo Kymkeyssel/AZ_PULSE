@@ -1,0 +1,8 @@
+$kind: collection
+description: |-
+  Module **IAM** — le plus complet de la plateforme.
+
+  Couvre : authentification par jeton Bearer, cycle de vie d'une demande d'accès (inscription → approbation/refus → activation), matrice rôles × permissions, journal d'audit.
+
+  **Captures d'écran suggérées** : `/auth`, `/pending`, `/rejected`, `/activate`, `/superadmin/requests`, `/superadmin/roles`, `/superadmin/audit`.
+order: 2000

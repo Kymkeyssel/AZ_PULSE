@@ -1,0 +1,19 @@
+$kind: collection
+description: |-
+  Module **Formation — Paiements** — circuit complet du règlement de scolarité.
+
+  ```
+  Apprenant dépose un justificatif  →  Responsable Formation valide
+          statut PENDING                          statut VALIDATED
+                                                      ↓
+                                +1 tranche payée · solde décrémenté
+                                                      ↓
+                          événement tuition.payment_received → notification
+  ```
+
+  Exige `formation.manage` pour valider ou refuser — donc le Super Admin, l'Admin/Direction ou le Responsable Formation. Le jeton du dossier est celui du Responsable Formation.
+
+  > ⚠️ **Prérequis** : l'apprenant doit disposer d'un échéancier de scolarité. Exécuter `php bin/console app:seed-dashboard-data` si nécessaire.
+
+  **Captures d'écran suggérées** : `/apprenant/paiements`.
+order: 8000

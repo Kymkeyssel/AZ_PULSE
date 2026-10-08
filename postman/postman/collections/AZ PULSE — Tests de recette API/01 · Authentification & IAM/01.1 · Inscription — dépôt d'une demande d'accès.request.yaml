@@ -1,0 +1,36 @@
+$kind: http-request
+description: |-
+  Crée un compte en statut `PENDING_APPROVAL` **et** une demande d'accès `PENDING`. Le compte reçoit un mot de passe **aléatoire** : l'utilisateur ne pourra se connecter qu'après approbation **et** activation.
+
+  L'API renvoie l'UUID **base32** de la demande : c'est la référence de suivi envoyée par e-mail. Elle est mémorisée dans `{{accessRequestUuid}}`.
+url: "{{baseUrl}}/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "candidat.{{suffix}}@azpulse.local",
+      "firstName": "Candidat",
+      "lastName": "Recette",
+      "phone": "+237690000001",
+      "requestedDomain": "CRM",
+      "motivation": "Recette Postman — demande d'accès au module CRM."
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — demande créée', () => pm.response.to.have.status(201));
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+      pm.test('statut = PENDING_APPROVAL', () => pm.expect(pm.response.json().status).to.eql('PENDING_APPROVAL'));
+      pm.test('une référence UUID base32 est renvoyée', () => pm.expect(pm.response.json().uuid).to.match(/^[0-9A-Z]{26}$/));
+
+      const j = pm.response.json();
+      pm.collectionVariables.set('accessRequestUuid', j.uuid);
+      pm.collectionVariables.set('candidateEmail', 'candidat.' + pm.collectionVariables.get('suffix') + '@azpulse.local');
+      console.log('📧 Demande soumise — référence :', j.uuid);
+    language: text/javascript
+order: 1000

@@ -1,0 +1,293 @@
+﻿{
+  "name": "12 · Sécurité — tests négatifs",
+  "description": "Module **Sécurité** — vérification que les protections tiennent.\n\nUn module qui fonctionne ne prouve pas qu'il est protégé. Ce dossier attaque volontairement l'API par ses points faibles.\n\n**Les quatre principes appliqués par la plateforme :**\n\n1. **Négation par défaut** — `access_control` applique `IS_AUTHENTICATED_FULLY` à **tout** `/api` ; chaque route publique doit être ouverte explicitement.\n2. **Defense in depth** — le token est vérifié par le firewall, puis les permissions sont vérifiées par `#[IsGranted]` sur le contrôleur.\n3. **Silence sur l'inexistence** — une ressource qui appartient à quelqu'un d'autre répond **404**, pas 403.\n4. **Périmètre par module** — un droit n'ouvre que son module ; `analytics.read` n'ouvre pas `crm.update`.",
+  "item": [
+    {
+      "name": "12.1 · Aucun jeton sur un endpoint protégé",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/crm/customers",
+        "description": "Sans en-tête `Authorization`, `IS_AUTHENTICATED_FULLY` rejette la requête. L'API ne renvoie jamais de données partielles « pour aider ».",
+        "auth": { "type": "noauth" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('401 — jeton obligatoire', () => pm.response.to.have.status(401));",
+              "pm.test('aucune donnéeclient exposée', () => pm.expect(pm.response.text()).to.not.include('customerId'));",
+              "",
+              "console.log('🔒 Négation par défaut : /api est fermé par défaut.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.2 · Jeton mal formé",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer azpulse-jeton-invalide" }],
+        "url": "{{baseUrl}}/crm/customers",
+        "description": "Un jeton signé mais inconnu ne passe pas `ApiTokenAuthenticator`. La réponse est un 401 — jamais un 403, qui laisserait croire qu'une session valide existait.",
+        "auth": { "type": "noauth" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('401 — jeton inconnu refusé', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.3 · Jeton d'un apprenant sur un module métier",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/crm/customers",
+        "description": "Le jeton est **valide**, l'utilisateur est authentifié — mais `APPRENANT` n'a ni `crm.read` ni `crm.create`. Réponse **403 Access Denied**.\n\nC'est la différence essentielle entre 401 (qui êtes-vous ?) et 403 (vous êtes connu, mais pas autorisé)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — authentifié mais non autorisé', () => pm.response.to.have.status(403));",
+              "pm.test('message Access Denied explicite', () => pm.expect(pm.response.json().error).to.include('Access Denied'));",
+              "",
+              "console.log('🔒 401 ≠ 403 : identité reconnue, droit refusé.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.4 · Écriture CRM par un profil non habilité",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Tentative\",\n  \"lastName\": \"Interdite\",\n  \"email\": \"interdit-{{suffix}}@azpulse.local\",\n  \"phone\": \"+237699000000\",\n  \"company\": \"Aucune\"\n}"
+        },
+        "url": "{{baseUrl}}/crm/customers",
+        "description": "Lecture refusée ne signifie pas écriture refusée : chaque opération est contrôlée par **une permission distincte** (`crm.read`, `crm.create`, `crm.update`, `crm.delete`). Un rôle peut lire sans pouvoir créer."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — crm.create absent du rôle APPRENANT', () => pm.response.to.have.status(403));",
+              "",
+              "console.log('🔒 read et create sont deux permissions distinctes.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.5 · Administration des rôles réservée au Super Admin",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/admin/roles",
+        "description": "La gestion du RBAC est l'apanage du seul Super Administrateur. **Même l'Admin / Direction en est privé** : il gère les utilisateurs et les demandes d'accès, mais ni les rôles ni les permissions.\n\nC'est une séparation volontaire du pouvoir : celui qui accorde les droits ne peut pas se les accorder à lui-même."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — role.manage réservé au Super Admin', () => pm.response.to.have.status(403));",
+              "",
+              "console.log('🔒 Même l Admin/Direction ne peut pas accorder de droits : seul le Super Admin le peut.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.6 · Journal d'audit : qui a fait quoi, depuis quelle IP",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/audit?limit=15",
+        "description": "Aucune écriture possible depuis cette API : ni POST, ni PUT, ni DELETE. Une ligne s'écrit **par le code qui a commis l'action**, jamais depuis l'extérieur — sans quoi un administrateur pourrait fabriquer une trace accusant un collègue.\n\nLe filtre `actor` accepte une partie d'adresse ; `since` ignore une date illisible plutôt que de renvoyer une erreur 500."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — journal renvoyé', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('répartition par catégorie fournie', () => pm.expect(j.meta.byCategory).to.be.an('object'));",
+              "pm.test('chaque trace est nominative et datée', () => {",
+              "  j.data.forEach(a => {",
+              "    pm.expect(a.action).to.be.a('string').and.not.empty;",
+              "    pm.expect(a.category).to.be.oneOf(['IAM', 'CRM', 'WORKSPACE', 'FORMATION', 'KNOWLEDGE', 'INFRA', 'AI', 'SECURITY']);",
+              "    pm.expect(a.severity).to.be.oneOf(['info', 'warning', 'critical']);",
+              "    pm.expect(a.createdAt).to.be.a('string');",
+              "  });",
+              "});",
+              "",
+              "console.log('📋 Journal :', j.meta.total, 'trace(s) —', JSON.stringify(j.meta.byCategory));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.7 · Valeurs de filtre du journal",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/audit/filters",
+        "description": "Route explicite pour que l'interface n'invente pas de libellés : la liste des catégories et des sévérités est **fermée par le serveur**, et non devinée côté client."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — valeurs exposées', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('les 8 catégories sont listées', () => {",
+              "  pm.expect(d.categories).to.be.an('array').with.lengthOf(8);",
+              "});",
+              "pm.test('les 3 sévérités sont listées', () => {",
+              "  pm.expect(d.severities).to.be.an('array').with.lengthOf(3);",
+              "  pm.expect(d.severities).to.include.members(['info', 'warning', 'critical']);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.8 · Date de filtre illisible = journal complet, pas 500",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/audit?since=nimporte-quoi",
+        "description": "Une date mal saisie depuis la barre d'URL est **ignorée** plutôt que fatale. Le journal complet reste accessible en retirant le paramètre.\n\nMême logique pour `?category=` : une chaîne vide est normalisée à `null`, sinon elle filtrerait sur la valeur vide et renverrait un journal vide au lieu du journal entier."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — le filtre invalide est ignoré', () => pm.response.to.have.status(200));",
+              "pm.test('le journal complet reste accessible', () => pm.expect(pm.response.json().data.length).to.be.above(0));",
+              "",
+              "console.log('✅ Robustesse : une saisie utilisateur erronée ne casse pas l API.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.9 · Périmètre — le journal est réservé",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/audit",
+        "description": "Le journal est une trace **nominative** — qui, quoi, depuis quelle IP. Le diffuser à tous le viderait de son intérêt. L'attribut `#[IsGranted('audit.read')]` est posé sur la classe entière : ajouter une route ici plus tard ne peut pas ouvrir un accès par inadvertance."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — audit.read non accordé à APPRENANT', () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.10 · Écriture dans le journal impossible",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"action\": \"user.delete\",\n  \"category\": \"SECURITY\",\n  \"severity\": \"info\",\n  \"description\": \"Tentative de forge depuis Postman\"\n}"
+        },
+        "url": "{{baseUrl}}/audit"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('405 — aucune route d écriture sur le journal', () => pm.response.to.have.status(405));",
+              "",
+              "console.log('🔒 Impossible de fabriquer une trace : c est le but de l audit.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.11 · Notification d'un tiers = 404, pas 403",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/notifications/1/read",
+        "description": "Un 403 confirmerait **qu'il existe** une notification portant cet identifiant. En répondant 404, l'API ne révèle rien : la notification n'existe pas **pour cet appelant**."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('404 — existence non divulguée', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12.12 · Knowledge.write : le Responsable IT ne peut pas publier",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenIt}}" }],
+        "url": "{{baseUrl}}/knowledge/documents",
+        "description": "Contre-exemple du cloisonnement : `RESPONSABLE_IT` a `knowledge.read` mais **ni `knowledge.write` ni `knowledge.read_all`**. Il peut lire la base de connaissances, pas l'alimenter — même s'il en aurait matériellement le droit pour sa documentation technique.\n\nLe contrôle est fin et ne se laisse pas deviner : il faut regarder le RBAC, pas l'intuition."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — lecture autorisée pour le rôle IT', () => pm.response.to.have.status(200));",
+              "",
+              "console.log('ℹ️ Lecture permise, écriture refusée : knowledge.read ≠ knowledge.write.');"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

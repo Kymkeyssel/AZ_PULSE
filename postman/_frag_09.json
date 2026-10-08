@@ -1,0 +1,215 @@
+{
+  "name": "09 · Notifications",
+  "description": "Module **Notifications** — cloche de l'application.\n\nLe contrôleur est entièrement **scopé à l'utilisateur connecté** : il passe par `getUser()` et jamais par un identifiant présent dans l'URL. Un `GET /api/notifications/42` ne peut donc pas lire la notification d'un collègue — et une notification appartenant à quelqu'un d'autre répond **404**, pas 403, pour ne pas confirmer l'existence d'une donnée qui n'est pas la sienne.\n\n**Aucune écriture n'est possible depuis l'API** : ni POST, ni PUT, ni DELETE. Une ligne se crée par l'action métier qui l'a méritée (`incident.opened`, `tuition.payment_received`, `access_request.approved`…). Autoriser l'écriture ici permettrait à n'importe qui de fabriquer des messages au nom de la plateforme.\n\n**Captures d'écran suggérées** : composant de cloche du header, page `/notifications`.",
+  "item": [
+    {
+      "name": "09.1 · Compteur de la cloche",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/notifications/unread-count",
+        "description": "Route distincte de la liste, volontairement : la cloche s'affiche sur **toutes** les pages alors que la liste n'est ouverte que lorsqu'on la consulte. Réutiliser `/api/notifications` ferait charger toute la file à chaque navigation.\n\nRéponse minimale : `{ success: true, data: { count: N } }`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — compteur renvoyé', () => pm.response.to.have.status(200));",
+              "pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);",
+              "pm.test('le compteur est un entier positif ou nul', () => {",
+              "  const c = pm.response.json().data.count;",
+              "  pm.expect(c).to.be.a('number');",
+              "  pm.expect(c).to.be.at.least(0);",
+              "});",
+              "",
+              "console.log('🔔 Non lues :', pm.response.json().data.count);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.2 · Liste des notifications",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/notifications?page=1&limit=20",
+        "description": "Pagination dans `meta` : `page`, `limit`, `total`, `pages` et `unreadCount`.\n\nFiltre `?unread=true` pour la file non lue.\n\nChaque notification expose `id`, `type`, `title`, `body`, `link`, `severity`, `isRead`, `readAt`, `createdAt`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — liste renvoyée', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('blocage de pagination complet', () => {",
+              "  pm.expect(j.meta).to.include.all.keys('page', 'limit', 'total', 'pages', 'unreadCount');",
+              "});",
+              "pm.test('la page demandée est respectée', () => pm.expect(j.meta.page).to.eql(1));",
+              "pm.test('total cohérent avec la page renvoyée', () => pm.expect(j.data.length).to.be.at.most(j.meta.total));",
+              "pm.test('chaque notification est complète', () => {",
+              "  j.data.forEach(n => {",
+              "    pm.expect(n.id).to.be.a('number');",
+              "    pm.expect(n.type).to.be.a('string').and.not.empty;",
+              "    pm.expect(n.title).to.be.a('string').and.not.empty;",
+              "    pm.expect(n.severity).to.be.oneOf(['info', 'warning', 'critical']);",
+              "    pm.expect(n.isRead).to.be.a('boolean');",
+              "  });",
+              "});",
+              "",
+              "if (j.data.length > 0) {",
+              "  pm.collectionVariables.set('notificationId', j.data[0].id);",
+              "}",
+              "console.log('📬', j.meta.total, 'notification(s),', j.meta.unreadCount, 'non lue(s).');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.3 · Filtrer sur les non lues",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/notifications?unread=true"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — filtre appliqué', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('toutes les notifications renvoyées sont non lues', () => {",
+              "  j.data.forEach(n => pm.expect(n.isRead, 'isRead de la notif ' + n.id).to.be.false);",
+              "});",
+              "pm.test('le compteur reste cohérent', () => pm.expect(j.data.length).to.be.at.most(j.meta.total));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.4 · Marquer une notification comme lue",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/notifications/{{notificationId}}/read",
+        "description": "`markAsRead()` est **idempotent** : marquer deux fois ne réécrit pas l'horodatage de première lecture. C'est pourquoi `readAt` n'est pas écrasé par un second appel."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — notification marquée lue', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('isRead passe à true', () => pm.expect(d.isRead).to.be.true);",
+              "pm.test('readAt est horodaté', () => pm.expect(d.readAt).to.be.a('string'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.5 · Idempotence de la lecture",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/notifications/{{notificationId}}/read",
+        "description": "Second appel volontaire : `readAt` doit rester **inchangé**. Une nouvelle lecture réécrirait l'horodatage et ferait disparaître la trace du moment où la personne a réellement vu la notification."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — toujours lue', () => pm.response.to.have.status(200));",
+              "pm.test('readAt n a pas été réécrit', () => {",
+              "  pm.expect(pm.response.json().data.readAt).to.eql(pm.collectionVariables.get('readAtFirstTime'));",
+              "});",
+              "",
+              "console.log('🔒 Idempotence confirmée : la première date de lecture est préservée.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.6 · Marquer toute la file comme lue",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/notifications/read-all",
+        "description": "Le nombre **réellement** traité est renvoyé. Le bouton peut donc afficher une confirmation exacte plutôt que de laisser croire que des notifications disparues l'étaient déjà.\n\n`unreadCount` est forcé à `0` dans la réponse."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — file traitée', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('updated est un entier', () => pm.expect(d.updated).to.be.a('number'));",
+              "pm.test('le compteur est ramené à zéro', () => pm.expect(d.unreadCount).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.7 · Périmètre — notification d'un autre utilisateur = 404",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/notifications/{{notificationId}}/read",
+        "description": "Le Super Admin a potentiellement marqué une notification qui n'est pas la sienne… non : cette notification **est** la sienne. Ce test tente donc de lire un identifiant **étranger à l'appelant**.\n\nUn `999999` inexistant et une notification réellement appartenant au Super Admin produisent **la même réponse 404** : l'API ne distingue pas « n'existe pas » de « n'est pas à toi », elle ne confirme rien."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('404 — existence non divulguée', () => pm.response.to.have.status(404));",
+              "",
+              "console.log('🔒 Cloisonnement vérifié : une notification étrangère répond 404, pas 403.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09.8 · Cloche — perspective de l'apprenant",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/notifications/unread-count",
+        "description": "Chaque utilisateur voit **sa propre** cloche. Le test 09.6 a vidé la file du Super Admin ; celle de l'apprenant est indépendante et a été alimentée par les étapes précédentes (paiement validé en 07.3, dépose de justificatif)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — cloche propre à l apprenant', () => pm.response.to.have.status(200));",
+              "pm.test('compteur entier', () => pm.expect(pm.response.json().data.count).to.be.a('number'));",
+              "",
+              "console.log('🔔 Apprenant — non lues :', pm.response.json().data.count);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+$kind: http-request
+description: |-
+  Croise le parc GLPI et les incidents internes.
+
+  Renvoie un code **503** avec l'erreur `GLPI_UNAVAILABLE` si GLPI est injoignable : l'application **refuse explicitement** de renvoyer un repli local, pour ne jamais présenter un inventaire périmé comme s'il était à jour. Le champ `totalEquipmentsSource` indique l'origine des données.
+url: "{{baseUrl}}/dashboard/it"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 ou 503 (GLPI joignable ou non)', () => {
+        pm.expect([200, 503]).to.include(pm.response.code);
+      });
+
+      if (pm.response.code === 200) {
+        const d = pm.response.json().data;
+        pm.test('la source de l inventaire est tracée', () => pm.expect(d.totalEquipmentsSource).to.eql('glpi'));
+        pm.test('incidents ouverts comptés', () => pm.expect(d.openIncidents).to.be.a('number'));
+        pm.test('incidents en cours comptés', () => pm.expect(d.inProgressIncidents).to.be.a('number'));
+      } else {
+        pm.test('503 — GLPI_UNAVAILABLE, aucun repli local', () => pm.expect(pm.response.text()).to.include('GLPI_UNAVAILABLE'));
+        console.warn('⚠️ GLPI injoignable — le refus de repli est le comportement attendu.');
+      }
+    language: text/javascript
+order: 7000

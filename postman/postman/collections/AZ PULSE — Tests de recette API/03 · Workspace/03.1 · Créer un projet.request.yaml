@@ -1,0 +1,33 @@
+$kind: http-request
+description: |-
+  Si `manager_id` est omis, le chef de projet devient l'utilisateur connecté. Un `customer_id` peut être fourni pour rattacher le projet à un compte du CRM.
+
+  Effet de bord : l'événement `project.created` est publié → **notification** au chef de projet + **journal d'audit**.
+url: "{{baseUrl}}/workspace/projects"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Refonte SI — {{suffix}}",
+      "description": "Projet de recette Postman — pilotage de la refonte du système d'information du client.",
+      "status": "ONGOING",
+      "priority": "HIGH",
+      "budget": 1850000,
+      "startDate": "2026-10-01",
+      "endDate": "2026-12-15",
+      "customer_id": {{customerId}}
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — projet créé', () => pm.response.to.have.status(201));
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+      pm.test('un identifiant est renvoyé', () => pm.expect(pm.response.json().data.id).to.be.a('number'));
+
+      pm.collectionVariables.set('projectId', pm.response.json().data.id);
+      console.log('📁 Projet créé — id =', pm.collectionVariables.get('projectId'));
+    language: text/javascript
+order: 1000

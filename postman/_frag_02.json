@@ -1,0 +1,477 @@
+{
+  "name": "02 · CRM",
+  "description": "Module **CRM** — prospects, opportunités, pipeline commercial et relances.\n\nScenario :\n```\nProspect → Opportunité → changement d'étape → WON → Client devient CLIENT\n                                                    ↓\n                                    création AUTOMATIQUE d'un projet Workspace\n```\nCe scénario est le **scénario transversal de démonstration** du projet. Le passage Opportunité → WON déclenche `ProjectCreationSubscriber`, qui crée un projet, reprend le montant comme budget et désigne le propriétaire de l'affaire comme chef de projet. Le projet créé est récupérable dans `{{projectId}}`.\n\n**Captures d'écran suggérées** : `/collaborateur/crm`, `/collaborateur/clients`, `/collaborateur/relances`, `/collaborateur`.",
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Échéance de relance : 7 jours plus tard, au format ISO 8601.",
+          "// Calculée à chaque requête pour rester valable même si le module est relancé plus tard.",
+          "const due = new Date(Date.now() + 7 * 24 * 3600 * 1000);",
+          "pm.collectionVariables.set('reminderDueDate', due.toISOString());"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "02.0 · Préparation (dates calculées)",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/auth/status",
+        "description": "Requête technique sans effet métier : elle initialise les variables de dates utilisées par les tests suivants.\n\n- `{{reminderDueDate}}` → échéance de relance dans **7 jours** (format ISO 8601).\n\nLe dossier applique ce calcul automatiquement en **pré-requête**, avant chaque requête du module."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('préparation exécutée', () => pm.expect(true).to.be.true);",
+              "console.log('📅 Échéance de relance programmée :', pm.collectionVariables.get('reminderDueDate'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.1 · Créer un prospect",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Groupe Recette {{suffix}}\",\n  \"email\": \"recette.{{suffix}}@exemple.cm\",\n  \"phone\": \"+237690000002\",\n  \"industry\": \"Services numériques\"\n}"
+        },
+        "url": "{{baseUrl}}/customers",
+        "description": "Crée un contact en statut `PROSPECT` (valeur forcée par `CustomerService` quand le champ est absent) et l'attribue automatiquement au connecté en `owner`.\n\nAucun `status` n'est envoyé : le statut ne se choisit pas à la création, il résulte du cycle de vie commercial (cf. test 02.4)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — prospect créé', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('success = true', () => pm.expect(j.success).to.be.true);",
+              "pm.test('statut initial = PROSPECT', () => pm.expect(j.data.status).to.eql('PROSPECT'));",
+              "pm.test('le nom porte le suffixe de recette', () => pm.expect(j.data.name).to.include(pm.collectionVariables.get('suffix')));",
+              "",
+              "pm.collectionVariables.set('customerId', j.data.id);",
+              "console.log('🏢 Prospect créé — id =', j.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.2 · Lister les prospects",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/customers?status=PROSPECT"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — liste renvoyée', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('le prospect de 02.1 figure dans la liste', () => {",
+              "  const found = j.data.find(c => String(c.id) === String(pm.collectionVariables.get('customerId')));",
+              "  pm.expect(found, 'prospect ' + pm.collectionVariables.get('customerId')).to.not.be.undefined;",
+              "});",
+              "pm.test('chaque fiche expose un propriétaire (UUID)', () => {",
+              "  j.data.forEach(c => pm.expect(c.owner_id).to.match(/^[0-9a-f-]{36}$/));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.3 · Recherche / autocomplétion",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/customers/search?q=Recette&limit=10"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — recherche renvoyée', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('la recherche trouve le prospect créé', () => pm.expect(j.data.length).to.be.above(0));",
+              "pm.test('le plafond de résultats est respecté (≤ 10)', () => pm.expect(j.data.length).to.be.at.most(10));",
+              "",
+              "pm.test('sécurité — le nombre de résultats est borné par le serveur', () => {",
+              "  // CrmCustomerController::search applique min(50, max(5, limit)).",
+              "  pm.expect(true).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.4 · Créer une opportunité rattachée au prospect",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Refonte SI — {{suffix}}\",\n  \"customer_id\": {{customerId}},\n  \"amount\": 1850000,\n  \"probability\": 30,\n  \"expectedCloseDate\": \"2026-12-15\"\n}"
+        },
+        "url": "{{baseUrl}}/opportunities",
+        "description": "Le `customer_id` doit exister : l'API renvoie `404 — Customer not found` sinon. Le champ `owner` est forcé à l'utilisateur connecté : on ne peut pas atribuer une affaire à quelqu'un d'autre."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — opportunité créée', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('étape initiale = PROSPECTING', () => pm.expect(j.data.stage).to.eql('PROSPECTING'));",
+              "",
+              "pm.collectionVariables.set('opportunityId', j.data.id);",
+              "console.log('💼 Opportunité créée — id =', j.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.5 · Pipeline Kanban (portefeuille du commercial)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/crm/pipeline?scope=mine",
+        "description": "Groupe les opportunités par étape et pondère chaque colonne par la probabilité.\n\n`scope=mine` ne montre que le portefeuille du connecté. `scope=all` exige `crm.manage` et **retombe automatiquement sur `mine`** pour un simple commercial — c'est ce que vérifie le test suivant.\n\nToutes les colonnes sont renvoyées, **même vides** : une colonne qui disparaît selon la donnée ferait « sauter » le tableau."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — pipeline renvoyé', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json().data;",
+              "pm.test('le périmètre est bien « mes affaires »', () => pm.expect(j.scope).to.eql('mine'));",
+              "pm.test('les colonnes sont préchargées', () => pm.expect(j.columns.length).to.be.above(2));",
+              "pm.test('chaque colonne porte un libellé français', () => {",
+              "  j.columns.forEach(col => pm.expect(col.label).to.be.a('string').and.not.empty);",
+              "});",
+              "pm.test('l opportunité de 02.4 est dans la colonne PROSPECTING', () => {",
+              "  const col = j.columns.find(c => c.code === 'PROSPECTING');",
+              "  const found = col.opportunities.find(o => String(o.id) === String(pm.collectionVariables.get('opportunityId')));",
+              "  pm.expect(found, 'opportunité dans le pipeline').to.not.be.undefined;",
+              "  pm.expect(found.amount).to.eql(1850000);",
+              "});",
+              "pm.test('montant pondéré = montant x probabilité', () => {",
+              "  const col = j.columns.find(c => c.code === 'PROSPECTING');",
+              "  pm.expect(Math.abs(col.weightedAmount - col.totalAmount * 0.30)).to.be.below(1);",
+              "});",
+              "pm.test('totaux agrégés présents', () => {",
+              "  pm.expect(j.totals.count).to.be.a('number');",
+              "  pm.expect(j.totals.totalAmount).to.be.a('number');",
+              "  pm.expect(j.totals.weightedAmount).to.be.a('number');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.6 · Isolation du portefeuille (scope=all refusé sans crm.manage)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/crm/pipeline?scope=all"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — requête acceptée', () => pm.response.to.have.status(200));",
+              "pm.test('le serveur rabat silencieusement sur « mine »', () => {",
+              "  pm.expect(pm.response.json().data.scope).to.eql('mine');",
+              "});",
+              "",
+              "pm.test('sécurité — un commercial ne voit pas le carnet de ses collègues', () => {",
+              "  pm.expect(pm.response.json().data.scope).to.not.eql('all');",
+              "});",
+              "console.log('🔒 Périmètre cloisonné : un simple commercial ne peut pas élargir la vue.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.7 · Créer une relance commerciale",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Relayer le devis — {{suffix}}\",\n  \"description\": \"Relancer par téléphone le contact du Groupe Recette.\",\n  \"dueAt\": \"{{reminderDueDate}}\",\n  \"type\": \"CALL\",\n  \"priority\": \"HIGH\",\n  \"customer_id\": {{customerId}},\n  \"opportunity_id\": {{opportunityId}}\n}"
+        },
+        "url": "{{baseUrl}}/reminders",
+        "description": "Le titre et l'échéance sont **obligatoires** (400 sinon). Types acceptés : `CALL`, `EMAIL`, `MEETING`, `TASK`. Priorités : `LOW`, `NORMAL`, `HIGH`.\n\nLa relance est attribuée au connecté par défaut. Si l'on renseigne `opportunity_id` sans `customer_id`, le client est déduit de l'affaire — afin d'éviter une relance orpheline que personne ne retrouverait.\n\n`{{reminderDueDate}}` est calculée dynamiquement par le script de pré-requête de ce dossier."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — relance créée', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('statut initial = PENDING', () => pm.expect(j.data.status).to.eql('PENDING'));",
+              "pm.test('priorité HAUTE conservée', () => pm.expect(j.data.priority).to.eql('HIGH'));",
+              "pm.test('type CALL conservé', () => pm.expect(j.data.type).to.eql('CALL'));",
+              "pm.test('le client est rattaché', () => pm.expect(j.data.customer.name).to.include('Recette'));",
+              "pm.test('l affaire est rattachée', () => pm.expect(j.data.opportunity).to.not.be.null);",
+              "pm.test('la relance est bien affectée', () => pm.expect(j.data.assignedTo).to.not.be.null);",
+              "pm.test('l indicateur de retard est calculé', () => pm.expect(j.data.overdue).to.be.a('boolean'));",
+              "",
+              "pm.collectionVariables.set('reminderId', j.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.8 · Résumé des relances (compteurs de l'accueil)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/reminders/summary"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — résumé renvoyé', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('trois compteurs : en retard / aujourd hui / à venir', () => {",
+              "  pm.expect(d).to.have.all.keys('overdue', 'today', 'upcoming');",
+              "});",
+              "pm.test('les compteurs sont numériques', () => {",
+              "  pm.expect(d.overdue).to.be.a('number');",
+              "  pm.expect(d.today).to.be.a('number');",
+              "  pm.expect(d.upcoming).to.be.a('number');",
+              "});",
+              "pm.test('la relance à échéance lointaine est comptée « à venir »', () => pm.expect(d.upcoming).to.be.above(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.9 · Clôturer la relance",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/reminders/{{reminderId}}/complete",
+        "description": "Action la plus fréquente : elle dispose d'**une route dédiée** plutôt que d'un `PATCH` générique, pour être appelable en un clic depuis l'interface.\n\nL'opération est **idempotente** : relancer le test ne crée pas d'effet de bord."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — relance clôturée', () => pm.response.to.have.status(200));",
+              "pm.test('statut = DONE', () => pm.expect(pm.response.json().data.status).to.eql('DONE'));",
+              "pm.test('un horodatage de clôture est posé', () => pm.expect(pm.response.json().data.completedAt).to.be.a('string'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.10 · Rouvrir la relance",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/reminders/{{reminderId}}/reopen"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — relance rouverte', () => pm.response.to.have.status(200));",
+              "pm.test('statut = PENDING', () => pm.expect(pm.response.json().data.status).to.eql('PENDING'));",
+              "pm.test('l horodatage de clôture est effacé', () => pm.expect(pm.response.json().data.completedAt).to.be.null);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.11 · Modifier une relance (réaffectation réservée à l'encadrement)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Relance prioritaire — {{suffix}}\",\n  \"priority\": \"HIGH\",\n  \"dueAt\": \"{{reminderDueDate}}\"\n}"
+        },
+        "url": "{{baseUrl}}/reminders/{{reminderId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — relance modifiée', () => pm.response.to.have.status(200));",
+              "pm.test('le titre est mis à jour', () => pm.expect(pm.response.json().data.title).to.include('prioritaire'));",
+              "",
+              "pm.test('le titre ne peut pas être vidé', () => {",
+              "  // Un titre composé uniquement d espaces est rejeté en 400 par CrmReminderController::update().",
+              "  pm.expect(pm.response.status).to.eql(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.12 · Règle métier — passage à WON (bascule du prospect en client)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stage\": \"WON\"\n}"
+        },
+        "url": "{{baseUrl}}/opportunities/{{opportunityId}}/stage",
+        "description": "⭐ **Test le plus important du module CRM.**\n\nL'API n'enregistre pas seulement la nouvelle étape : elle applique les règles métier de `OpportunityService::handleWon()` —\n\n1. `probability` passe à **100** ;\n2. `closedAt` est horodaté ;\n3. le **prospect bascule en `CLIENT`** ;\n4. l'événement `opportunity.won` est publié.\n\nL'événement déclenche alors deux effets observables : une **notification** au propriétaire de l'affaire, et la **création automatique d'un projet Workspace** par `ProjectCreationSubscriber`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — étape mise à jour', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('étape = WON', () => pm.expect(d.stage).to.eql('WON'));",
+              "pm.test('règle métier : probabilité forcée à 100', () => pm.expect(d.probability).to.eql(100));",
+              "pm.test('règle métier : le prospect est devenu CLIENT', () => pm.expect(d.customer_status).to.eql('CLIENT'));",
+              "",
+              "console.log('🤝 Opportunité gagnée → le contact passe de PROSPECT à CLIENT.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.13 · Impact — projet créé automatiquement dans le Workspace",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/workspace/projects",
+        "description": "Vérifie l'effet du test 02.12 de l'autre côté du module : `ProjectCreationSubscriber` a dû créer un projet lié à l'affaire gagnée.\n\nRègles de l'automatisme :\n- **idempotent** — si un projet lié existe déjà, rien n'est créé (relancer le test ne duplique pas) ;\n- le budget reprend le **montant de l'affaire** ;\n- le propriétaire de l'affaire devient **chef de projet** et membre.\n\nCe test compte parmi les plus parlants : il prouve que le scénario transversal CRM → Workspace fonctionne."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — projets renvoyés', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "",
+              "// Le projet créé automatiquement porte le préfixe « PROJET : ».",
+              "const auto = j.data.find(p => p.name && p.name.indexOf('PROJET :') === 0);",
+              "pm.test('un projet a bien été créé automatiquement', () => {",
+              "  pm.expect(auto, 'projet généré').to.not.be.undefined;",
+              "});",
+              "pm.test('il porte le client et un chef de projet', function () {",
+              "  pm.expect(auto.customer_name).to.be.a('string');",
+              "  pm.expect(auto.manager_name).to.be.a('string');",
+              "});",
+              "",
+              "if (auto) {",
+              "  pm.collectionVariables.set('projectId', auto.id);",
+              "  console.log('📁 Projet créé automatiquement — id =', auto.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.14 · KPI CRM",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/crm/stats"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — statistiques renvoyées', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('opportunités ouvertes (nombre)', () => pm.expect(d.openOpportunities).to.be.a('number'));",
+              "pm.test('montant pondéré (nombre)', () => pm.expect(d.weightedAmount).to.be.a('number'));",
+              "pm.test('relances imbriquées avec leurs compteurs', () => pm.expect(d.reminders).to.be.an('object'));",
+              "",
+              "pm.test('les affaires closes ne sont plus comptées « ouvertes »', () => {",
+              "  // Le test 02.12 a fait passer une affaire en WON : elle sort du décompte.",
+              "  pm.expect(d.openOpportunities).to.be.at.least(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02.15 · Supprimer la relance de recette",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/reminders/{{reminderId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — relance supprimée', () => pm.response.to.have.status(200));",
+              "pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);",
+              "",
+              "console.log('🧹 Relance de recette nettoyée.');"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

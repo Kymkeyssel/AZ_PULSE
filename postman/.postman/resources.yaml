@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: 4e647f98-fb31-42ee-8846-8a463600f926
+
+cloudResources:
+  collections:
+    ../postman/collections/AZ PULSE — Tests de recette API: d0ddc349-d029-40fb-a4b6-f89def153564
+
+# All resources in the `postman/` folder are automatically registered in Local View.
+# Point to additional files outside the `postman/` folder to register them individually. Example:
+#localResources:
+#  collections:
+#    - ../tests/E2E Test Collection/

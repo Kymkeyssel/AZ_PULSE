@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/it/incidents"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — incidents renvoyés', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+      pm.test('l incident de 05.3 figure dans la file', () => {
+        const inc = j.data.find(i => String(i.id) === String(pm.collectionVariables.get('incidentId')));
+        pm.expect(inc, 'incident').to.not.be.undefined;
+        pm.expect(inc.status).to.eql('OPEN');
+      });
+      pm.test('les incidents sont triés du plus récent au plus ancien', () => {
+        for (let i = 1; i < j.data.length; i++) {
+          pm.expect(j.data[i - 1].createdAt >= j.data[i].createdAt).to.be.true;
+        }
+      });
+    language: text/javascript
+order: 4000

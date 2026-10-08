@@ -1,0 +1,18 @@
+$kind: http-request
+description: "Route explicite pour que l'interface n'invente pas de libellés : la liste des catégories et des sévérités est **fermée par le serveur**, et non devinée côté client."
+url: "{{baseUrl}}/audit/filters"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — valeurs exposées', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('les 8 catégories sont listées', () => {
+        pm.expect(d.categories).to.be.an('array').with.lengthOf(8);
+      });
+      pm.test('les 3 sévérités sont listées', () => {
+        pm.expect(d.severities).to.be.an('array').with.lengthOf(3);
+        pm.expect(d.severities).to.include.members(['info', 'warning', 'critical']);
+      });
+    language: text/javascript
+order: 7000

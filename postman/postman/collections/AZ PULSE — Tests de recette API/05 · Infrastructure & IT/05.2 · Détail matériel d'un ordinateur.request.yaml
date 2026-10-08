@@ -1,0 +1,24 @@
+$kind: http-request
+description: |-
+  Agrège quatre sous-ressources GLPI : processeur (`Item_DeviceProcessor`), mémoire (`Item_DeviceMemory`), système d'exploitation (`Item_OperatingSystem`), disque dur (`Item_DeviceHardDrive`).
+
+  Chaque appel est encapsulé dans son propre `try/catch` : si une sous-ressource échoue, elle renvoie un tableau vide **sans faire échouer la réponse globale**. Le détail est donc toujours partiellement disponible.
+url: "{{baseUrl}}/it/inventory/computers/{{computerId}}/details"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — détail renvoyé', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('le détail porte un identifiant', () => pm.expect(j.data.id).to.be.a('number'));
+      pm.test('quatre sous-éléments matériels sont attendus', () => {
+        pm.expect(j.data).to.have.property('processor');
+        pm.expect(j.data).to.have.property('memory');
+        pm.expect(j.data).to.have.property('os');
+        pm.expect(j.data).to.have.property('harddrive');
+      });
+      pm.test('dégradation gracieuse : chaque sous-élément vaut [] ou un tableau', () => {
+        ['processor', 'memory', 'os', 'harddrive'].forEach(k => pm.expect(j.data[k]).to.be.an('array'));
+      });
+    language: text/javascript
+order: 2000

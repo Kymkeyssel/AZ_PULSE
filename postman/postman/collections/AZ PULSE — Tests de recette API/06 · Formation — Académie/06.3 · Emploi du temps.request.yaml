@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{baseUrl}}/academy/schedule"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — emploi du temps renvoyé', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+      pm.test('au moins une séance est programmée', () => pm.expect(j.data.length).to.be.above(0));
+      pm.test('les séances sont triées par date de début', () => {
+        for (let i = 1; i < j.data.length; i++) {
+          pm.expect(j.data[i - 1].startTime <= j.data[i].startTime).to.be.true;
+        }
+      });
+      pm.test('chaque séance expose salle et horaires', () => {
+        j.data.forEach(s => {
+          pm.expect(s.startTime).to.be.a('string');
+          pm.expect(s.endTime).to.be.a('string');
+        });
+      });
+    language: text/javascript
+order: 3000

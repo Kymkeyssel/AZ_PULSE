@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/it/incidents/{{incidentId}}"
+method: PATCH
+body:
+  type: text
+  content: |-
+    {
+      "status": "IN_PROGRESS",
+      "priority": "HIGH"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — incident mis à jour', () => pm.response.to.have.status(200));
+      pm.test('statut = IN_PROGRESS', () => pm.expect(pm.response.json().data.status).to.eql('IN_PROGRESS'));
+
+      pm.test('passer en cours ne pose pas de date de résolution', () => {
+        pm.expect(pm.response.json().data.resolvedAt).to.be.null;
+      });
+    language: text/javascript
+order: 5000

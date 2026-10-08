@@ -1,0 +1,21 @@
+$kind: http-request
+description: |-
+  Route distincte de la liste, volontairement : la cloche s'affiche sur **toutes** les pages alors que la liste n'est ouverte que lorsqu'on la consulte. Réutiliser `/api/notifications` ferait charger toute la file à chaque navigation.
+
+  Réponse minimale : `{ success: true, data: { count: N } }`.
+url: "{{baseUrl}}/notifications/unread-count"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — compteur renvoyé', () => pm.response.to.have.status(200));
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+      pm.test('le compteur est un entier positif ou nul', () => {
+        const c = pm.response.json().data.count;
+        pm.expect(c).to.be.a('number');
+        pm.expect(c).to.be.at.least(0);
+      });
+
+      console.log('🔔 Non lues :', pm.response.json().data.count);
+    language: text/javascript
+order: 1000

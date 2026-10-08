@@ -1,0 +1,20 @@
+$kind: collection
+description: |-
+  Module **Analytics** — indicateurs agrégés de la plateforme.
+
+  Un seul endpoint, `GET /api/analytics/kpis`, regroupé par domaine :
+
+  ```json
+  {
+    "crm":       { prospects, clients, opportunities, wonOpportunities, pipelineValue, wonValue },
+    "workspace": { projects, activeProjects, openTasks, overdueTasks },
+    "knowledge": { published, drafts },
+    "it":        { openIncidents },
+    "generatedAt": "2026-…"
+  }
+  ```
+
+  Exige la permission `analytics.read`.
+
+  > ⚠️ **Endpoint actuellement cassé** : voir 11.1.
+order: 12000

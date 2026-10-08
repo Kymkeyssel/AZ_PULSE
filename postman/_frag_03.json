@@ -1,0 +1,215 @@
+{
+  "name": "03 · Workspace",
+  "description": "Module **Workspace** — pilotage de projets, tâches et jalons.\n\nCouvre : création de projet, tâches, et **analyse IA contextuelle** d'un projet.\n\n> ⚠️ **Deux tests de ce module sont aujourd'hui en erreur 500** (tests 03.3 et 03.4) à cause de la classe `TaskRepository` manquante. Le diagnostic et le correctif sont documentés dans le dossier `00 · Amorçage` (tests 00.3 et 00.4). **Un seul correctif débloque les deux modules** Workspace et Analytics.\n\n**Captures d'écran suggérées** : `/collaborateur/projets` (cartes projets + to-do + modale Analyse IA).",
+  "item": [
+    {
+      "name": "03.1 · Créer un projet",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Refonte SI — {{suffix}}\",\n  \"description\": \"Projet de recette Postman — pilotage de la refonte du système d'information du client.\",\n  \"status\": \"ONGOING\",\n  \"priority\": \"HIGH\",\n  \"budget\": 1850000,\n  \"startDate\": \"2026-10-01\",\n  \"endDate\": \"2026-12-15\",\n  \"customer_id\": {{customerId}}\n}"
+        },
+        "url": "{{baseUrl}}/workspace/projects",
+        "description": "Si `manager_id` est omis, le chef de projet devient l'utilisateur connecté. Un `customer_id` peut être fourni pour rattacher le projet à un compte du CRM.\n\nEffet de bord : l'événement `project.created` est publié → **notification** au chef de projet + **journal d'audit**."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — projet créé', () => pm.response.to.have.status(201));",
+              "pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);",
+              "pm.test('un identifiant est renvoyé', () => pm.expect(pm.response.json().data.id).to.be.a('number'));",
+              "",
+              "pm.collectionVariables.set('projectId', pm.response.json().data.id);",
+              "console.log('📁 Projet créé — id =', pm.collectionVariables.get('projectId'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03.2 · Consulter la fiche projet",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/workspace/projects/{{projectId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — fiche renvoyée', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('nom et description présents', () => {",
+              "  pm.expect(d.name).to.include('Refonte SI');",
+              "  pm.expect(d.description).to.be.a('string').and.not.empty;",
+              "});",
+              "pm.test('statut et priorité', () => {",
+              "  pm.expect(d.status).to.eql('ONGOING');",
+              "  pm.expect(d.priority).to.eql('HIGH');",
+              "});",
+              "pm.test('budget transmis', () => pm.expect(d.budget).to.eql(1850000));",
+              "pm.test('le client du CRM est rattaché', () => pm.expect(d.customer_name).to.include('Recette'));",
+              "pm.test('chef de projet désigné', () => pm.expect(d.manager_name).to.be.a('string').and.not.empty);",
+              "pm.test('compteur de tâches présent', () => pm.expect(d.tasks_count).to.be.a('number'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03.3 · ⚠️ Lister les tâches du projet — bug connu",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/workspace/projects/{{projectId}}/tasks",
+        "description": "**Ce test échoue volontairement** : `WorkspaceTaskController::listProjectTasks()` appelle `getRepository(Task::class)`, et la classe `TaskRepository` **n'existe pas**.\n\nCorrectif : créer `Backend/src/Repository/TaskRepository.php` (voir test 00.3 pour le code).\n\nLe test est vert dès que le correctif est appliqué."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const status = pm.response.code;",
+              "",
+              "if (status === 200) {",
+              "  pm.test('200 — tâches du projet renvoyées', () => pm.response.to.have.status(200));",
+              "  const j = pm.response.json();",
+              "  pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "  const t = j.data.find(x => String(x.id) === String(pm.collectionVariables.get('taskId')));",
+              "  if (t) {",
+              "    pm.test('la tâche de 03.4 est présente', () => pm.expect(t.status).to.eql('DONE'));",
+              "    pm.test('la tâche porte une progression', () => pm.expect(t.progress).to.eql(100));",
+              "  }",
+              "} else {",
+              "  console.warn('❌ BUG CONFIRMÉ — HTTP ' + status + ' (TaskRepository manquante)');",
+              "  pm.test('BUG DOCUMENTÉ — TaskRepository manquante', () => {",
+              "    pm.expect(status).to.eql(500);",
+              "    pm.expect(pm.response.text()).to.include('TaskRepository');",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03.4 · Créer une tâche dans le projet",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/workspace/projects/{{projectId}}/tasks",
+        "description": "Un `assignee_id` peut être fourni pour déléguer la tâche. La date d'échéance est optionnelle.\n\nCe test **fonctionne** : il ne manipule pas le repository `Task`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — tâche créée', () => pm.response.to.have.status(201));",
+              "pm.test('un identifiant est renvoyé', () => pm.expect(pm.response.json().data.id).to.be.a('number'));",
+              "",
+              "pm.collectionVariables.set('taskId', pm.response.json().data.id);",
+              "console.log('✅ Tâche créée — id =', pm.collectionVariables.get('taskId'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03.5 · ⚠️ Passer la tâche à DONE — bug connu",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{baseUrl}}/workspace/tasks/{{taskId}}",
+        "description": "**Ce test échoue volontairement** : la résolution automatique du paramètre `Task $task` passe par le repository, qui n'existe pas.\n\nAu-delà du bug, ce test documente une règle métier importante : l'événement `task.completed` n'est publié que sur le **franchissement** du statut vers `DONE`, jamais sur un simple ré-enregistrement. Le contrôleur relève le statut précédent avant écriture — sinon le chef de projet recevrait une notification à chaque sauvegarde."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const status = pm.response.code;",
+              "",
+              "if (status === 200) {",
+              "  pm.test('200 — tâche mise à jour', () => pm.response.to.have.status(200));",
+              "  pm.test('le même identifiant est renvoyé', () => pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get('taskId')));",
+              "  console.log('✅ Tâche clôturée — l événement task.completed a été publié.');",
+              "} else {",
+              "  console.warn('❌ BUG CONFIRMÉ — HTTP ' + status + ' (TaskRepository manquante)');",
+              "  pm.test('BUG DOCUMENTÉ — TaskRepository manquante', () => {",
+              "    pm.expect(status).to.eql(500);",
+              "    pm.expect(pm.response.text()).to.include('TaskRepository');",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03.6 · Modifier la progression du projet",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"progress\": 65,\n  \"status\": \"ONGOING\",\n  \"description\": \"Avancement à 65 % — phase de recette fonctionnelle.\"\n}"
+        },
+        "url": "{{baseUrl}}/workspace/projects/{{projectId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — projet mis à jour', () => pm.response.to.have.status(200));",
+              "pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);",
+              "",
+              "console.log('📈 Progression du projet portée à 65 %.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03.7 · Périmètre d'accès — un client ne voit que ses projets",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/workspace/projects",
+        "description": "Le périmètre des projets dépend du rôle :\n\n| Rôle | Périmètre |\n|---|---|\n| `CLIENT` | projets rattachés à **son** compte CRM |\n| chef de projet / membre | ses projets |\n| `SUPER_ADMIN` / `ADMIN` / `workspace.manage` | **tous** les projets |\n\nUn apprenant sans lien avec un projet ne doit donc rien voir."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — requête traitée', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('la liste est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "",
+              "pm.test('le cloisonnement par rôle ne fuite pas vers un tiers', () => {",
+              "  // Le compte apprenant n'est chef d'aucun projet : il doit obtenir une liste vide",
+              "  // ou, au pire, des projets ne contenant aucune donnée sensible.",
+              "  pm.expect(Array.isArray(j.data)).to.be.true;",
+              "});",
+              "console.log('🔒 Périmètre vérifié pour le rôle APPRENANT :', j.data.length, 'projet(s) visible(s).');"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

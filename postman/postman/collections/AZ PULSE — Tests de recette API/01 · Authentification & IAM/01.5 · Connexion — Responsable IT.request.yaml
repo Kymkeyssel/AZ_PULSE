@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{accountIt}}",
+      "password": "{{pwdIt}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — connexion réussie', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('rôle = RESPONSABLE_IT', () => pm.expect(j.user.primaryRole).to.eql('RESPONSABLE_IT'));
+      pm.test('détient it.manage', () => pm.expect(j.user.permissions).to.include('it.manage'));
+      pm.test('ne détient PAS it sur le CRM', () => pm.expect(j.user.permissions).to.not.include('crm.manage'));
+
+      pm.collectionVariables.set('tokenIt', j.token);
+      pm.environment.set('tokenIt', j.token);
+    language: text/javascript
+order: 5000

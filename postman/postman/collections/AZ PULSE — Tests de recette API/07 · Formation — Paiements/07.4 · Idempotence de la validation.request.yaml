@@ -1,0 +1,17 @@
+$kind: http-request
+description: |-
+  Relance **intentionnelle** du test précédent. Un second appel ne doit produire **aucun effet de bord** : ni tranche supplémentaire, ni nouvelle notification.
+
+  C'est une garantie importante — une double validation par un clic en double ne doit jamais facturer deux tranches à l'apprenant.
+url: "{{baseUrl}}/academy/payments/{{paymentId}}/validate"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — réponse idempotente', () => pm.response.to.have.status(200));
+      pm.test('le statut reste VALIDATED', () => pm.expect(pm.response.json().data.status).to.eql('VALIDATED'));
+      pm.test('aucune erreur renvoyée', () => pm.expect(pm.response.json().success).to.not.eql(false));
+
+      console.log('🔒 Idempotence confirmée : une double validation ne compte qu une tranche.');
+    language: text/javascript
+order: 4000

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AZ PULSE - Espace Client Entreprise</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Plus Jakarta Sans Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind CSS Config strictly complying with Brand Anchor tokens -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed": "#001c3b",
+            "on-tertiary-container": "#b78300",
+            "on-surface-variant": "#44474e",
+            "surface-container-lowest": "#ffffff",
+            "inverse-surface": "#2c3134",
+            "on-primary-container": "#778db2",
+            "background": "#f6fafe",
+            "surface-container-high": "#e5e9ed",
+            "secondary-container": "#1a62fe",
+            "on-secondary-fixed": "#00164d",
+            "error": "#ba1a1a",
+            "inverse-on-surface": "#edf1f5",
+            "secondary-fixed-dim": "#b5c4ff",
+            "on-primary": "#ffffff",
+            "tertiary-container": "#332200",
+            "surface-container": "#eaeef2",
+            "on-surface": "#181c1f",
+            "surface-variant": "#dfe3e7",
+            "surface-dim": "#d7dade",
+            "primary-container": "#0b2545",
+            "outline": "#74777f",
+            "on-tertiary-fixed-variant": "#5e4200",
+            "secondary": "#004ad1",
+            "primary-fixed": "#d5e3ff",
+            "on-secondary-container": "#f3f3ff",
+            "inverse-primary": "#b1c7f0",
+            "error-container": "#ffdad6",
+            "on-tertiary": "#ffffff",
+            "on-error": "#ffffff",
+            "surface-container-low": "#f0f4f8",
+            "on-secondary-fixed-variant": "#003cac",
+            "surface-tint": "#495f82",
+            "on-error-container": "#93000a",
+            "on-primary-fixed-variant": "#314769",
+            "secondary-fixed": "#dce1ff",
+            "primary-fixed-dim": "#b1c7f0",
+            "primary": "#001026",
+            "tertiary-fixed": "#ffdea8",
+            "tertiary": "#180e00",
+            "outline-variant": "#c4c6cf",
+            "on-secondary": "#ffffff",
+            "surface": "#f6fafe",
+            "on-background": "#181c1f",
+            "surface-container-highest": "#dfe3e7",
+            "on-tertiary-fixed": "#271900",
+            "tertiary-fixed-dim": "#ffba20",
+            "surface-bright": "#f6fafe"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-lg": "3rem",
+            "margin-sm": "1rem",
+            "gutter-lg": "2rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2.5rem",
+            "space-sm": "0.5rem",
+            "margin": "2rem",
+            "gutter-sm": "1rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "gutter": "1.5rem"
+          },
+          "fontFamily": {
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "display-hero-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display-hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Custom refined scrollbar & subtle pulse effects */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f0f4f8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c4c6cf;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #74777f;
+    }
+    .specular-border {
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8), 0 4px 20px -2px rgba(11, 37, 69, 0.05);
+    }
+    .pulse-glow-amber {
+      box-shadow: 0 0 14px rgba(255, 186, 32, 0.35);
+    }
+  </style>
+</head>
+<body class="h-full bg-background text-on-surface antialiased overflow-x-hidden font-body-md text-body-md">
+<div class="flex min-h-screen w-full">
+<!-- ========================================== -->
+<!-- 1. LEFT SIDEBAR COMPONENT (Source: JSON)   -->
+<!-- ========================================== -->
+<aside class="fixed top-0 left-0 h-screen w-64 flex flex-col justify-between shrink-0 bg-surface-container-lowest border-r border-outline-variant shadow-sm z-30 select-none">
+<!-- Top Brand & Organization Info -->
+<div class="flex flex-col p-4 pb-2">
+<!-- Brand Header Cluster -->
+<div class="flex items-center gap-3 px-2 py-2">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center p-1.5 shadow-sm overflow-hidden">
+<svg class="w-full h-full" fill="none" viewbox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+<path d="M40 260L160 40H220L340 260H260L235 205H145L120 260H40ZM162 165H218L190 100L162 165Z" fill="#004AD1"></path>
+<path d="M230 40H440L310 210H450V260H220L350 90H230V40Z" fill="#0B2545"></path>
+<path d="M20 180H220L250 130L280 230L320 160L390 170L440 100" stroke="#FFBA20" stroke-linecap="round" stroke-linejoin="round" stroke-width="26"></path>
+<circle cx="455" cy="95" fill="#FFBA20" r="16" stroke="#0B2545" stroke-width="4"></circle>
+</svg>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="text-headline-md font-headline-md tracking-tight font-extrabold text-primary">AZ PULSE</span>
+<span class="inline-block w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+</div>
+<span class="text-label-sm font-label-sm text-outline uppercase tracking-wider font-semibold">Portail Client</span>
+</div>
+</div>
+<!-- Portal Info / Company Switcher Dropdown -->
+<div class="mt-4 p-2.5 bg-surface-container-low rounded-lg border border-outline-variant/50 hover:bg-surface-container transition-all cursor-pointer group">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5 overflow-hidden">
+<div class="w-7 h-7 rounded-lg bg-primary-container text-surface-container-lowest flex items-center justify-center font-bold text-label-sm shrink-0">
+                GT
+              </div>
+<div class="flex flex-col truncate">
+<span class="text-label-md font-label-md text-primary font-bold truncate group-hover:text-secondary transition-colors">Global Tech SARL</span>
+<span class="text-body-sm font-body-sm text-outline truncate text-[11px]">Compte #CLI-2025-08</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-transform group-hover:translate-y-0.5" style="font-size: 18px;">expand_more</span>
+</div>
+</div>
+<!-- Section Navigation Label -->
+<div class="mt-5 px-3">
+<span class="text-[11px] font-label-sm font-bold uppercase tracking-wider text-outline">Espace Client</span>
+</div>
+<!-- Navigation Tabs from Shared JSON -->
+<!-- Tab labels: ["Tableau de bord", "Mes Projets", "Suivi Formations", "Documents & Contrats", "Facturation & Paiements", "Support & Tickets"] -->
+<!-- Active Tab: Tableau de bord mapped dynamically according to Active State Logic -->
+<nav class="mt-2 space-y-1">
+<!-- Item 1: Tableau de bord (ACTIVE) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary/10 text-secondary font-semibold rounded-lg border-r-2 border-secondary transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">dashboard</span>
+<span class="text-label-md font-label-md flex-1">Tableau de bord</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</a>
+<!-- Item 2: Mes Projets -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary" style="font-size: 20px;">folder_open</span>
+<span class="text-label-md font-label-md flex-1">Mes Projets</span>
+<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface-container-high text-primary">3</span>
+</a>
+<!-- Item 3: Suivi Formations -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary" style="font-size: 20px;">school</span>
+<span class="text-label-md font-label-md flex-1">Suivi Formations</span>
+<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-secondary/10 text-secondary">2</span>
+</a>
+<!-- Item 4: Documents & Contrats -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary" style="font-size: 20px;">description</span>
+<span class="text-label-md font-label-md flex-1">Documents &amp; Contrats</span>
+</a>
+<!-- Item 5: Facturation & Paiements -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary" style="font-size: 20px;">receipt_long</span>
+<span class="text-label-md font-label-md flex-1">Facturation &amp; Paiements</span>
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim pulse-glow-amber"></span>
+</a>
+<!-- Item 6: Support & Tickets -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary" style="font-size: 20px;">confirmation_number</span>
+<span class="text-label-md font-label-md flex-1">Support &amp; Tickets</span>
+<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-primary-container text-surface-container-lowest">1</span>
+</a>
+</nav>
+</div>
+<!-- Footer User Card & Account Options (from JSON footer_tab_labels) -->
+<div class="p-3 border-t border-outline-variant/60 bg-surface-container-lowest">
+<!-- User identity interactive block -->
+<div class="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/40 flex items-center gap-3 mb-2">
+<div class="relative shrink-0">
+<img class="w-9 h-9 rounded-full object-cover border border-outline-variant" data-alt="Portrait photography of a confident West African senior tech executive in his forties wearing an elegant navy tailored suit in a modern glass office with bright clean architectural lighting reflecting blue tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsyJIGXoMl1L6hS5F3eoszDDx1FPdayVi5QItPRoi-yDw0CM0za946qyBJ7nC36ZrgCbYX9Yk_C0rQIfII_538SOjZQmCcFxbbIdFKheaNeh3Rf6rysBd3jRzvpCnt699-4GnLdq_IsTaGv9IOas9YVUfuDm3LaSaDCeIESwUco42LHNGs5wJdEiiXTsyUJAnf0cJ2wHGibf9jxUpY45nTTr72Q_pZIiMecLD0Nw_ZjCyf1wgqSRtK0loaIVYEIfwQXuhbscAFIGo"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-surface-container-lowest"></span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="text-label-md font-label-md text-primary font-bold truncate">M. Marc Essomba</span>
+<span class="text-[11px] font-body-sm text-outline truncate">DSI • Global Tech SARL</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-1 text-center">
+<a class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md hover:bg-surface-container text-outline hover:text-primary transition-colors text-label-sm font-label-sm" href="#">
+<span class="material-symbols-outlined" style="font-size: 16px;">account_circle</span>
+<span>Mon Profil</span>
+</a>
+<a class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md hover:bg-error-container/40 text-outline hover:text-error transition-colors text-label-sm font-label-sm" href="#">
+<span class="material-symbols-outlined" style="font-size: 16px;">logout</span>
+<span>Déconnexion</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- ========================================== -->
+<!-- 2. MAIN SCROLLABLE CONTENT CANVAS          -->
+<!-- ========================================== -->
+<div class="ml-64 flex-1 min-h-screen flex flex-col bg-background">
+<!-- TOP COMMAND BAR (Source: Shared Components JSON) -->
+<header class="sticky top-0 z-20 w-full px-8 py-3 bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/60 flex items-center justify-between shadow-xs">
+<!-- Search bar on left -->
+<div class="flex items-center gap-4 flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline" style="font-size: 20px;">search</span>
+<input class="w-full h-10 pl-10 pr-12 rounded-lg bg-surface-container-low border border-outline-variant/50 text-body-md font-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/15 transition-all" placeholder="Rechercher dans mes projets, factures, contrats..." type="text"/>
+<kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-semibold text-outline bg-surface-container border border-outline-variant rounded">⌘K</kbd>
+</div>
+<!-- Scope Context Indicator Pill -->
+<div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/10 border border-secondary/20 text-secondary shrink-0">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-label-sm font-label-sm font-semibold tracking-wide">Contrat Cadre B2B • Année 2025/2026</span>
+</div>
+</div>
+<!-- Trailing Actions & Notification cluster -->
+<div class="flex items-center gap-3">
+<!-- Quick action icon: Help -->
+<button class="w-9 h-9 rounded-lg flex items-center justify-center text-outline hover:text-primary hover:bg-surface-container transition-colors" title="Centre d'aide">
+<span class="material-symbols-outlined" style="font-size: 20px;">help</span>
+</button>
+<!-- Quick action icon: Notifications -->
+<div class="relative">
+<button class="w-9 h-9 rounded-lg flex items-center justify-center text-outline hover:text-primary hover:bg-surface-container transition-colors" title="Notifications">
+<span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+</button>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+</div>
+<div class="h-6 w-px bg-outline-variant/60 mx-1"></div>
+<!-- Trailing Primary Action button from JSON: "Nouveau Ticket" -->
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-secondary hover:bg-on-secondary-fixed-variant text-on-secondary text-label-md font-label-md font-semibold transition-all shadow-sm active:scale-95">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+<span>Nouveau Ticket</span>
+</button>
+</div>
+</header>
+<!-- DASHBOARD INNER CANVAS (Fluid Bento Grid Layout) -->
+<main class="p-8 max-w-[1440px] w-full mx-auto space-y-6">
+<!-- SECTION 1: HERO WELCOME BANNER -->
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#0b2545] via-[#133e6d] to-[#1e549f] p-8 text-on-primary shadow-md specular-border">
+<!-- Background Subtle Architecture Mesh Vector -->
+<div class="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+<div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-secondary-container/20 blur-3xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+<div class="space-y-2.5 max-w-3xl">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest/15 backdrop-blur-md border border-surface-container-lowest/25 text-tertiary-fixed-dim text-label-sm font-label-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim pulse-glow-amber"></span>
+<span class="text-surface-container-lowest font-bold">CLIENT ENTREPRISE</span>
+<span class="text-surface-container-lowest/60">•</span>
+<span class="text-secondary-fixed">Contrat Actif (Formule Entreprise Pro)</span>
+</div>
+<h1 class="text-headline-xl font-headline-xl text-surface-container-lowest font-bold tracking-tight">
+                Bonjour, Global Tech SARL
+              </h1>
+<p class="text-body-md font-body-md text-surface-container-lowest/80 leading-relaxed">
+                Gestionnaire de compte référent : <span class="font-semibold text-surface-container-lowest">Dr. Paulin T. (AZ Corporation)</span> • Réf. Contrat : <span class="font-mono text-tertiary-fixed font-semibold">CTR-AZ-2025-B2B-049</span> • <span class="inline-flex items-center gap-1 text-emerald-300 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>SLA Garanti 99.9%</span>
+</p>
+</div>
+<!-- Quick Action Glass Buttons -->
+<div class="flex flex-wrap items-center gap-2.5 shrink-0">
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-container-lowest text-primary hover:bg-surface-container font-label-md text-label-md font-bold shadow-md transition-all active:scale-98">
+<span class="material-symbols-outlined text-secondary" style="font-size: 18px;">add_circle</span>
+<span>Nouveau ticket</span>
+</button>
+<button class="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-lowest/15 hover:bg-surface-container-lowest/25 text-surface-container-lowest backdrop-blur-md border border-surface-container-lowest/30 font-label-md text-label-md font-semibold transition-all">
+<span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+<span>Télécharger facture</span>
+</button>
+<button class="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-lowest/15 hover:bg-surface-container-lowest/25 text-surface-container-lowest backdrop-blur-md border border-surface-container-lowest/30 font-label-md text-label-md font-semibold transition-all">
+<span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
+<span>Voir contrat</span>
+</button>
+</div>
+</div>
+</div>
+<!-- SECTION 2: KPI STRIP (4 Analytical Cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- KPI 1: Projets en cours -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/60 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between mb-3">
+<span class="text-label-md font-label-md text-outline font-semibold">Projets en cours</span>
+<div class="w-10 h-10 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 22px;">folder_open</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-display-hero-mobile font-display-hero-mobile text-primary font-bold">3</span>
+<span class="text-label-sm font-label-sm text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">+1 ce trimestre</span>
+</div>
+<p class="mt-2 text-body-sm font-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+              actifs sur 4 commandés
+            </p>
+</div>
+<!-- KPI 2: Formations souscrites -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/60 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between mb-3">
+<span class="text-label-md font-label-md text-outline font-semibold">Formations souscrites</span>
+<div class="w-10 h-10 rounded-lg bg-primary-container/10 text-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 22px;">school</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-display-hero-mobile font-display-hero-mobile text-primary font-bold">18</span>
+<span class="text-label-sm font-label-sm text-secondary bg-secondary/10 px-2 py-0.5 rounded-full font-semibold">94% complétion</span>
+</div>
+<p class="mt-2 text-body-sm font-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              collaborateurs formés • 2 cursus MINEFOP
+            </p>
+</div>
+<!-- KPI 3: Factures en attente (Warning Amber Accent) -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-tertiary-fixed-dim/40 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between mb-3">
+<span class="text-label-md font-label-md text-on-tertiary-container font-semibold">Factures en attente</span>
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed/40 text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 22px;">warning</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-display-hero-mobile font-display-hero-mobile text-on-tertiary-container font-bold">1</span>
+<span class="text-label-md font-label-md font-bold text-on-tertiary-container">1 450 000 FCFA</span>
+</div>
+<p class="mt-2 text-body-sm font-body-sm text-on-tertiary-container/80 flex items-center gap-1 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim pulse-glow-amber"></span>
+              à régler sous 8 jours (échéance 25 Nov)
+            </p>
+</div>
+<!-- KPI 4: Tickets Support -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/60 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between mb-3">
+<span class="text-label-md font-label-md text-outline font-semibold">Tickets Support</span>
+<div class="w-10 h-10 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 22px;">support_agent</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-display-hero-mobile font-display-hero-mobile text-primary font-bold">1</span>
+<span class="text-label-sm font-label-sm text-primary-container bg-surface-container-high px-2 py-0.5 rounded-full font-semibold">Urgence : Normale</span>
+</div>
+<p class="mt-2 text-body-sm font-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              ouvert • SLA &lt; 2h respecté
+            </p>
+</div>
+</div>
+<!-- SECTION 3: 2-COLUMN MAIN CONTENT GRID (7/5 split) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- LEFT COLUMN (7 cols): Mes Projets Actifs -->
+<div class="lg:col-span-7 space-y-4">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2.5">
+<div class="w-1.5 h-6 rounded-full bg-secondary"></div>
+<h2 class="text-headline-md font-headline-md text-primary font-bold">Mes Projets Actifs</h2>
+</div>
+<a class="text-label-md font-label-md text-secondary hover:text-on-secondary-fixed-variant font-semibold flex items-center gap-1" href="#">
+<span>Voir tous les projets (3)</span>
+<span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+</a>
+</div>
+<!-- Project Card 1: SD-WAN Infrastructure -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/60 shadow-sm hover:border-secondary/30 transition-all space-y-4">
+<div class="flex items-start justify-between gap-4">
+<div class="space-y-1">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      En cours (Phase 3/4)
+                    </span>
+<span class="text-label-sm font-label-sm text-outline">Code : PRJ-SDWAN-25</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm text-primary font-bold hover:text-secondary cursor-pointer transition-colors">
+                    Déploiement Infrastructure Réseau &amp; Sécurité SD-WAN
+                  </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                    Migration des 4 agences vers le backbone sécurisé AZ Corporation.
+                  </p>
+</div>
+<span class="text-label-lg font-label-lg font-bold text-secondary bg-secondary/5 px-2.5 py-1 rounded-lg">72%</span>
+</div>
+<!-- Progress bar with milestones -->
+<div class="space-y-1.5">
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full transition-all duration-500" style="width: 72%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] text-outline font-label-sm">
+<span>Jalon : Recette des routeurs Biyem-Assi</span>
+<span class="font-semibold text-primary">Échéance : 15 Décembre 2025</span>
+</div>
+</div>
+<!-- Card footer: Team Avatars & Budget indicator -->
+<div class="pt-3 border-t border-outline-variant/40 flex items-center justify-between flex-wrap gap-3">
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-label-sm text-outline uppercase font-semibold">Équipe AZ Pulse :</span>
+<div class="flex -space-x-2 overflow-hidden">
+<img class="inline-block h-7 w-7 rounded-full ring-2 ring-surface-container-lowest object-cover" data-alt="Corporate headshot of an African network engineer smiling warmly in a high-tech datacenter with blue glowing server racks." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkIdwKywy9AzZVy29x3rTJ46Kc0t1XDDFIRp0_HGx52Wrpdq7PcsarlI2bDN8j77x-ojjAAkMFfb_i6yqOy5QljdwPkUNR6CRT6Cqyto8TZ3yPAQbrJ2X07XOQzlE3YfgBjTkhRDJTk3tqX1Qu7Wrc4LVpRwVsW6LTEXNUjBgJwYCv3z0eLzbG1RgY8cylh9xAnYLosKPNiECEZcSm-Ijjuq3enRpJE96ZULJC4JjfO0tAuFLt4QOj5wNDLQUc9lT-0o9pZ7-d2Eo"/>
+<img class="inline-block h-7 w-7 rounded-full ring-2 ring-surface-container-lowest object-cover" data-alt="Professional female telecommunication expert in business casual clothes in an ultra-modern glass office setting with crisp natural light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrv4TkRIlSUnmo4kO96eJQ6u4RvpEFv6Nd88PARrECAGnCNu9_dAT00CHjN6Ki24l_zx903aLRf7hnPcJdZFRZAnRv5jje6W5OFj6US4ycyenZbEQ1rgh9IgBbZtW_Nfb_TvyCowRxR4psVur-jc5yqiRYHY_AssMWRuOdLV13WBB_S0Tim1q1v9F-mnMOMBDnQrKB5fbu3Gdxf7f-unkt0C0gFnhJ0Cn1yzIq8XUcvG1ndh8_ifOkVrN5lZEkULR8iVfLY6KaVSE"/>
+<img class="inline-block h-7 w-7 rounded-full ring-2 ring-surface-container-lowest object-cover" data-alt="Portrait of a young male Cameroonian systems specialist holding a tablet in a bright tech corporate hub." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_BjErN_w6JtyztgEFYqFk9AYTzoRoPd-Sz50dF1HHd4CzYTFE_qNLgi2JS943h7hXmAJhKQptrGL9KYD2UpIyH3S6IWZgffLlCak648iQkJtCG1yyIOPOIsnkBBd9s3hKNCjLqH7glv8TBeQ5DUBcWbdp-Xse79kr9HlvPjzwnKWufl6gHafAN9t8SkQ5LyItd2yL41c7KZV_QlFo2qkOTr5qtkrZfJD_RgLdSamnrmpg8o_1C6ZzsJbZpAo2Zg5mvwoEchBtqjg"/>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-outline" style="font-size: 16px;">account_balance_wallet</span>
+<span class="font-bold text-primary">8 500 000</span> / 12 000 000 FCFA engagés
+                </div>
+</div>
+</div>
+<!-- Project Card 2: Formations DevOps & Cloud -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/60 shadow-sm hover:border-secondary/30 transition-all space-y-4">
+<div class="flex items-start justify-between gap-4">
+<div class="space-y-1">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-secondary/10 text-secondary border border-secondary/20">
+                      En cours (Promotion B2B)
+                    </span>
+<span class="text-label-sm font-label-sm text-outline">Code : FORM-DVOPS-02</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm text-primary font-bold hover:text-secondary cursor-pointer transition-colors">
+                    Programme de Montée en Compétences DevOps &amp; Cloud
+                  </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                    Formation certifiante MINEFOP de 12 ingénieurs télécoms.
+                  </p>
+</div>
+<span class="text-label-lg font-label-lg font-bold text-secondary bg-secondary/5 px-2.5 py-1 rounded-lg">48%</span>
+</div>
+<!-- Progress bar -->
+<div class="space-y-1.5">
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full transition-all duration-500" style="width: 48%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] text-outline font-label-sm">
+<span>Module 3/6 : Orchestration Kubernetes &amp; Helm</span>
+<span class="font-semibold text-primary">Échéance : 28 Février 2026</span>
+</div>
+</div>
+<!-- Card footer -->
+<div class="pt-3 border-t border-outline-variant/40 flex items-center justify-between flex-wrap gap-3">
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-label-sm text-outline uppercase font-semibold">Formateurs :</span>
+<div class="flex -space-x-2 overflow-hidden">
+<img class="inline-block h-7 w-7 rounded-full ring-2 ring-surface-container-lowest object-cover" data-alt="Experienced African senior software instructor lecturing with confidence in a modern glass meeting room with smart presentation screens." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7GeNxnyJxx5DkLgvSR53uMsOEPYJwzTiUWPqYL60ZPwPHCkxq1lFqtYAEmFQZz8EwEnXNr6feXMOBau6oWEbiK0516WcftFnezaG66pq8I62kP7YPbYMCJ3iw5p4X6JfDpBA3RT5xiVgFFD3gLM7_m3CFCmXUH-tYzLxzzbuy7XrzB92NulILwNc0oVGd2Qbe5X_oM-J0zvESYG0lsvIIN5cVfcBc-LZ8aPd5yAD5BYzEuvuLo6Gr1nAFHjLzJo6Rxa0NHittJ4k"/>
+<img class="inline-block h-7 w-7 rounded-full ring-2 ring-surface-container-lowest object-cover" data-alt="Portrait of a female African cloud architect professional in modern glasses and formal business wear." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbb4VfhWEJ-xLm2cVxA2_KBMlHhmqZHMo_mkrDf3_CemmeGnSVQYEir7bH4-TLcT8apvqEazo4EIX2bTCOhuOrVejUJJ0JRXb-C3TJ5mDewRAbBW1j_GoSznnWwz-rs1HFJ8oTNVP_evXe-butwLKW24d4br2giBCsBUsu--UrqgUxQeKsCS4XYyGUShpcbneBWVPDOahTRzR4SnPDU5jM0mivCeqbtLMB7IdusLhYIZje-YxBWpsOep47qhazpsJblcUercpKJzI"/>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-outline" style="font-size: 16px;">account_balance_wallet</span>
+<span class="font-bold text-primary">3 200 000</span> / 4 500 000 FCFA engagés
+                </div>
+</div>
+</div>
+<!-- Project Card 3: Audit Cybersécurité & PRA -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/60 shadow-sm hover:border-secondary/30 transition-all space-y-4">
+<div class="flex items-start justify-between gap-4">
+<div class="space-y-1">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      Planifié (Démarrage J+10)
+                    </span>
+<span class="text-label-sm font-label-sm text-outline">Code : AUD-SEC-88</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm text-primary font-bold hover:text-secondary cursor-pointer transition-colors">
+                    Audit Cybersécurité &amp; Conformité Données Partenaires
+                  </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                    Pentesting externe et revue du plan de reprise d'activité (PRA).
+                  </p>
+</div>
+<span class="text-label-lg font-label-lg font-bold text-outline bg-surface-container px-2.5 py-1 rounded-lg">15%</span>
+</div>
+<!-- Progress bar -->
+<div class="space-y-1.5">
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 15%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] text-outline font-label-sm">
+<span>Jalon : Recueil du périmètre IP et validation RGPD/ANTIC</span>
+<span class="font-semibold text-primary">Échéance : 10 Janvier 2026</span>
+</div>
+</div>
+<!-- Card footer -->
+<div class="pt-3 border-t border-outline-variant/40 flex items-center justify-between flex-wrap gap-3">
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-label-sm text-outline uppercase font-semibold">Lead Auditeur :</span>
+<div class="flex -space-x-2 overflow-hidden">
+<img class="inline-block h-7 w-7 rounded-full ring-2 ring-surface-container-lowest object-cover" data-alt="Portrait photo of a cybersecurity expert in a dark suit standing in a sleek server monitoring security center." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-oUrKkQQ-yVy7USEuHwI1w52bQI1hRuSxTDNfVyEySx5PXZLrlOQ0C8lW1wn7oJWRWBmv-fXFG54TXxpdDfJAKT5OJYobneb0cbpULYbZqfxLzBGnHEh_vEmNcazQpcJFtPtUdEBP2F0cxJHxQMSKKg3OsigqUn0pOUgAc9J2R71YVbZKd95O2oOl01icPWuF-0mO3WyrC0jce7JLHiViqSCHIJvlJYmb-YBvx8gVXIDsv03_2gOwyLx7cPwKxv2B3oDBi5Vwq64"/>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-outline" style="font-size: 16px;">account_balance_wallet</span>
+<span class="font-bold text-primary">2 100 000 FCFA</span> (Devis validé)
+                </div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN (5 cols): Facturation & Support Dédié -->
+<div class="lg:col-span-5 space-y-6">
+<!-- SUB-SECTION 1: Facturation & Paiements -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/60 shadow-sm space-y-4">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/40">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-size: 20px;">receipt_long</span>
+<h3 class="text-headline-sm font-headline-sm text-primary font-bold">Facturation Récente</h3>
+</div>
+<a class="text-[12px] font-label-md font-semibold text-secondary hover:underline" href="#">
+                  Historique complet
+                </a>
+</div>
+<!-- Invoices List -->
+<div class="space-y-3">
+<!-- Invoice 1 (Pending Payment - Amber Highlight) -->
+<div class="p-3.5 rounded-lg border border-tertiary-fixed-dim/40 bg-amber-50/40 space-y-2.5">
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-mono text-label-md font-bold text-primary">#FAC-2025-089</span>
+<span class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                          En attente
+                        </span>
+</div>
+<span class="text-body-sm font-body-sm text-outline">Acompte SD-WAN Phase 3</span>
+</div>
+<span class="text-headline-sm font-headline-sm font-extrabold text-on-tertiary-container">1 450 000 FCFA</span>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-amber-200/50">
+<span class="text-[11px] text-amber-900 font-medium">Échéance : 25 Nov 2025</span>
+<button class="px-3 py-1.5 rounded-lg bg-tertiary-fixed-dim hover:bg-amber-400 text-primary font-label-sm font-bold shadow-sm transition-transform active:scale-95 flex items-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 15px;">credit_card</span>
+<span>Payer maintenant</span>
+</button>
+</div>
+</div>
+<!-- Invoice 2 (Paid) -->
+<div class="p-3.5 rounded-lg border border-outline-variant/50 hover:bg-surface-container-low transition-colors flex items-center justify-between gap-3">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-mono text-label-md font-bold text-primary">#FAC-2025-072</span>
+<span class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                        Payée
+                      </span>
+</div>
+<span class="text-body-sm font-body-sm text-outline">Session Formation MINEFOP • 15 Oct 2025</span>
+</div>
+<div class="text-right">
+<div class="text-label-lg font-label-lg font-bold text-primary">4 200 000 FCFA</div>
+<button class="text-[11px] text-secondary hover:underline flex items-center gap-0.5 justify-end mt-0.5">
+<span class="material-symbols-outlined" style="font-size: 13px;">download</span>
+<span>Télécharger reçu</span>
+</button>
+</div>
+</div>
+<!-- Invoice 3 (Paid) -->
+<div class="p-3.5 rounded-lg border border-outline-variant/50 hover:bg-surface-container-low transition-colors flex items-center justify-between gap-3">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-mono text-label-md font-bold text-primary">#FAC-2025-064</span>
+<span class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                        Payée
+                      </span>
+</div>
+<span class="text-body-sm font-body-sm text-outline">Audit initial &amp; cadrage • 30 Sept 2025</span>
+</div>
+<div class="text-right">
+<div class="text-label-lg font-label-lg font-bold text-primary">2 850 000 FCFA</div>
+<button class="text-[11px] text-secondary hover:underline flex items-center gap-0.5 justify-end mt-0.5">
+<span class="material-symbols-outlined" style="font-size: 13px;">download</span>
+<span>Télécharger reçu</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- SUB-SECTION 2: Tickets & Support Dédié -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/60 shadow-sm space-y-4">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/40">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-size: 20px;">headset_mic</span>
+<h3 class="text-headline-sm font-headline-sm text-primary font-bold">Support &amp; SLA Dédié</h3>
+</div>
+<span class="text-[11px] font-label-sm text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
+                  SLA &lt; 2h Actif
+                </span>
+</div>
+<!-- Ticket Items -->
+<div class="space-y-3">
+<!-- Ticket 1 -->
+<div class="p-3 rounded-lg border border-secondary/20 bg-secondary/5 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[12px] font-bold text-secondary">#TKT-492</span>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-surface-container text-primary">
+                      Priorité : Moyenne
+                    </span>
+</div>
+<h4 class="text-label-md font-label-md font-bold text-primary">
+                    Optimisation de routage VPN Yaoundé-Douala
+                  </h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant text-[12px]">
+                    Statut : <span class="font-semibold text-secondary">En cours de traitement par l'équipe N2</span>
+</p>
+<div class="text-[11px] text-outline flex items-center justify-between pt-1">
+<span>Assigné à : Ing. Thierry M.</span>
+<span>Mis à jour il y a 42 min</span>
+</div>
+</div>
+<!-- Ticket 2 -->
+<div class="p-3 rounded-lg border border-outline-variant/50 hover:bg-surface-container-low transition-colors space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[12px] font-bold text-outline">#TKT-481</span>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700">
+                      Résolu
+                    </span>
+</div>
+<h4 class="text-label-md font-label-md font-bold text-primary">
+                    Attestation de réussite MINEFOP session Octobre
+                  </h4>
+<p class="text-body-sm font-body-sm text-outline text-[12px]">
+                    Statut : Résolu • Documents officiels joints
+                  </p>
+<div class="text-[11px] text-outline flex items-center justify-between pt-1">
+<span>Fermé par : Mlle Nadine K.</span>
+<span>Fermé hier</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 4: BOTTOM ROW - TIMELINE & ACTIVITÉ RÉCENTE -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/60 shadow-sm space-y-5">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/40">
+<div class="flex items-center gap-2.5">
+<div class="w-1.5 h-5 rounded-full bg-secondary"></div>
+<h2 class="text-headline-md font-headline-md text-primary font-bold">Activité Récente &amp; Documents Légaux</h2>
+</div>
+<button class="text-label-md font-label-md font-semibold text-secondary hover:underline flex items-center gap-1">
+<span>Journal complet d'audit</span>
+<span class="material-symbols-outlined" style="font-size: 16px;">receipt</span>
+</button>
+</div>
+<!-- Chronological Activity Feed -->
+<div class="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant/60">
+<!-- Entry 1 -->
+<div class="relative group">
+<span class="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-secondary border-2 border-surface-container-lowest ring-2 ring-secondary/20"></span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-size: 18px;">cloud_upload</span>
+<p class="text-label-md font-label-md text-primary font-bold">
+                    Nouveau livrable déposé : <span class="text-secondary font-semibold hover:underline cursor-pointer">Rapport d'architecture réseau v2.1.pdf</span>
+</p>
+</div>
+<span class="text-body-sm font-body-sm text-outline">par Ing. Marc (AZ Pulse) • Aujourd'hui à 11:30</span>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="relative group">
+<span class="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-surface-container-lowest ring-2 ring-emerald-200"></span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-600" style="font-size: 18px;">verified</span>
+<p class="text-label-md font-label-md text-primary font-bold">
+                    Validation d'émargement : 12 collaborateurs présents à la session Kubernetes
+                  </p>
+</div>
+<span class="text-body-sm font-body-sm text-outline">Supervisé par MINEFOP • Hier à 16:45</span>
+</div>
+</div>
+<!-- Entry 3 -->
+<div class="relative group">
+<span class="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-tertiary-fixed-dim border-2 border-surface-container-lowest ring-2 ring-tertiary-fixed-dim/30"></span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim" style="font-size: 18px;">receipt</span>
+<p class="text-label-md font-label-md text-primary font-bold">
+                    Facture d'acompte émise : <span class="font-mono text-tertiary-container font-semibold">#FAC-2025-089</span> (1 450 000 FCFA)
+                  </p>
+</div>
+<span class="text-body-sm font-body-sm text-outline">Direction Financière AZ Corp • Le 12 Nov 2025</span>
+</div>
+</div>
+<!-- Entry 4 -->
+<div class="relative group">
+<span class="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-secondary border-2 border-surface-container-lowest"></span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-size: 18px;">flag</span>
+<p class="text-label-md font-label-md text-primary font-bold">
+                    Mise à jour du jalon projet : Phase 2 SD-WAN recette validée sans réserve
+                  </p>
+</div>
+<span class="text-body-sm font-body-sm text-outline">Validation conjointe DSI • Le 08 Nov 2025</span>
+</div>
+</div>
+<!-- Entry 5 -->
+<div class="relative group">
+<span class="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-primary-container border-2 border-surface-container-lowest"></span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-size: 18px;">draw</span>
+<p class="text-label-md font-label-md text-primary font-bold">
+                    Avenant contractuel signé : Extension de garantie serveurs Biyem-Assi
+                  </p>
+</div>
+<span class="text-body-sm font-body-sm text-outline">Signature électronique sécurisée • Le 02 Nov 2025</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Corporate Portal Footer Note -->
+<footer class="pt-4 pb-8 flex flex-col sm:flex-row items-center justify-between text-outline text-body-sm font-body-sm gap-4 border-t border-outline-variant/40">
+<div>
+            © 2025 AZ Corporation SARL. Tous droits réservés. Plateforme B2B Sécurisée AZ PULSE.
+          </div>
+<div class="flex items-center gap-4 text-[12px] font-semibold">
+<a class="hover:text-primary transition-colors" href="#">Politique de Confidentialité</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">Conditions Générales B2B</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">Support 24/7 N3</a>
+</div>
+</footer>
+</main>
+</div>
+</div>
+</body></html>

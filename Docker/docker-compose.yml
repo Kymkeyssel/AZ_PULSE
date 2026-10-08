@@ -175,8 +175,66 @@ services:
       - azpulse
 
 
+  # =========================================================
+  # Mercure
+  # Hub temps réel (SSE) pour notifications live, dashboard, CRM collaboratif
+  # =========================================================
+  mercure:
+    image: dunglas/mercure:v0.16
+    container_name: azpulse-mercure
+    restart: unless-stopped
 
+    environment:
+      # Clés JWT (à changer en prod !)
+      MERCURE_PUBLISHER_JWT_KEY: "azpulse_mercure_publisher_key_change_me_in_prod"
+      MERCURE_SUBSCRIBER_JWT_KEY: "azpulse_mercure_subscriber_key_change_me_in_prod"
 
+      # Config générale
+      # "http://" force l'écoute en HTTP pur sur le port 80 (pas de TLS en dev)
+      SERVER_NAME: "http://localhost"
+      GLOBAL_OPTIONS: "auto_https off"
+      MERCURE_ALLOW_ANONYMOUS: "1"
+      MERCURE_CORS_ALLOWED_ORIGINS: "http://localhost:5173,http://localhost:8000"
+      MERCURE_PUBLISH_ALLOWED_ORIGINS: "http://localhost:8000"
+      MERCURE_DEMO: "0"
+      MERCURE_ADDR: ":80"
+      MERCURE_LOG_LEVEL: "info"
+
+    ports:
+      - "8080:80"
+
+    volumes:
+      - azpulse_mercure_data:/data
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    networks:
+      - azpulse
+
+  # =========================================================
+  # FastAPI (Service IA)
+  # Orchestration des agents, OCR, NLP
+  # =========================================================
+  fastapi:
+    build:
+      context: ../Ai_Service
+    container_name: azpulse-fastapi
+    restart: unless-stopped
+    environment:
+      APP_ENV: development
+      ACTIVE_PROVIDER: local
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook
+    ports:
+      - "8001:8000"
+    volumes:
+      - ../Ai_Service:/app
+    networks:
+      - azpulse
 
 # ===========================================================
 # Volumes persistants
@@ -195,7 +253,8 @@ volumes:
   azpulse_n8n_data:
     name: azpulse_n8n_data
 
-
+  azpulse_mercure_data:
+    name: azpulse_mercure_data
 
 
 # ===========================================================

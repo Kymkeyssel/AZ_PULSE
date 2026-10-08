@@ -1,0 +1,17 @@
+$kind: http-request
+description: |-
+  La gestion du RBAC est l'apanage du seul Super Administrateur. **Même l'Admin / Direction en est privé** : il gère les utilisateurs et les demandes d'accès, mais ni les rôles ni les permissions.
+
+  C'est une séparation volontaire du pouvoir : celui qui accorde les droits ne peut pas se les accorder à lui-même.
+url: "{{baseUrl}}/admin/roles"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — role.manage réservé au Super Admin', () => pm.response.to.have.status(403));
+
+      console.log('🔒 Même l Admin/Direction ne peut pas accorder de droits : seul le Super Admin le peut.');
+    language: text/javascript
+order: 5000

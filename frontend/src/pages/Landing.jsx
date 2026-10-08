@@ -7,6 +7,7 @@ import Testimonials from '../components/Testimonials';
 import BestSelling from '../components/BestSelling';
 import Newsletter from '../components/Newsletter';
 import Footer from '../components/Footer';
+import ChatBot from '../components/ChatBot';
 
 const Landing = () => {
   return (
@@ -19,6 +20,7 @@ const Landing = () => {
       <BestSelling />
       <Newsletter />
       <Footer />
+      <ChatBot />
     </div>
   );
 };

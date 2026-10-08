@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{accountFormation}}",
+      "password": "{{pwdFormation}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — connexion réussie', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('rôle = RESPONSABLE_FORMATION', () => pm.expect(j.user.primaryRole).to.eql('RESPONSABLE_FORMATION'));
+      pm.test('détient formation.manage (validation des paiements)', () => pm.expect(j.user.permissions).to.include('formation.manage'));
+      pm.test('détient analytics.read', () => pm.expect(j.user.permissions).to.include('analytics.read'));
+
+      pm.collectionVariables.set('tokenFormation', j.token);
+      pm.environment.set('tokenFormation', j.token);
+    language: text/javascript
+order: 6000

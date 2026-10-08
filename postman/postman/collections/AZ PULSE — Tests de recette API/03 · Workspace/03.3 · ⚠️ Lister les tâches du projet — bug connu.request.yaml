@@ -1,0 +1,32 @@
+$kind: http-request
+description: |-
+  **Ce test échoue volontairement** : `WorkspaceTaskController::listProjectTasks()` appelle `getRepository(Task::class)`, et la classe `TaskRepository` **n'existe pas**.
+
+  Correctif : créer `Backend/src/Repository/TaskRepository.php` (voir test 00.3 pour le code).
+
+  Le test est vert dès que le correctif est appliqué.
+url: "{{baseUrl}}/workspace/projects/{{projectId}}/tasks"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      const status = pm.response.code;
+
+      if (status === 200) {
+        pm.test('200 — tâches du projet renvoyées', () => pm.response.to.have.status(200));
+        const j = pm.response.json();
+        pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+        const t = j.data.find(x => String(x.id) === String(pm.collectionVariables.get('taskId')));
+        if (t) {
+          pm.test('la tâche de 03.4 est présente', () => pm.expect(t.status).to.eql('DONE'));
+          pm.test('la tâche porte une progression', () => pm.expect(t.progress).to.eql(100));
+        }
+      } else {
+        console.warn('❌ BUG CONFIRMÉ — HTTP ' + status + ' (TaskRepository manquante)');
+        pm.test('BUG DOCUMENTÉ — TaskRepository manquante', () => {
+          pm.expect(status).to.eql(500);
+          pm.expect(pm.response.text()).to.include('TaskRepository');
+        });
+      }
+    language: text/javascript
+order: 3000

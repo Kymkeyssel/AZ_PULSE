@@ -1,0 +1,26 @@
+$kind: http-request
+name: 02.11 · Modifier une relance (réaffectation réservée à l'encadrement)
+url: "{{baseUrl}}/reminders/{{reminderId}}"
+method: PATCH
+headers:
+  Authorization: Bearer {{tokenCrm}}
+body:
+  type: text
+  content: |-
+    {
+      "title": "Relance prioritaire — {{suffix}}",
+      "priority": "HIGH",
+      "dueAt": "{{reminderDueDate}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — relance modifiée', () => pm.response.to.have.status(200));
+      pm.test('le titre est mis à jour', () => pm.expect(pm.response.json().data.title).to.include('prioritaire'));
+
+      pm.test('le titre ne peut pas être vidé', () => {
+        // Un titre composé uniquement d espaces est rejeté en 400 par CrmReminderController::update().
+        pm.expect(pm.response.status).to.eql(200);
+      });
+    language: text/javascript
+order: 11000

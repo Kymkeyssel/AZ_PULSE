@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  Le jeton est **valide**, l'utilisateur est authentifié — mais `APPRENANT` n'a ni `crm.read` ni `crm.create`. Réponse **403 Access Denied**.
+
+  C'est la différence essentielle entre 401 (qui êtes-vous ?) et 403 (vous êtes connu, mais pas autorisé).
+url: "{{baseUrl}}/crm/customers"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — authentifié mais non autorisé', () => pm.response.to.have.status(403));
+      pm.test('message Access Denied explicite', () => pm.expect(pm.response.json().error).to.include('Access Denied'));
+
+      console.log('🔒 401 ≠ 403 : identité reconnue, droit refusé.');
+    language: text/javascript
+order: 3000

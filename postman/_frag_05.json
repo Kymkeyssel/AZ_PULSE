@@ -1,0 +1,219 @@
+{
+  "name": "05 · Infrastructure & IT",
+  "description": "Module **Infrastructure & IT** — inventaire du parc informatique et gestion d'incidents.\n\nL'inventaire est alimenté par **GLPI**, qui reste la source de vérité opérationnelle : aucun repli sur une base locale n'est prévu. Si GLPI est injoignable, l'API répond `503 GLPI_UNAVAILABLE` plutôt que de renvoyer des données obsolètes.\n\n**Captures d'écran suggérées** : `/superadmin` (bloc « Santé du Système ») — l'écran `/collaborateur/infrastructure` est encore une maquette statique, non raccordée à l'API.",
+  "item": [
+    {
+      "name": "05.1 · Inventaire des ordinateurs (GLPI)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/it/inventory/computers",
+        "description": "Proxy vers l'API REST de GLPI : ouverture de session (`App-Token` + `user_token`), requête, puis fermeture de session garantie par un `finally`.\n\nL'API renvoie les champs **bruts de GLPI** tels que : `id`, `entities_id`, `name`, `serial`, `otherserial`, `contact`, `date_mod`, `users_id_tech`…\n\nExige `it.read`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — inventaire renvoyé', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('le parc contient au moins une machine', () => pm.expect(j.data.length).to.be.above(0));",
+              "pm.test('les identifiants GLPI sont exploitables', () => {",
+              "  pm.expect(j.data[0].id).to.be.a('number');",
+              "  pm.expect(j.data[0].name).to.be.a('string');",
+              "});",
+              "",
+              "console.log('💻 Parc GLPI :', j.data.length, 'machine(s) —', j.data[0].name);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05.2 · Détail matériel d'un ordinateur",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/it/inventory/computers/{{computerId}}/details",
+        "description": "Agrège quatre sous-ressources GLPI : processeur (`Item_DeviceProcessor`), mémoire (`Item_DeviceMemory`), système d'exploitation (`Item_OperatingSystem`), disque dur (`Item_DeviceHardDrive`).\n\nChaque appel est encapsulé dans son propre `try/catch` : si une sous-ressource échoue, elle renvoie un tableau vide **sans faire échouer la réponse globale**. Le détail est donc toujours partiellement disponible."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — détail renvoyé', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('le détail porte un identifiant', () => pm.expect(j.data.id).to.be.a('number'));",
+              "pm.test('quatre sous-éléments matériels sont attendus', () => {",
+              "  pm.expect(j.data).to.have.property('processor');",
+              "  pm.expect(j.data).to.have.property('memory');",
+              "  pm.expect(j.data).to.have.property('os');",
+              "  pm.expect(j.data).to.have.property('harddrive');",
+              "});",
+              "pm.test('dégradation gracieuse : chaque sous-élément vaut [] ou un tableau', () => {",
+              "  ['processor', 'memory', 'os', 'harddrive'].forEach(k => pm.expect(j.data[k]).to.be.an('array'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05.3 · Ouvrir un incident",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Post de travail inaccessible — {{suffix}}\",\n  \"description\": \"Le poste de travail du service comptabilité refuse toute authentification depuis la mise à jour de mardi.\",\n  \"priority\": \"HIGH\",\n  \"category\": \"HARDWARE\"\n}"
+        },
+        "url": "{{baseUrl}}/it/incidents",
+        "description": "Exige `it.manage` (donc Super Admin, Admin/Direction ou Responsable IT).\n\nCatégories : `HARDWARE`, `SOFTWARE`, `NETWORK`, `OTHER`. Priorités : `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.\n\nEffet de bord : l'événement `incident.opened` est publié → notification au technicien responsable et au Responsable IT + journal d'audit."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — incident ouvert', () => pm.response.to.have.status(201));",
+              "const d = pm.response.json().data;",
+              "pm.test('statut initial = OPEN', () => pm.expect(d.status).to.eql('OPEN'));",
+              "pm.test('catégorie HARDWARE conservée', () => pm.expect(d.category).to.eql('HARDWARE'));",
+              "pm.test('priorité HIGH conservée', () => pm.expect(d.priority).to.eql('HIGH'));",
+              "pm.test('le déclarant est identifié', () => pm.expect(d.reporter).to.be.a('string').and.not.empty);",
+              "pm.test('aucun horodatage de résolution', () => pm.expect(d.resolvedAt).to.be.null);",
+              "",
+              "pm.collectionVariables.set('incidentId', d.id);",
+              "console.log('🎫 Incident ouvert — id =', d.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05.4 · Lister les incidents",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/it/incidents"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — incidents renvoyés', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('l incident de 05.3 figure dans la file', () => {",
+              "  const inc = j.data.find(i => String(i.id) === String(pm.collectionVariables.get('incidentId')));",
+              "  pm.expect(inc, 'incident').to.not.be.undefined;",
+              "  pm.expect(inc.status).to.eql('OPEN');",
+              "});",
+              "pm.test('les incidents sont triés du plus récent au plus ancien', () => {",
+              "  for (let i = 1; i < j.data.length; i++) {",
+              "    pm.expect(j.data[i - 1].createdAt >= j.data[i].createdAt).to.be.true;",
+              "  }",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05.5 · Prendre en charge l'incident",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"priority\": \"HIGH\"\n}"
+        },
+        "url": "{{baseUrl}}/it/incidents/{{incidentId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — incident mis à jour', () => pm.response.to.have.status(200));",
+              "pm.test('statut = IN_PROGRESS', () => pm.expect(pm.response.json().data.status).to.eql('IN_PROGRESS'));",
+              "",
+              "pm.test('passer en cours ne pose pas de date de résolution', () => {",
+              "  pm.expect(pm.response.json().data.resolvedAt).to.be.null;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05.6 · Résoudre l'incident",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"RESOLVED\"\n}"
+        },
+        "url": "{{baseUrl}}/it/incidents/{{incidentId}}",
+        "description": "Le passage à `RESOLVED` ou `CLOSED` horodate automatiquement `resolvedAt` — **une seule fois**, seulement au premier franchissement.\n\nL'événement `incident.resolved` n'est publié que si le statut a réellement changé : un ré-enregistrement d'un incident déjà résolu ne redéclenche pas de notification au déclarant."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — incident résolu', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('statut = RESOLVED', () => pm.expect(d.status).to.eql('RESOLVED'));",
+              "pm.test('la date de résolution est horodatée automatiquement', () => pm.expect(d.resolvedAt).to.be.a('string'));",
+              "",
+              "console.log('✅ Incident résolu — le déclarant reçoit une notification.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05.7 · Dashboard IT",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/dashboard/it",
+        "description": "Croise le parc GLPI et les incidents internes.\n\nRenvoie un code **503** avec l'erreur `GLPI_UNAVAILABLE` si GLPI est injoignable : l'application **refuse explicitement** de renvoyer un repli local, pour ne jamais présenter un inventaire périmé comme s'il était à jour. Le champ `totalEquipmentsSource` indique l'origine des données."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 ou 503 (GLPI joignable ou non)', () => {",
+              "  pm.expect([200, 503]).to.include(pm.response.code);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "  const d = pm.response.json().data;",
+              "  pm.test('la source de l inventaire est tracée', () => pm.expect(d.totalEquipmentsSource).to.eql('glpi'));",
+              "  pm.test('incidents ouverts comptés', () => pm.expect(d.openIncidents).to.be.a('number'));",
+              "  pm.test('incidents en cours comptés', () => pm.expect(d.inProgressIncidents).to.be.a('number'));",
+              "} else {",
+              "  pm.test('503 — GLPI_UNAVAILABLE, aucun repli local', () => pm.expect(pm.response.text()).to.include('GLPI_UNAVAILABLE'));",
+              "  console.warn('⚠️ GLPI injoignable — le refus de repli est le comportement attendu.');",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/academy/payments"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — file renvoyée', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+      pm.test('le justificatif déposé est en attente', () => {
+        const p = j.data.find(x => String(x.id) === String(pm.collectionVariables.get('paymentId')));
+        pm.expect(p, 'paiement').to.not.be.undefined;
+        pm.expect(p.status).to.eql('PENDING');
+      });
+      pm.test('les paiements sont triés du plus récent au plus ancien', () => {
+        for (let i = 1; i < j.data.length; i++) {
+          pm.expect(j.data[i - 1].createdAt >= j.data[i].createdAt).to.be.true;
+        }
+      });
+    language: text/javascript
+order: 2000

@@ -1,0 +1,39 @@
+$kind: http-request
+description: |-
+  Le journal est **en écriture seule** : l'API n'expose que `GET` et `GET /filters`. Aucun `POST`, `PUT` ou `DELETE` n'existe — un administrateur ne peut donc pas fabriquer une trace contre un collègue.
+
+  Les lignes sont produites **automatiquement** par l'abonnement du bus d'événements : un événement métier publié est tracé par construction.
+url: "{{baseUrl}}/audit?limit=10&category=IAM"
+method: GET
+queryParams:
+  limit: "10"
+  category: IAM
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — journal renvoyé', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('des traces sont présentes', () => pm.expect(j.data).to.be.an('array').and.not.empty);
+      pm.test('le filtre catégorie = IAM est appliqué', () => {
+        j.data.forEach(e => pm.expect(e.category).to.eql('IAM'));
+      });
+      pm.test('la soumission est tracée (ACCESS_REQUEST_SUBMITTED)', () => {
+        const sub = j.data.find(e => e.action === 'ACCESS_REQUEST_SUBMITTED');
+        pm.expect(sub, 'trace de soumission').to.not.be.undefined;
+        pm.expect(sub.description).to.include('candidat.');
+      });
+      pm.test('l approbation est tracée avec son acteur réel', () => {
+        const app = j.data.find(e => e.action === 'ACCESS_REQUEST_APPROVED');
+        pm.expect(app, 'trace d approbation').to.not.be.undefined;
+        pm.expect(app.actor.email).to.eql(pm.environment.get('accountSuperAdmin'));
+        pm.expect(app.metadata.roleCode).to.eql('RESPONSABLE_CRM');
+      });
+      pm.test('chaque trace porte un acteur, une IP et un horodatage', function () {
+        j.data.forEach(e => {
+          pm.expect(e).to.have.property('actorEmail');
+          pm.expect(e.actorIp).to.be.a('string');
+          pm.expect(e.createdAt).to.be.a('string');
+        });
+      });
+    language: text/javascript
+order: 23000

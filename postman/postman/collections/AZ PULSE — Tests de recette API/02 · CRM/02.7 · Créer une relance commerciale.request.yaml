@@ -1,0 +1,39 @@
+$kind: http-request
+description: |-
+  Le titre et l'échéance sont **obligatoires** (400 sinon). Types acceptés : `CALL`, `EMAIL`, `MEETING`, `TASK`. Priorités : `LOW`, `NORMAL`, `HIGH`.
+
+  La relance est attribuée au connecté par défaut. Si l'on renseigne `opportunity_id` sans `customer_id`, le client est déduit de l'affaire — afin d'éviter une relance orpheline que personne ne retrouverait.
+
+  `{{reminderDueDate}}` est calculée dynamiquement par le script de pré-requête de ce dossier.
+url: "{{baseUrl}}/reminders"
+method: POST
+headers:
+  Authorization: Bearer {{tokenCrm}}
+body:
+  type: text
+  content: |-
+    {
+      "title": "Relayer le devis — {{suffix}}",
+      "description": "Relancer par téléphone le contact du Groupe Recette.",
+      "dueAt": "{{reminderDueDate}}",
+      "type": "CALL",
+      "priority": "HIGH",
+      "customer_id": {{customerId}},
+      "opportunity_id": {{opportunityId}}
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — relance créée', () => pm.response.to.have.status(201));
+      const j = pm.response.json();
+      pm.test('statut initial = PENDING', () => pm.expect(j.data.status).to.eql('PENDING'));
+      pm.test('priorité HAUTE conservée', () => pm.expect(j.data.priority).to.eql('HIGH'));
+      pm.test('type CALL conservé', () => pm.expect(j.data.type).to.eql('CALL'));
+      pm.test('le client est rattaché', () => pm.expect(j.data.customer.name).to.include('Recette'));
+      pm.test('l affaire est rattachée', () => pm.expect(j.data.opportunity).to.not.be.null);
+      pm.test('la relance est bien affectée', () => pm.expect(j.data.assignedTo).to.not.be.null);
+      pm.test('l indicateur de retard est calculé', () => pm.expect(j.data.overdue).to.be.a('boolean'));
+
+      pm.collectionVariables.set('reminderId', j.data.id);
+    language: text/javascript
+order: 7000

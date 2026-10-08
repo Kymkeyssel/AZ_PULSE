@@ -59,23 +59,23 @@ const StatusBadge = ({ status }) => {
 };
 
 const KpiCard = ({ label, value, icon, accent, sub, loading }) => (
-  <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}`,
-                borderTop: `3px solid ${accent}` }}
-       className="p-5 rounded-xl shadow-sm">
-    <div className="flex items-start justify-between">
+  <div className="p-5 rounded-2xl glass-panel hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
+    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--accent-color)] to-transparent opacity-50" style={{ '--accent-color': accent }}></div>
+    <div className="flex items-start justify-between relative z-10">
       <div>
-        <p style={{ color: C.textMuted }} className="text-xs font-bold uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-xs font-bold uppercase tracking-wider mb-1 text-slate-500">{label}</p>
         {loading
-          ? <div style={{ background: C.surfaceMid }} className="h-9 w-20 rounded animate-pulse mt-1" />
-          : <p style={{ color: C.navy }} className="text-4xl font-black leading-none">{value ?? '—'}</p>
+          ? <div className="h-9 w-20 rounded bg-slate-200 animate-pulse mt-1" />
+          : <p className="text-4xl font-black leading-none text-slate-800">{value ?? '—'}</p>
         }
       </div>
       <div style={{ background: accent + '18', color: accent }}
-           className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-        <span className="material-symbols-outlined notranslate text-[22px]">{icon}</span>
+           className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+        <span className="material-symbols-outlined notranslate text-[26px]">{icon}</span>
       </div>
     </div>
-    {sub && <p style={{ color: C.textMuted }} className="text-xs mt-3">{sub}</p>}
+    {sub && <p className="text-xs mt-3 text-slate-500 font-medium relative z-10">{sub}</p>}
+    <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full opacity-10 blur-xl group-hover:scale-150 transition-transform duration-500" style={{ background: accent }}></div>
   </div>
 );
 
@@ -116,8 +116,8 @@ const AdminDashboard = () => {
     <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
       {/* ── Hero Banner ──────────────────────────────────────────────── */}
-      <section style={{ background: `linear-gradient(135deg, ${C.navy} 0%, ${C.navyMid} 60%, #001c3b 100%)` }}
-               className="relative overflow-hidden rounded-2xl text-white p-6 shadow-xl border border-white/10 mb-6">
+      <section className="relative overflow-hidden rounded-3xl text-white p-8 mb-8 glass-panel-dark border-0 ring-1 ring-white/20">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-indigo-900/40 to-transparent mix-blend-overlay"></div>
         <div className="relative z-10 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -144,21 +144,20 @@ const AdminDashboard = () => {
 
           {/* Stat rapide dans le hero */}
           {!loading && stats && (
-            <div style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
-                 className="flex items-center gap-6 px-5 py-3 rounded-xl flex-shrink-0">
+            <div className="flex items-center gap-6 px-6 py-4 rounded-2xl flex-shrink-0 glass-pill border border-white/20">
               <div className="text-center">
-                <p className="text-2xl font-black">{stats.activeUsers ?? 0}</p>
-                <p style={{ color: '#778db2' }} className="text-xs">Actifs</p>
+                <p className="text-3xl font-black drop-shadow-lg">{stats.activeUsers ?? 0}</p>
+                <p className="text-xs text-blue-200 font-medium uppercase tracking-widest mt-1">Actifs</p>
               </div>
-              <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.15)' }} />
+              <div className="w-[1px] h-12 bg-white/20" />
               <div className="text-center">
-                <p style={{ color: C.gold }} className="text-2xl font-black">{req.pending ?? 0}</p>
-                <p style={{ color: '#778db2' }} className="text-xs">En attente</p>
+                <p style={{ color: C.gold }} className="text-3xl font-black drop-shadow-lg">{req.pending ?? 0}</p>
+                <p className="text-xs text-blue-200 font-medium uppercase tracking-widest mt-1">En attente</p>
               </div>
-              <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.15)' }} />
+              <div className="w-[1px] h-12 bg-white/20" />
               <div className="text-center">
-                <p className="text-2xl font-black">{stats.totalUsers ?? 0}</p>
-                <p style={{ color: '#778db2' }} className="text-xs">Inscrits total</p>
+                <p className="text-3xl font-black drop-shadow-lg">{stats.totalUsers ?? 0}</p>
+                <p className="text-xs text-blue-200 font-medium uppercase tracking-widest mt-1">Inscrits</p>
               </div>
             </div>
           )}
@@ -217,10 +216,11 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
 
         {/* ── Répartition des utilisateurs ────────────────────────── */}
-        <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}` }}
-             className="rounded-xl shadow-sm p-5">
-          <h2 style={{ color: C.navy }} className="font-extrabold text-base mb-4 flex items-center gap-2">
-            <span className="material-symbols-outlined notranslate text-[20px]" style={{ color: C.blue }}>manage_accounts</span>
+        <div className="rounded-2xl glass-panel p-6">
+          <h2 className="font-extrabold text-lg mb-6 flex items-center gap-2 text-slate-800">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+              <span className="material-symbols-outlined notranslate text-[22px]">manage_accounts</span>
+            </div>
             Répartition des comptes
           </h2>
 
@@ -270,11 +270,12 @@ const AdminDashboard = () => {
         </div>
 
         {/* ── Demandes récentes ──────────────────────────────────────── */}
-        <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}` }}
-             className="xl:col-span-2 rounded-xl shadow-sm p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 style={{ color: C.navy }} className="font-extrabold text-base flex items-center gap-2">
-              <span className="material-symbols-outlined notranslate text-[20px]" style={{ color: C.blue }}>history</span>
+        <div className="xl:col-span-2 rounded-2xl glass-panel p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-extrabold text-lg flex items-center gap-2 text-slate-800">
+              <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                <span className="material-symbols-outlined notranslate text-[22px]">history</span>
+              </div>
               Dernières demandes d'accès
             </h2>
             <a href="/admin/requests"

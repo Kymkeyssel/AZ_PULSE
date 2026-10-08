@@ -1,0 +1,21 @@
+$kind: http-request
+description: |-
+  ⭐ Action la plus structurante du module financier. Effets automatiques :
+
+  1. le justificatif passe `VALIDATED` ;
+  2. **`paidTranches` est incrémenté** ;
+  3. le **solde restant est décrémenté** du montant versé (jamais négatif — `max(0, …)`) ;
+  4. l'événement `tuition.payment_received` est publié → **notification** à l'apprenant et au Responsable Formation + **journal d'audit**.
+
+  L'opération est **idempotente** : revalider un justificatif déjà validé renvoie la fiche telle quelle, sans décrémenter le solde une seconde fois.
+url: "{{baseUrl}}/academy/payments/{{paymentId}}/validate"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — paiement validé', () => pm.response.to.have.status(200));
+      pm.test('statut = VALIDATED', () => pm.expect(pm.response.json().data.status).to.eql('VALIDATED'));
+
+      console.log('✅ Paiement validé — tranche comptée, solde décrémenté, apprenant notifié.');
+    language: text/javascript
+order: 3000

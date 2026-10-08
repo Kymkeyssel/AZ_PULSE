@@ -1,0 +1,36 @@
+$kind: http-request
+description: |-
+  Exige `PROJECT_ANALYZE` via `ProjectVoter`.
+
+  `question` est facultative : sans elle, l'IA applique « Analyse générale du projet et de ses risques. »
+
+  Le contrôleur renvoie **directement** le JSON de FastAPI — Symfony n'ajoute ni n'enlève rien. Une exception devient un 500 `{ error: "Erreur lors de l'appel au service IA.", details: … }`.
+url: "{{baseUrl}}/projects/{{projectId}}/ai-analysis"
+method: POST
+body:
+  type: text
+  content: |-
+    {
+      "question": "Quels sont les principaux risques de ce projet et quelles actions prioriser ?"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — analyse produite', () => pm.response.to.have.status(200));
+
+      const j = pm.response.json();
+      pm.test('project_id cohérent avec la requête', () => pm.expect(j.project_id).to.eql(Number(pm.collectionVariables.get('projectId'))));
+      pm.test('statut completed', () => pm.expect(j.status).to.eql('completed'));
+      pm.test('une réponse textuelle est produite', () => {
+        pm.expect(j.response).to.be.a('string');
+        pm.expect(j.response.length).to.be.above(0);
+      });
+
+      console.log('⏱️  Latence :', pm.response.responseTime, 'ms');
+      console.log('🤖 Réponse IA :', (j.response || '').substring(0, 180) + '…');
+    language: text/javascript
+order: 2000

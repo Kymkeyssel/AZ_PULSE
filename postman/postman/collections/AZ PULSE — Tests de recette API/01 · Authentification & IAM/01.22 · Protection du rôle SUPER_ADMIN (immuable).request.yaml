@@ -1,0 +1,21 @@
+$kind: http-request
+description: "Garde-fou **codé en dur** dans `RolePermissionController::updatePermissions()` : le rôle `SUPER_ADMIN` ne peut jamais être amputé, même par le Super Admin lui-même. Un compte compromis ne peut donc pas se retirer ses propres droits et verrouiller la plateforme."
+url: "{{baseUrl}}/roles/{{roleSuperAdminId}}/permissions"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "permissions": ["crm.read"]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — restriction du SUPER_ADMIN', () => pm.response.to.have.status(403));
+      pm.test('message explicite', () => pm.expect(pm.response.json().error).to.include('ne peuvent pas être restreints'));
+
+      console.log('🛡️ Le SUPER_ADMIN est immuable, même pour lui-même.');
+    language: text/javascript
+order: 22000

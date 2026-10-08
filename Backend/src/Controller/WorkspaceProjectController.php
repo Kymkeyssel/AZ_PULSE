@@ -23,11 +23,17 @@ class WorkspaceProjectController extends AbstractController
         $user = $this->getUser();
         $qb = $em->getRepository(Project::class)->createQueryBuilder('p');
 
-        // RBAC: Si pas admin ou pas les droits globaux, limiter aux projets où l'utilisateur est manager ou membre
-        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.read')) {
+        $seesAll = $this->isGranted('SUPER_ADMIN')
+            || $this->isGranted('workspace.manage')
+            || $user->hasRoleCode('ADMIN');
+
+        if ($user->hasRoleCode('CLIENT')) {
+            $qb->join('p.customer', 'c')
+                ->andWhere('LOWER(c.email) = :email')
+                ->setParameter('email', strtolower((string) $user->getEmail()));
+        } elseif (!$seesAll) {
             $qb->leftJoin('p.members', 'm')
-               ->where('p.manager = :user')
-               ->orWhere('m = :user')
+               ->andWhere('p.manager = :user OR m = :user')
                ->setParameter('user', $user);
         }
 
@@ -43,7 +49,9 @@ class WorkspaceProjectController extends AbstractController
             'startDate' => $p->getStartDate()?->format(\DateTimeInterface::ATOM),
             'endDate' => $p->getEndDate()?->format(\DateTimeInterface::ATOM),
             'customer_name' => $p->getCustomer()?->getName(),
-            'manager_name' => $p->getManager()?->getFirstName() . ' ' . $p->getManager()?->getLastName()
+            'manager_name' => $p->getManager()?->getFirstName() . ' ' . $p->getManager()?->getLastName(),
+            'tasks_count' => $p->getTasks()->count(),
+            'description' => $p->getDescription(),
         ], $projects);
 
         return $this->json(['success' => true, 'data' => $data]);

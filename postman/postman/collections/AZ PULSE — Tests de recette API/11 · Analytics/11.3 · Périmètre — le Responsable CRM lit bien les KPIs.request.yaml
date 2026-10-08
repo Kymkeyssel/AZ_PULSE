@@ -1,0 +1,26 @@
+$kind: http-request
+description: |-
+  `RESPONSABLE_CRM` possède bien `analytics.read` (« lecture sur les autres domaines »). Il franchit donc le contrôle d'accès, puis **rencontre le bug `TaskRepository`** et reçoit 500.
+
+  Ce test est la démonstration la plus nette de la séparation des deux sujets : l'autorisation est correcte, l'implémentation ne l'est pas. Il recevra un 200 après création des repositories manquants.
+url: "{{baseUrl}}/analytics/kpis"
+method: GET
+headers:
+  Authorization: Bearer {{tokenCrm}}
+scripts:
+  - type: afterResponse
+    code: |-
+      const status = pm.response.code;
+
+      pm.test('l autorisation passe — le blocage est applicatif, pas RBAC', () => pm.expect(status).to.not.eql(403));
+
+      if (status === 500) {
+        pm.test('❌ BUG CONFIRMÉ — le rôle est légitime, le code est cassé', () => {
+          pm.expect(pm.response.text()).to.include('TaskRepository');
+        });
+        console.warn('⚠️ 403 exclu : RESPONSABLE_CRM a bien analytics.read. Le 500 est un bug de code.');
+      } else {
+        pm.test('✅ 200 — KPIs accessibles au Responsable CRM', () => pm.expect(pm.response.json().data).to.have.property('crm'));
+      }
+    language: text/javascript
+order: 3000

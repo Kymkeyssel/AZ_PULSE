@@ -1,0 +1,8 @@
+$kind: collection
+description: |-
+  Module **Knowledge Hub** — gestion documentaire (dépôt, publication, recherche, téléchargement).
+
+  > 🔑 **Permission clé** : `knowledge.write` n'est accordée qu'à deux rôles — `SUPER_ADMIN` et `ADMIN` (cf. le catalogue RBAC). Le Responsable Knowledge n'a que `knowledge.read`. Les tests d'écriture utilisent donc le jeton du Super Administrateur ; le dossier `12 · Sécurité` démontre le refus pour un profil non autorisé.
+
+  **Captures d'écran suggérées** : `/collaborateur/documents`.
+order: 5000

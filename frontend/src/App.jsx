@@ -24,6 +24,10 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 
 import AdminDashboard from './pages/AdminDashboard';
 
+import UsersManagement from './pages/UsersManagement';
+
+import RolesPermissions from './pages/RolesPermissions';
+
 import AdminRequests from './pages/AdminRequests';
 
 import AuditLog from './pages/AuditLog';
@@ -55,6 +59,11 @@ import CrmReminders from './features/collaborateur/pages/CrmReminders';
 import CrmCustomers from './features/collaborateur/pages/CrmCustomers';
 
 import ModulePlaceholder from './features/collaborateur/pages/ModulePlaceholder';
+
+import KnowledgeHub from './features/collaborateur/pages/KnowledgeHub';
+import WorkspaceProjects from './features/responsables/pages/WorkspaceProjects';
+import Analytics from './features/responsables/pages/Analytics';
+import AiWorkspace from './features/responsables/pages/AiWorkspace';
 
 import ProtectedRoute from './components/guards/ProtectedRoute';
 
@@ -99,7 +108,8 @@ function App() {
             <Route path="/superadmin" element={<SuperAdminDashboard />} />
             <Route path="/superadmin/requests" element={<AdminRequests />} />
             <Route path="/superadmin/admins" element={<SuperAdminDashboard />} />
-            <Route path="/superadmin/users" element={<SuperAdminDashboard />} />
+            <Route path="/superadmin/users" element={<UsersManagement />} />
+            <Route path="/superadmin/roles" element={<RolesPermissions />} />
             <Route path="/superadmin/audit" element={<AuditLog />} />
           </Route>
 
@@ -158,12 +168,12 @@ function App() {
           <Route path="/collaborateur/crm" element={<CrmPipeline />} />
           <Route path="/collaborateur/clients" element={<CrmCustomers />} />
 
+          {/* Modules opérationnels livrés */}
+          <Route path="/collaborateur/projets" element={<WorkspaceProjects />} />
+          <Route path="/collaborateur/analytics" element={<Analytics />} />
+          <Route path="/collaborateur/ia" element={<AiWorkspace />} />
+
           {/* Modules non encore livrés : placeholders explicites */}
-          <Route path="/collaborateur/projets" element={
-            <ModulePlaceholder icon="folder_special" title="Workspace — En construction"
-              permHint="workspace.read"
-              description="Projets, tâches, échéances et livrables. L'interface arrivera après le CRM." />
-          } />
           <Route path="/collaborateur/formations" element={
             <ModulePlaceholder icon="school" title="Formation — En construction"
               permHint="formation.read"
@@ -174,21 +184,7 @@ function App() {
               permHint="it.read"
               description="Parc informatique, incidents et maintenance, alimenté par l'intégration GLPI." />
           } />
-          <Route path="/collaborateur/documents" element={
-            <ModulePlaceholder icon="menu_book" title="Knowledge Hub — En construction"
-              permHint="knowledge.read"
-              description="Documents, versions, publication et recherche." />
-          } />
-          <Route path="/collaborateur/analytics" element={
-            <ModulePlaceholder icon="insights" title="Analytics — En construction"
-              permHint="analytics.read"
-              description="KPI, tendances et rapports calculés à partir des référentiels opérationnels." />
-          } />
-          <Route path="/collaborateur/ia" element={
-            <ModulePlaceholder icon="psychology" title="AI Workspace — En construction"
-              permHint="ai.read"
-              description="Assistants spécialisés, analyse contextuelle et recommandations." />
-          } />
+          <Route path="/collaborateur/documents" element={<KnowledgeHub />} />
         </Route>
 
           {/* ── Erreurs explicites ───────────────────────────────────── */}

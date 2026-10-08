@@ -1,0 +1,30 @@
+$kind: http-request
+name: 01.9 · Connexion — Administrateur / Direction
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{accountAdmin}}",
+      "password": "{{pwdAdmin}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — connexion réussie', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('rôle = ADMIN', () => pm.expect(j.user.primaryRole).to.eql('ADMIN'));
+      pm.test('détient audit.read (journal nominatif)', () => pm.expect(j.user.permissions).to.include('audit.read'));
+      pm.test('règle structurante : PAS role.manage', () => pm.expect(j.user.permissions).to.not.include('role.manage'));
+      pm.test('règle structurante : PAS permission.manage', () => pm.expect(j.user.permissions).to.not.include('permission.manage'));
+      pm.test('détient knowledge.write (seul rôle non-SUPER_ADMIN à écrire)', () => pm.expect(j.user.permissions).to.include('knowledge.write'));
+
+      pm.collectionVariables.set('tokenAdmin', j.token);
+      pm.environment.set('tokenAdmin', j.token);
+    language: text/javascript
+order: 9000

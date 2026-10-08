@@ -4,11 +4,14 @@ namespace App\DataFixtures;
 
 use App\Entity\Activity;
 use App\Entity\Customer;
+use App\Entity\Document;
 use App\Entity\Equipment;
 use App\Entity\Incident;
 use App\Entity\Opportunity;
+use App\Entity\PaymentReceipt;
 use App\Entity\Project;
 use App\Entity\Task;
+use App\Entity\Tuition;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -25,17 +28,31 @@ class AppFixtures extends Fixture
         }
 
         // === CRM : Customers ===
+        $clientUser = $userRepository->findOneBy(['email' => 'client@azpulse.local']);
+        $workspaceUser = $userRepository->findOneBy(['email' => 'workspace@azpulse.local']);
+        $apprenant = $userRepository->findOneBy(['email' => 'apprenant1@azpulse.local']);
+
         $customersData = ['AZ Corporation', 'Tech Solutions', 'Global Industries', 'Innovatech'];
         $customers = [];
-        
+
         foreach ($customersData as $name) {
             $customer = new Customer();
             $customer->setName($name);
             $customer->setEmail(strtolower(str_replace(' ', '.', $name)) . '@example.com');
             $customer->setIndustry('IT & Services');
+            $customer->setOwner($admin);
             $manager->persist($customer);
             $customers[] = $customer;
         }
+
+        $portalCustomer = new Customer();
+        $portalCustomer->setName('Global Tech SARL');
+        $portalCustomer->setEmail('client@azpulse.local');
+        $portalCustomer->setIndustry('Services B2B');
+        $portalCustomer->setStatus('CLIENT');
+        $portalCustomer->setOwner($admin);
+        $manager->persist($portalCustomer);
+        $customers[] = $portalCustomer;
 
         // === CRM : Opportunities ===
         $opportunities = [];
@@ -43,11 +60,12 @@ class AppFixtures extends Fixture
         
         for ($i = 1; $i <= 10; $i++) {
             $opportunity = new Opportunity();
-            $opportunity->setName('Opportunité ' . $i);
+            $opportunity->setTitle('Opportunité ' . $i);
             $opportunity->setAmount((string) (rand(10, 500) * 1000));
             $opportunity->setStage($stages[array_rand($stages)]);
             $opportunity->setProbability(rand(10, 90));
             $opportunity->setCustomer($customers[array_rand($customers)]);
+            $opportunity->setOwner($admin);
             
             if ($opportunity->getStage() === 'WON') {
                 $opportunity->setProbability(100);
@@ -85,6 +103,10 @@ class AppFixtures extends Fixture
             $project->setDescription('Déploiement pour le client ' . $i);
             $project->setStatus($projectStatuses[array_rand($projectStatuses)]);
             $project->setCustomer($customers[array_rand($customers)]);
+            $project->setManager($workspaceUser ?? $admin);
+            if ($i === 1) {
+                $project->setCustomer($portalCustomer);
+            }
             $project->setStartDate(new \DateTime('-' . rand(10, 30) . ' days'));
             if ($project->getStatus() === 'COMPLETED') {
                 $project->setEndDate(new \DateTime());
@@ -146,6 +168,39 @@ class AppFixtures extends Fixture
             }
             
             $manager->persist($incident);
+        }
+
+        if ($projects !== []) {
+            $doc = new Document();
+            $doc->setTitle('Cahier des charges — Projet Stratégique 1');
+            $doc->setDescription('Livrable documentaire rattaché au projet (scénario transversal MVP).');
+            $doc->setOriginalName('cdc-projet-1.pdf');
+            $doc->setMimeType('application/pdf');
+            $doc->setSize(1024);
+            $doc->setStoragePath('placeholder-cdc.txt');
+            $doc->setStatus('PUBLISHED');
+            $doc->setPublishedAt(new \DateTime());
+            $doc->setOwner($workspaceUser ?? $admin);
+            $doc->setProject($projects[0]);
+            $manager->persist($doc);
+        }
+
+        if ($apprenant) {
+            $tuition = new Tuition();
+            $tuition->setStudent($apprenant);
+            $tuition->setTotalAmount(450000);
+            $tuition->setRemainingBalance(300000);
+            $tuition->setTotalTranches(3);
+            $tuition->setPaidTranches(1);
+            $manager->persist($tuition);
+
+            $receipt = new PaymentReceipt();
+            $receipt->setTuition($tuition);
+            $receipt->setAmount(150000);
+            $receipt->setStatus('PENDING');
+            $receipt->setReference('VIR-DEMO-001');
+            $receipt->setDocumentUrl('placeholder-justificatif.pdf');
+            $manager->persist($receipt);
         }
 
         $manager->flush();

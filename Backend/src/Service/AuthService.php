@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Entity\AccessRequest;
 use App\Entity\ApiToken;
 use App\Entity\User;
-use App\Enum\CollaboratorProfile;
 use App\Event\AccessRequestSubmittedEvent;
 use App\Repository\ApiTokenRepository;
 use App\Repository\UserRepository;
@@ -100,13 +99,7 @@ class AuthService
         $request->setMotivation($motivation);
         $request->setStatus(AccessRequest::STATUS_PENDING);
 
-        // Spécialisation souhaitée : indicative seulement. Le demandeur exprime
-        // un besoin, il ne s'attribue aucun droit (cf. §5 du document fonctionnel).
-        // On accepte soit le code de spécialisation, soit la valeur du formulaire.
-        $requestedProfile = $this->resolveRequestedProfile($data);
-        if ($requestedProfile !== null) {
-            $request->setRequestedProfile($requestedProfile->value);
-        }
+
 
         $this->entityManager->persist($request);
         $this->entityManager->flush();
@@ -132,33 +125,7 @@ class AuthService
         ];
     }
 
-    /**
-     * Traduit la situation déclarée par le demandeur en spécialisation
-     * collaborateur, si elle en correspond une.
-     *
-     * Le mapping est explicite (et non une simple normalisation) : c'est le
-     * formulaire public qui emploie des libellés d'interface, pas les codes
-     * métier du RBAC. Toute valeur inconnue est simplement ignorée, l'admin
-     * tranchera de toute façon à l'approbation.
-     */
-    private function resolveRequestedProfile(array $data): ?CollaboratorProfile
-    {
-        $raw = $data['requestedProfile']
-            ?? $data['requestedDomain']
-            ?? null;
 
-        if ($raw === null || trim((string) $raw) === '') {
-            return null;
-        }
-
-        return match (strtolower(trim((string) $raw))) {
-            'commercial', 'commercial_charge_affaires' => CollaboratorProfile::COMMERCIAL,
-            'formateur', 'formateur_intervenant'      => CollaboratorProfile::FORMATEUR,
-            'support_it', 'support_technicien'         => CollaboratorProfile::SUPPORT_IT,
-            'communication', 'charge_communication'     => CollaboratorProfile::COMMUNICATION,
-            default => null,
-        };
-    }
 
     /**
      * Authentification sécurisée
@@ -337,17 +304,43 @@ class AuthService
             $primaryRole = 'SUPER_ADMIN';
         } elseif ($user->hasRoleCode('ADMIN')) {
             $primaryRole = 'ADMIN';
+        } elseif ($user->hasRoleCode('RESPONSABLE_CRM')) {
+            $primaryRole = 'RESPONSABLE_CRM';
+        } elseif ($user->hasRoleCode('RESPONSABLE_FORMATION')) {
+            $primaryRole = 'RESPONSABLE_FORMATION';
+        } elseif ($user->hasRoleCode('RESPONSABLE_IT')) {
+            $primaryRole = 'RESPONSABLE_IT';
+        } elseif ($user->hasRoleCode('RESPONSABLE_KNOWLEDGE')) {
+            $primaryRole = 'RESPONSABLE_KNOWLEDGE';
+        } elseif ($user->hasRoleCode('RESPONSABLE_WORKSPACE')) {
+            $primaryRole = 'RESPONSABLE_WORKSPACE';
+        } elseif ($user->hasRoleCode('RESPONSABLE_ANALYTICS')) {
+            $primaryRole = 'RESPONSABLE_ANALYTICS';
+        } elseif ($user->hasRoleCode('CLIENT')) {
+            $primaryRole = 'CLIENT';
+        } elseif ($user->hasRoleCode('FORMATEUR')) {
+            $primaryRole = 'FORMATEUR';
         } elseif ($user->hasRoleCode('COLLABORATEUR')) {
             $primaryRole = 'COLLABORATEUR';
-        } elseif (preg_grep('/^RESPONSABLE_/', $roleCodes)) {
-            $primaryRole = 'RESPONSABLE';
         } elseif ($user->hasRoleCode('PARENT')) {
             $primaryRole = 'PARENT';
         }
 
-        // Spécialisation du collaborateur : sert uniquement à l'aiguillage d'interface.
-        // L'autorisation, elle, reste portée par « permissions ».
-        $profile = CollaboratorProfile::fromCode($user->getCollaboratorProfile());
+        $interfaceByRole = [
+            'SUPER_ADMIN' => '/superadmin',
+            'ADMIN' => '/admin',
+            'APPRENANT' => '/apprenant',
+            'PARENT' => '/parent',
+            'CLIENT' => '/client',
+            'FORMATEUR' => '/formation',
+            'COLLABORATEUR' => '/collaborateur',
+            'RESPONSABLE_CRM' => '/collaborateur/crm',
+            'RESPONSABLE_KNOWLEDGE' => '/collaborateur/documents',
+            'RESPONSABLE_IT' => '/collaborateur/infrastructure',
+            'RESPONSABLE_FORMATION' => '/collaborateur/formations',
+            'RESPONSABLE_WORKSPACE' => '/collaborateur/projets',
+            'RESPONSABLE_ANALYTICS' => '/collaborateur/analytics',
+        ];
 
         return [
             'id' => $user->getId()->toRfc4122(),
@@ -360,9 +353,7 @@ class AuthService
             'roles' => $roleCodes,
             'roleLabels' => $roleLabels,
             'primaryRole' => $primaryRole,
-            'collaboratorProfile' => $profile?->value,
-            'collaboratorProfileLabel' => $profile?->label(),
-            'interfaceRoute' => $profile?->interfaceRoute(),
+            'interfaceRoute' => $interfaceByRole[$primaryRole] ?? '/redirect',
             'permissions' => $user->getComputedPermissions(),
             'lastLoginAt' => $user->getLastLoginAt()?->format(\DateTimeInterface::ATOM),
             'createdAt' => $user->getCreatedAt()->format(\DateTimeInterface::ATOM),

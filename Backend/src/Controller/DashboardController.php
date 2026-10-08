@@ -3,10 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Customer;
-use App\Entity\Equipment;
 use App\Entity\Incident;
 use App\Entity\Opportunity;
+use App\Entity\Permission;
 use App\Entity\Project;
+use App\Entity\Role;
 use App\Entity\Task;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +35,48 @@ class DashboardController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
+        // ── Référentiel RBAC ─────────────────────────────────────────────
+        // L'écran de supervision affichait des nombres saisis à la main
+        // (rôles, permissions, sessions). On les calcule ici pour qu'un
+        // écart entre le catalogue déclaré et la base reste visible.
+        $roleCount    = $em->getRepository(Role::class)->count([]);
+        $permissionCount = $em->getRepository(Permission::class)->count([]);
+
+        // ── Sessions actives (jetons d'API non expirés) ─────────────────
+        $activeTokens = (int) $em->getConnection()->fetchOne(
+            'SELECT COUNT(*) FROM api_tokens WHERE expires_at > NOW()'
+        );
+
+        // ── Effectif par rôle ────────────────────────────────────────────
+        $rowsByRole = $em->getConnection()->fetchAllAssociative(
+            'SELECT r.code, r.label, COUNT(ur.user_id) AS total
+             FROM roles r
+             LEFT JOIN user_roles ur ON ur.role_id = r.id
+             GROUP BY r.code, r.label
+             ORDER BY r.code ASC'
+        );
+        $usersByRole = array_map(fn(array $r) => [
+            'code'  => $r['code'],
+            'label' => $r['label'],
+            'total' => (int) $r['total'],
+        ], $rowsByRole);
+
+        // ── Journal d'audit : dernières actions de supervision ───────────
+        $recentAudit = array_map(
+            fn(array $r) => [
+                'action'    => $r['action'],
+                'actor'     => $r['actor_email'],
+                'severity'  => $r['severity'],
+                'createdAt' => $r['created_at'],
+            ],
+            $em->getConnection()->fetchAllAssociative(
+                "SELECT action, actor_email, severity, created_at
+                 FROM audit_logs
+                 ORDER BY created_at DESC
+                 LIMIT 6"
+            )
+        );
+
         return $this->json([
             'success' => true,
             'data' => [
@@ -42,6 +85,11 @@ class DashboardController extends AbstractController
                 'projects' => $projectCount,
                 'openIncidents' => $incidentCount,
                 'totalRevenue' => $wonOpportunityAmount ?? 0,
+                'roles' => $roleCount,
+                'permissions' => $permissionCount,
+                'activeSessions' => $activeTokens,
+                'usersByRole' => $usersByRole,
+                'recentAudit' => $recentAudit,
             ]
         ]);
     }
@@ -91,6 +139,31 @@ class DashboardController extends AbstractController
             ? round(($reqApproved / $totalReqs) * 100, 1)
             : 0;
 
+        // ── Indicateurs métier (référentiels opérationnels) ─────────────
+        $wonValue = $em->createQueryBuilder()
+            ->select('SUM(o.amount)')
+            ->from(Opportunity::class, 'o')
+            ->where('o.stage = :stage')
+            ->setParameter('stage', 'WON')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $projects = [
+            'total'     => $em->getRepository(Project::class)->count([]),
+            'inProgress' => $em->getRepository(Project::class)->count(['status' => 'IN_PROGRESS']),
+        ];
+
+        // ── Santé du système ─────────────────────────────────────────────
+        // Elle était annoncée en dur à « OK » : l'écran affichait un feu vert
+        // même base injoignable. On interroge réellement la base plutôt que de
+        // mentir, et l'interface affiche ce qui a été mesuré.
+        try {
+            $conn->executeQuery('SELECT 1');
+            $systemStatus = 'OK';
+        } catch (\Throwable $e) {
+            $systemStatus = 'DEGRADED';
+        }
+
         return $this->json([
             'success' => true,
             'data' => [
@@ -113,8 +186,15 @@ class DashboardController extends AbstractController
                 // Activité récente
                 'recentRequests' => $recentRequests,
 
+                // Activité métier
+                'revenue'       => (float) ($wonValue ?? 0),
+                'customers'     => $em->getRepository(Customer::class)->count([]),
+                'projects'      => $projects,
+                'openIncidents' => $em->getRepository(Incident::class)->count(['status' => 'OPEN']),
+
                 // Système
-                'systemStatus' => 'OK',
+                'systemStatus' => $systemStatus,
+                'generatedAt'  => (new \DateTimeImmutable())->format(DATE_ATOM),
             ]
         ]);
     }
@@ -173,19 +253,40 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/it', name: 'it', methods: ['GET'])]
-    public function itStats(EntityManagerInterface $em): JsonResponse
+    public function itStats(EntityManagerInterface $em, \App\Service\GlpiService $glpiService): JsonResponse
     {
-        $equipmentCount = $em->getRepository(Equipment::class)->count([]);
+        // §8 fait de GLPI la source de vérité du parc informatique. La table
+        // `equipment` locale n'est qu'uncache périmé : la compter en repli
+        // produirait un chiffre différent de celui de GLPI, sans aucun signal
+        // permettant de les distinguer. On préfère donc une erreur franche à
+        // un mensonge silencieux.
+        try {
+            $computers = $glpiService->getComputers();
+        } catch (\Throwable $e) {
+            // `\Throwable` et non `\Exception` : une réponse GLPI malformée
+            // lève un TypeError, que `\Exception` ne capture pas et qui
+            // remonterait en 500 sans message exploitable.
+            return $this->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'GLPI_UNAVAILABLE',
+                    'message' => "L'inventaire GLPI est injoignable. Le parc informatique ne peut pas être comptabilisé : aucun chiffre local n'est utilisé en repli, la donnée n'a pas de source de vérité disponible.",
+                ],
+            ], 503);
+        }
+
         $openIncidents = $em->getRepository(Incident::class)->count(['status' => 'OPEN']);
         $inProgressIncidents = $em->getRepository(Incident::class)->count(['status' => 'IN_PROGRESS']);
 
         return $this->json([
             'success' => true,
             'data' => [
-                'totalEquipments' => $equipmentCount,
+                'totalEquipments' => count($computers),
                 'openIncidents' => $openIncidents,
                 'inProgressIncidents' => $inProgressIncidents,
-                'serverStatus' => 'Online',
+                // La source est annoncée explicitement : un lecteur doit
+                // pouvoir savoir d'où vient chaque chiffre qu'on lui montre.
+                'totalEquipmentsSource' => 'glpi',
             ]
         ]);
     }

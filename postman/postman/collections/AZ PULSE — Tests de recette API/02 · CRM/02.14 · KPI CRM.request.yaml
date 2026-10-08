@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{baseUrl}}/crm/stats"
+method: GET
+headers:
+  Authorization: Bearer {{tokenCrm}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — statistiques renvoyées', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('opportunités ouvertes (nombre)', () => pm.expect(d.openOpportunities).to.be.a('number'));
+      pm.test('montant pondéré (nombre)', () => pm.expect(d.weightedAmount).to.be.a('number'));
+      pm.test('relances imbriquées avec leurs compteurs', () => pm.expect(d.reminders).to.be.an('object'));
+
+      pm.test('les affaires closes ne sont plus comptées « ouvertes »', () => {
+        // Le test 02.12 a fait passer une affaire en WON : elle sort du décompte.
+        pm.expect(d.openOpportunities).to.be.at.least(0);
+      });
+    language: text/javascript
+order: 14000

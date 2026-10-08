@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/knowledge/documents?q=Recette"
+method: GET
+queryParams:
+  q: Recette
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — recherche renvoyée', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('le document publié est désormais visible', () => {
+        const pub = j.data.find(d => String(d.id) === String(pm.collectionVariables.get('documentId')));
+        pm.expect(pub, 'document publié').to.not.be.undefined;
+        pm.expect(pub.status).to.eql('PUBLISHED');
+      });
+    language: text/javascript
+order: 5000

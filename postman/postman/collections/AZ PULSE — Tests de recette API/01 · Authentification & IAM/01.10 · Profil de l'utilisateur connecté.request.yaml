@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/me"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — profil renvoyé', () => pm.response.to.have.status(200));
+      const u = pm.response.json().user;
+      pm.test('un identifiant public UUID est fourni', () => pm.expect(u.id).to.match(/^[0-9a-f-]{36}$/));
+      pm.test('nom complet présent', () => pm.expect(u.fullName).to.be.a('string'));
+      pm.test('statut = ACTIVE', () => pm.expect(u.status).to.eql('ACTIVE'));
+      pm.test('permissions calculées (rôles + overrides)', () => pm.expect(u.permissions).to.be.an('array'));
+      pm.test('date de dernière connexion renseignée', () => pm.expect(u.lastLoginAt).to.be.a('string'));
+    language: text/javascript
+order: 10000

@@ -1,0 +1,57 @@
+$kind: http-request
+description: |-
+  **Ce test échoue volontairement** : il documente un bug réel.
+
+  `AnalyticsController::kpis()` appelle `getRepository(Task::class)`, or l'entité `Task` déclare `repositoryClass: TaskRepository::class` **alors que cette classe n'existe pas** dans `Backend/src/Repository/`. Doctrine lève une exception → HTTP 500.
+
+  **Correctif (3 fichiers à créer)** :
+  ```
+  Backend/src/Repository/TaskRepository.php
+  Backend/src/Repository/MilestoneRepository.php
+  Backend/src/Repository/DeliverableRepository.php
+  ```
+  chacun contenant :
+  ```php
+  <?php
+  namespace App\Repository;
+  use App\Entity\Task;
+  use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+  use Doctrine\Persistence\ManagerRegistry;
+
+  class TaskRepository extends ServiceEntityRepository
+  {
+      public function __construct(ManagerRegistry $registry)
+      {
+          parent::__construct($registry, Task::class);
+      }
+  }
+  ```
+  Une fois le correctif appliqué, ce test passe au vert et le module **11 · Analytics** devient exécutable.
+url: "{{baseUrl}}/analytics/kpis"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      const status = pm.response.code;
+      const body = pm.response.text();
+
+      if (status === 200) {
+        console.log('✅ Analytics est opérationnel — le bug TaskRepository a été corrigé.');
+        pm.test('200 — KPI agrégés renvoyés', () => pm.response.to.have.status(200));
+        const d = pm.response.json().data;
+        pm.test('bloc crm présent', () => pm.expect(d.crm).to.be.an('object'));
+        pm.test('bloc workspace présent', () => pm.expect(d.workspace).to.be.an('object'));
+        pm.test('bloc knowledge présent', () => pm.expect(d.knowledge).to.be.an('object'));
+        pm.test('bloc it présent', () => pm.expect(d.it).to.be.an('object'));
+        pm.test('generatedNonEmpty', () => pm.expect(d.generatedAt).to.be.a('string'));
+      } else {
+        console.warn('❌ BUG CONFIRMÉ — HTTP ' + status);
+        console.warn('   ' + body.substring(0, 300));
+        console.warn('   Correctif : créer TaskRepository, MilestoneRepository et DeliverableRepository.');
+        pm.test('BUG DOCUMENTÉ — TaskRepository manquante', () => {
+          pm.expect(status).to.eql(500);
+          pm.expect(body).to.include('TaskRepository');
+        });
+      }
+    language: text/javascript
+order: 3000

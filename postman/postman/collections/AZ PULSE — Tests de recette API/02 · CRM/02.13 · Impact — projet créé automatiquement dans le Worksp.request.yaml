@@ -1,0 +1,36 @@
+$kind: http-request
+name: 02.13 · Impact — projet créé automatiquement dans le Workspace
+description: |-
+  Vérifie l'effet du test 02.12 de l'autre côté du module : `ProjectCreationSubscriber` a dû créer un projet lié à l'affaire gagnée.
+
+  Règles de l'automatisme :
+  - **idempotent** — si un projet lié existe déjà, rien n'est créé (relancer le test ne duplique pas) ;
+  - le budget reprend le **montant de l'affaire** ;
+  - le propriétaire de l'affaire devient **chef de projet** et membre.
+
+  Ce test compte parmi les plus parlants : il prouve que le scénario transversal CRM → Workspace fonctionne.
+url: "{{baseUrl}}/workspace/projects"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — projets renvoyés', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+
+      // Le projet créé automatiquement porte le préfixe « PROJET : ».
+      const auto = j.data.find(p => p.name && p.name.indexOf('PROJET :') === 0);
+      pm.test('un projet a bien été créé automatiquement', () => {
+        pm.expect(auto, 'projet généré').to.not.be.undefined;
+      });
+      pm.test('il porte le client et un chef de projet', function () {
+        pm.expect(auto.customer_name).to.be.a('string');
+        pm.expect(auto.manager_name).to.be.a('string');
+      });
+
+      if (auto) {
+        pm.collectionVariables.set('projectId', auto.id);
+        console.log('📁 Projet créé automatiquement — id =', auto.id);
+      }
+    language: text/javascript
+order: 13000

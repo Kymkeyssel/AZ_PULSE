@@ -32,6 +32,12 @@ const RoleRedirect = () => {
     COLLABORATEUR: '/collaborateur',
   };
 
+  // Si l'utilisateur possède une route d'interface assignée par le backend,
+  // ou si c'est un responsable, on utilise user.interfaceRoute
+  if (primaryRole === 'COLLABORATEUR' || primaryRole?.startsWith('RESPONSABLE_')) {
+    return <Navigate to={user.interfaceRoute || '/collaborateur'} replace />;
+  }
+
   return <Navigate to={SPACE_BY_ROLE[primaryRole] ?? '/collaborateur'} replace />;
 };
 

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-surface" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AZ Pulse - Portail Client B2B : Espace Client Entreprise</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#f0f4f8",
+            "on-background": "#181c1f",
+            "error-container": "#ffdad6",
+            "surface": "#f6fafe",
+            "outline-variant": "#c4c6cf",
+            "on-secondary-fixed": "#00164d",
+            "on-surface-variant": "#44474e",
+            "on-primary-container": "#778db2",
+            "background": "#f6fafe",
+            "on-tertiary-fixed": "#271900",
+            "surface-bright": "#f6fafe",
+            "primary-fixed-dim": "#b1c7f0",
+            "inverse-surface": "#2c3134",
+            "tertiary-fixed-dim": "#ffba20",
+            "error": "#ba1a1a",
+            "secondary-fixed": "#dce1ff",
+            "on-tertiary-container": "#b78300",
+            "on-error": "#ffffff",
+            "on-surface": "#181c1f",
+            "inverse-on-surface": "#edf1f5",
+            "on-secondary-fixed-variant": "#003cac",
+            "surface-dim": "#d7dade",
+            "surface-container-high": "#e5e9ed",
+            "tertiary-container": "#332200",
+            "primary-container": "#0b2545",
+            "tertiary-fixed": "#ffdea8",
+            "on-secondary": "#ffffff",
+            "on-secondary-container": "#f3f3ff",
+            "inverse-primary": "#b1c7f0",
+            "surface-container-lowest": "#ffffff",
+            "outline": "#74777f",
+            "on-primary": "#ffffff",
+            "surface-container-highest": "#dfe3e7",
+            "secondary-fixed-dim": "#b5c4ff",
+            "secondary": "#004ad1",
+            "surface-variant": "#dfe3e7",
+            "on-tertiary-fixed-variant": "#5e4200",
+            "on-tertiary": "#ffffff",
+            "tertiary": "#180e00",
+            "surface-container": "#eaeef2",
+            "on-error-container": "#93000a",
+            "primary": "#001026",
+            "on-primary-fixed": "#001c3b",
+            "surface-tint": "#495f82",
+            "secondary-container": "#1a62fe",
+            "on-primary-fixed-variant": "#314769",
+            "primary-fixed": "#d5e3ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-sm": "0.5rem",
+            "gutter-lg": "2rem",
+            "space-xs": "0.25rem",
+            "gutter-sm": "1rem",
+            "space-md": "1rem",
+            "margin": "2rem",
+            "margin-lg": "3rem",
+            "margin-sm": "1rem",
+            "space-lg": "1.5rem",
+            "gutter": "1.5rem",
+            "space-xl": "2.5rem"
+          },
+          "fontFamily": {
+            "label-lg": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "display-hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "display-hero-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="h-full bg-surface text-on-surface font-body-md antialiased flex flex-col">
+<!-- Shared SideNavBar -->
+<aside class="fixed top-0 left-0 h-screen w-64 flex flex-col justify-between shrink-0 bg-surface-container-lowest border-r border-outline-variant dark:border-outline/20 shadow-sm z-30">
+<div class="p-4 flex flex-col gap-4">
+<!-- Brand Header -->
+<div class="flex items-center gap-3 px-2 py-1">
+<img alt="AZ PULSE Logo" class="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjFrqL00Kke7CACGgg-akO8e3V3Q8VJ1xJBQTgvQCLRkFXCQt8LEaLwUWRcGPcI4-xGjL3uA3VA2fvndZnvUnaIxawAN2dOja2oLcEfXcUy9pG6kgHm6cAjab6ywW-NBKP2EumFD0KZI2Fktcnjwd3yVs1cU9TOM2j58BDaxboKNDbd2AY_sGYtxASmF91pY2ra-3fwAVst2RUVu5D--q_WDyIXvKWqBSYD3ZAPqO-9-EmFjXkCy8JyNVijzf1E_wIo07isd3VgEo"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-extrabold text-primary tracking-tight">AZ PULSE</span>
+<span class="font-label-sm text-label-sm text-outline tracking-wider uppercase font-semibold">Portail Client</span>
+</div>
+</div>
+<!-- Entity Switcher Pill -->
+<div class="bg-surface-container-low rounded-xl p-2.5 border border-outline-variant/50 flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="font-label-sm text-label-sm font-bold text-primary truncate max-w-[130px]">Global Tech SARL</span>
+</div>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-primary-container text-surface-container-lowest font-medium">B2B</span>
+</div>
+<div class="flex items-center justify-between text-outline">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">#CLI-2025-08</span>
+<button class="font-label-sm text-label-sm text-secondary font-semibold hover:underline flex items-center gap-0.5">
+            Changer d'entreprise
+            <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Navigation Menu -->
+<nav class="flex flex-col gap-1 mt-1">
+<!-- 1. Tableau de bord (Active as per page intent) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary/10 text-secondary font-semibold rounded-lg border-r-2 border-secondary active:scale-[0.98] transition-transform duration-100 ease-in-out" href="#">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-md text-label-md flex-1">Tableau de bord</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</a>
+<!-- 2. Mes Projets -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-label-md text-label-md flex-1">Mes Projets</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface font-semibold">3</span>
+</a>
+<!-- 3. Suivi Formations -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md flex-1">Suivi Formations</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface font-semibold">2</span>
+</a>
+<!-- 4. Documents & Contrats -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-md text-label-md flex-1">Documents &amp; Contrats</span>
+</a>
+<!-- 5. Facturation & Paiements -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md flex-1">Facturation &amp; Paiements</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-bold text-[10px]">1 ATT</span>
+</a>
+<!-- 6. Support & Tickets -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-label-md text-label-md flex-1">Support &amp; Tickets</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-semibold">1</span>
+</a>
+</nav>
+</div>
+<!-- Sidebar Footer / User Profile -->
+<div class="p-3 border-t border-outline-variant/60 flex flex-col gap-2">
+<div class="flex items-center gap-3 p-2 rounded-xl bg-surface-container-low/70 hover:bg-surface-container transition-colors">
+<div class="relative">
+<img class="w-9 h-9 rounded-full object-cover border border-outline-variant" data-alt="Corporate headshot portrait of a professional African IT executive wearing glasses and a formal navy tailored jacket against a crisp bright architectural background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcGo7TU5mr25-XXvzDBrNRiPge6Jzj3qF_-bIW8bwwgLUPNtUFibJh-pT0XJgco11Qn8bIveLVehMuB5hA0qlafaTr5YTyjBgcZBvjhsdVd2u-Xrrc62PhWSdE-AV8tD4Oi6kdCLaflkCcYU7HqIrYYyyEnRa2JaNZ3kS4sr7sNFuzTMCDqCroPDJlcCifU09w1b1xTFDRfPCU_wmTgFbnKaQr8dintSbAyF6_xiu6M1nZ5plPeBTTGg5mLfksJxtuek1lRzg2FAY"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-surface-container-lowest"></span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-label-md text-label-md text-primary font-bold truncate">M. Marc Essomba</span>
+<span class="font-label-sm text-label-sm text-outline truncate">DSI • Global Tech SARL</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-1 pt-1">
+<button class="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">account_circle</span>
+<span>Mon Profil</span>
+</button>
+<button class="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-error hover:bg-error-container/30 transition-colors font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">logout</span>
+<span>Déconnexion</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Canvas Container (offset by left sidebar) -->
+<div class="pl-64 flex-1 flex flex-col min-h-screen">
+<!-- Top Command Navigation Bar -->
+<header class="sticky top-0 z-20 bg-surface-container-lowest/85 backdrop-blur-md border-b border-outline-variant/60 shadow-xs">
+<div class="flex justify-between items-center w-full px-6 py-3">
+<!-- Left: Global Search & Shortcuts -->
+<div class="flex items-center gap-3 w-full max-w-lg">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full pl-10 pr-16 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/15 transition-all" placeholder="Rechercher dans mes projets, factures, livrables..." type="text"/>
+<kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 bg-surface-container-highest border border-outline-variant/70 text-on-surface-variant font-label-sm text-label-sm rounded font-mono shadow-xs">⌘K</kbd>
+</div>
+</div>
+<!-- Right: Status, Actions, Profile -->
+<div class="flex items-center gap-4">
+<!-- B2B Contract Status Badge -->
+<div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="font-label-sm text-label-sm font-semibold text-emerald-800">Contrat Cadre B2B • Année 2025/2026</span>
+</div>
+<!-- Utility Icons -->
+<div class="flex items-center gap-1">
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors relative" title="Centre d'aide &amp; Documentation">
+<span class="material-symbols-outlined text-[22px]">help</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors relative" title="Notifications">
+<span class="material-symbols-outlined text-[22px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-secondary rounded-full ring-2 ring-surface-container-lowest"></span>
+</button>
+</div>
+<div class="h-6 w-px bg-outline-variant/60"></div>
+<!-- Primary Header Action -->
+<button class="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary-container text-on-secondary font-label-lg text-label-lg font-semibold rounded-lg shadow-sm hover:shadow transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Nouveau Ticket</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Page Content Container -->
+<main class="flex-1 px-8 py-6 space-y-6 max-w-7xl w-full mx-auto">
+<!-- Executive Hero Banner -->
+<section class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-[#0b2545] to-[#134074] text-surface-container-lowest p-8 shadow-md border border-white/10">
+<!-- Ambient kinetic pulse decorative graphic lines -->
+<div class="absolute -right-10 -bottom-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute right-32 top-0 w-64 h-64 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none"></div>
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="space-y-3 max-w-2xl">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim shadow-[0_0_8px_#ffba20]"></span>
+<span class="font-label-sm text-label-sm tracking-wider uppercase font-bold text-tertiary-fixed">CLIENT ENTREPRISE • CONTRAT ACTIF (FORMULE ENTREPRISE PRO)</span>
+</div>
+<h1 class="font-display-hero text-headline-xl text-surface-container-lowest font-extrabold tracking-tight">
+              Bonjour, Global Tech SARL
+            </h1>
+<p class="font-body-md text-body-md text-surface-variant/90 leading-relaxed">
+              Gestionnaire de compte référent : <strong class="text-white font-semibold">Dr. Paulin T. (AZ Corporation)</strong> • Réf. Contrat : <span class="font-mono text-tertiary-fixed font-medium">CTR-AZ-2025-B2B-049</span> • <span class="inline-flex items-center gap-1 font-semibold text-emerald-300"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>SLA Garanti 99.9%</span>
+</p>
+</div>
+<!-- CTAs -->
+<div class="flex flex-wrap md:flex-col lg:flex-row items-stretch gap-3 shrink-0">
+<button class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white text-primary font-label-md text-label-md font-bold hover:bg-surface-bright transition-all shadow-sm active:scale-98">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>+ Nouveau ticket</span>
+</button>
+<button class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-label-md text-label-md font-semibold border border-white/20 backdrop-blur-sm transition-all active:scale-98">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Télécharger facture</span>
+</button>
+<button class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-label-md text-label-md font-semibold border border-white/20 backdrop-blur-sm transition-all active:scale-98">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+<span>Voir contrat</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Key Performance Indicators (4 Cards) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- KPI 1: Projets en cours -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/50 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-outline font-semibold">Projets en cours</span>
+<div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">folder_open</span>
+</div>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="font-display-hero text-headline-xl font-bold text-primary">3</span>
+<span class="font-label-sm text-label-sm font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">+1 ce trimestre</span>
+</div>
+<p class="mt-2 font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>actifs sur 4 commandés</span>
+</p>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-secondary to-secondary-fixed"></div>
+</div>
+<!-- KPI 2: Formations souscrites -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/50 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-outline font-semibold">Formations souscrites</span>
+<div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined text-[22px]">school</span>
+</div>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="font-display-hero text-headline-xl font-bold text-primary">18</span>
+<span class="font-label-sm text-label-sm font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">94% complétion</span>
+</div>
+<p class="mt-2 font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>collaborateurs formés • 2 cursus MINEFOP</span>
+</p>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500"></div>
+</div>
+<!-- KPI 3: Factures en attente -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-amber-300 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-outline font-semibold">Factures en attente</span>
+<div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+<span class="material-symbols-outlined text-[22px]">warning</span>
+</div>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="font-display-hero text-headline-xl font-bold text-tertiary-container">1</span>
+<span class="font-label-sm text-label-sm font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300 animate-pulse">Échéance 25 Nov</span>
+</div>
+<p class="mt-2 font-body-sm text-body-sm text-on-surface-variant font-medium">
+<span class="text-tertiary-container font-bold">1 450 000 FCFA</span> à régler sous 8 jours
+          </p>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500 shadow-[0_0_8px_#ffba20]"></div>
+</div>
+<!-- KPI 4: Tickets Support -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/50 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-outline font-semibold">Tickets Support</span>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">confirmation_number</span>
+</div>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="font-display-hero text-headline-xl font-bold text-primary">1</span>
+<span class="font-label-sm text-label-sm font-semibold text-secondary-container bg-secondary/10 px-2 py-0.5 rounded-md">Urgence : Normale</span>
+</div>
+<p class="mt-2 font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>1 ouvert • SLA &lt; 2h respecté</span>
+</p>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-primary"></div>
+</div>
+</section>
+<!-- Main Dual Column Workspace (Projects & Invoices) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Mes Projets Actifs (7 cols) -->
+<div class="lg:col-span-7 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">folder_special</span>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Mes Projets Actifs</h2>
+</div>
+<a class="font-label-md text-label-md text-secondary font-semibold hover:underline flex items-center gap-1" href="#">
+<span>Voir tous les projets (3)</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<!-- Project Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/50 shadow-xs hover:border-secondary/50 transition-all flex flex-col gap-3">
+<div class="flex items-start justify-between gap-4">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-mono font-bold bg-primary-container text-surface-container-lowest px-2 py-0.5 rounded">PRJ-SDWAN-25</span>
+<span class="font-label-sm text-label-sm font-semibold text-secondary bg-secondary/10 px-2.5 py-0.5 rounded-full">En cours (Phase 3/4)</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold mt-2">Déploiement Infrastructure Réseau &amp; Sécurité SD-WAN</h3>
+</div>
+<span class="font-headline-sm text-headline-sm font-extrabold text-secondary">72%</span>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-surface-container-low rounded-full h-2 overflow-hidden">
+<div class="bg-secondary h-2 rounded-full transition-all duration-500" style="width: 72%;"></div>
+</div>
+<!-- Meta details -->
+<div class="pt-2 border-t border-outline-variant/30 grid grid-cols-1 sm:grid-cols-3 gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Budget consommé</span>
+<span class="font-semibold text-on-surface font-mono">8 500 000 / 12M FCFA</span>
+</div>
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Échéance finale</span>
+<span class="font-semibold text-on-surface">15 Décembre 2025</span>
+</div>
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Prochain jalon</span>
+<span class="font-semibold text-secondary truncate block">Recette routeurs Biyem-Assi</span>
+</div>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/50 shadow-xs hover:border-secondary/50 transition-all flex flex-col gap-3">
+<div class="flex items-start justify-between gap-4">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-mono font-bold bg-surface-container-highest text-on-surface px-2 py-0.5 rounded">FORM-DVOPS-02</span>
+<span class="font-label-sm text-label-sm font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full">En cours (Promotion B2B)</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold mt-2">Programme de Montée en Compétences DevOps &amp; Cloud</h3>
+</div>
+<span class="font-headline-sm text-headline-sm font-extrabold text-emerald-600">48%</span>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-surface-container-low rounded-full h-2 overflow-hidden">
+<div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 48%;"></div>
+</div>
+<!-- Meta details -->
+<div class="pt-2 border-t border-outline-variant/30 grid grid-cols-1 sm:grid-cols-3 gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Financement MINEFOP</span>
+<span class="font-semibold text-on-surface font-mono">4 200 000 FCFA</span>
+</div>
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Clôture certification</span>
+<span class="font-semibold text-on-surface">30 Janvier 2026</span>
+</div>
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Effectif engagé</span>
+<span class="font-semibold text-on-surface">12 ingénieurs certifiés</span>
+</div>
+</div>
+</div>
+<!-- Project Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/50 shadow-xs hover:border-secondary/50 transition-all flex flex-col gap-3">
+<div class="flex items-start justify-between gap-4">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-mono font-bold bg-surface-container-highest text-on-surface px-2 py-0.5 rounded">AUD-SEC-2025</span>
+<span class="font-label-sm text-label-sm font-semibold text-primary bg-surface-container-high px-2.5 py-0.5 rounded-full">Cadrage Finalisé</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold mt-2">Audit &amp; Renforcement Cybersécurité et Conformité ISO 27001</h3>
+</div>
+<span class="font-headline-sm text-headline-sm font-extrabold text-on-surface-variant">25%</span>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-surface-container-low rounded-full h-2 overflow-hidden">
+<div class="bg-primary-container h-2 rounded-full transition-all duration-500" style="width: 25%;"></div>
+</div>
+<!-- Meta details -->
+<div class="pt-2 border-t border-outline-variant/30 grid grid-cols-1 sm:grid-cols-3 gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Budget alloué</span>
+<span class="font-semibold text-on-surface font-mono">3 600 000 FCFA</span>
+</div>
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Date cible audit</span>
+<span class="font-semibold text-on-surface">20 Février 2026</span>
+</div>
+<div>
+<span class="text-outline font-label-sm text-label-sm block">Auditeur chef</span>
+<span class="font-semibold text-on-surface">Ing. Christian B.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Facturation Récente & Support (5 cols) -->
+<div class="lg:col-span-5 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim">receipt_long</span>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Facturation Récente</h2>
+</div>
+<a class="font-label-md text-label-md text-secondary font-semibold hover:underline flex items-center gap-1" href="#">
+<span>Historique complet</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<!-- Pending Invoice Card (Highlighted Gold/Amber border) -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border-2 border-amber-400 bg-amber-50/20 shadow-md relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-mono font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded">#FAC-2025-089</span>
+<span class="font-label-sm text-label-sm font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-600 animate-ping"></span>
+                En attente
+              </span>
+</div>
+<div class="mt-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Acompte SD-WAN Phase 3 • Échéance : 25 Nov 2025</span>
+<div class="font-display-hero text-headline-lg font-extrabold text-primary-container mt-1 font-mono">
+                1 450 000 FCFA
+              </div>
+</div>
+<div class="mt-4 flex items-center gap-2">
+<button class="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-amber-400 hover:bg-amber-500 text-tertiary-container font-label-md text-label-md font-bold shadow-sm transition-all active:scale-98">
+<span class="material-symbols-outlined text-[18px]">payment</span>
+<span>Payer maintenant</span>
+</button>
+<button class="p-2 rounded-lg border border-outline-variant hover:bg-surface-container transition-colors text-on-surface-variant" title="Télécharger le duplicata PDF">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<!-- Paid Invoices Mini-List -->
+<div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/50 divide-y divide-outline-variant/30 space-y-3">
+<!-- Paid 1 -->
+<div class="pt-2 first:pt-0 flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-mono font-semibold text-on-surface">#FAC-2025-072</span>
+<span class="font-label-sm text-label-sm text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded font-semibold">Payée</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline mt-0.5">Session Formation MINEFOP • 15 Oct 2025</p>
+</div>
+<div class="text-right flex items-center gap-3">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface font-mono">4 200 000 FCFA</span>
+<button class="text-outline hover:text-secondary p-1 rounded" title="Reçu de paiement">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</button>
+</div>
+</div>
+<!-- Paid 2 -->
+<div class="pt-3 flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-mono font-semibold text-on-surface">#FAC-2025-064</span>
+<span class="font-label-sm text-label-sm text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded font-semibold">Payée</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline mt-0.5">Audit initial &amp; cadrage • 30 Sept 2025</p>
+</div>
+<div class="text-right flex items-center gap-3">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface font-mono">2 850 000 FCFA</span>
+<button class="text-outline hover:text-secondary p-1 rounded" title="Reçu de paiement">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Active Ticket Card mini widget -->
+<div class="bg-surface-container-low rounded-xl p-4 border border-outline-variant/60 flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">confirmation_number</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-mono font-bold text-primary">Ticket #TCK-8821</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">En cours</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium mt-1">Ouverture ports firewall agence Biyem-Assi</p>
+<div class="mt-2 flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>Priorité : Normale (SLA &lt; 4h)</span>
+<a class="text-secondary hover:underline font-semibold" href="#">+ Ouvrir un nouveau ticket</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Activités & Livrables Récents (Audit Trail & Activity Feed) -->
+<section class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/50 shadow-xs space-y-5">
+<div class="flex items-center justify-between border-b border-outline-variant/40 pb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">history</span>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Activités &amp; Livrables Récents</h2>
+</div>
+<button class="font-label-md text-label-md text-outline hover:text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>Filtrer par type de document</span>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Event 1 -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-secondary/15 flex items-center justify-center text-secondary ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div class="w-0.5 h-12 bg-outline-variant/40"></div>
+</div>
+<div class="flex-1 pb-2">
+<div class="flex items-center justify-between">
+<h4 class="font-label-lg text-label-lg text-primary font-bold">Rapport d'étape SD-WAN Phase 2 validé par Dr. Paulin T.</h4>
+<span class="font-label-sm text-label-sm text-outline">Aujourd'hui à 11:20</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Le document de synthèse technique et les tests d'étanchéité inter-sites ont été archivés dans votre coffre documentaire.
+              </p>
+<div class="mt-2 inline-flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container font-label-sm text-label-sm font-semibold text-secondary hover:bg-surface-container-high transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+<span>Rapport_Validation_SDWAN_P2.pdf (4.8 Mo)</span>
+</div>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]">fingerprint</span>
+</div>
+<div class="w-0.5 h-12 bg-outline-variant/40"></div>
+</div>
+<div class="flex-1 pb-2">
+<div class="flex items-center justify-between">
+<h4 class="font-label-lg text-label-lg text-primary font-bold">Bordereau d'émargement biométrique DevOps Promotion 1 synchronisé</h4>
+<span class="font-label-sm text-label-sm text-outline">Hier à 16:45</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Feuille de présence certifiée MINEFOP pour les 12 collaborateurs de Global Tech SARL complétée à 100%.
+              </p>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</div>
+<div class="w-0.5 h-12 bg-outline-variant/40"></div>
+</div>
+<div class="flex-1 pb-2">
+<div class="flex items-center justify-between">
+<h4 class="font-label-lg text-label-lg text-primary font-bold">Facture d'acompte #FAC-2025-089 générée par la comptabilité AZ Corporation</h4>
+<span class="font-label-sm text-label-sm text-outline">21 Nov 2025</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Montant total : 1 450 000 FCFA avec bordereau de virement bancaire et option paiement en ligne sécurisé.
+              </p>
+</div>
+</div>
+<!-- Event 4 -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]">security</span>
+</div>
+<div class="w-0.5 h-12 bg-outline-variant/40"></div>
+</div>
+<div class="flex-1 pb-2">
+<div class="flex items-center justify-between">
+<h4 class="font-label-lg text-label-lg text-primary font-bold">Validation des livrables de configuration VPN inter-sites</h4>
+<span class="font-label-sm text-label-sm text-outline">18 Nov 2025</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Clôture de la milestone réseau #04 validée conjointement par M. Essomba (DSI) et l'équipe support AZ Corp.
+              </p>
+</div>
+</div>
+<!-- Event 5 -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-surface-container-lowest ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<h4 class="font-label-lg text-label-lg text-primary font-bold">Renouvellement annuel du contrat cadre B2B approuvé par la Direction Générale</h4>
+<span class="font-label-sm text-label-sm text-outline">15 Nov 2025</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Prise d'effet immédiate des nouveaux tarifs préférentiels formations professionnelles et SLA d'intervention d'urgence.
+              </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Portal Footer -->
+<footer class="pt-6 pb-8 border-t border-outline-variant/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-outline font-body-sm text-body-sm">
+<div>
+<span>© 2025 AZ Corporation SARL. Tous droits réservés. Plateforme B2B Sécurisée AZ PULSE.</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="hover:text-on-surface transition-colors" href="#">Politique de Confidentialité</a>
+<a class="hover:text-on-surface transition-colors" href="#">Conditions Générales de Vente</a>
+<a class="hover:text-on-surface transition-colors" href="#">Portail Développeur &amp; API</a>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

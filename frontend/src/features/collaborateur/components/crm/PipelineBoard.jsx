@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import OpportunityCard from './OpportunityCard';
-import { formatAmount, STAGE_STYLES } from '../../lib/format';
+import { formatAmountCompact, STAGE_STYLES } from '../../lib/format';
 
 /**
- * Tableau Kanban du pipeline.
- *
- * Le glisser-déposer n'est disponible que si l'utilisateur a le droit de
- * modifier une affaire (`crm.update`). Ce n'est qu'un confort d'interface :
- * même masqué, Symfony refuserait la requête.
+ * Tableau Kanban — design AZ PULSE / Stitch.
+ * Colonnes : surface-container-low (#f0f4f8), zone de dépôt : secondaire.
  */
 const PipelineBoard = ({ columns, canUpdate, onSelect, onMove }) => {
   const [dragging, setDragging] = useState(null);
@@ -16,13 +13,11 @@ const PipelineBoard = ({ columns, canUpdate, onSelect, onMove }) => {
   const handleDrop = (opportunityId, stage) => {
     setDropTarget(null);
     setDragging(null);
-
     if (!opportunityId || !canUpdate) return;
-
-    // Inutile de faire un aller-retour serveur si l'étape est inchangée.
-    const source = columns.find(c => c.opportunities.some(o => String(o.id) === opportunityId));
+    const source = columns.find(c =>
+      c.opportunities.some(o => String(o.id) === opportunityId)
+    );
     if (!source || source.code === stage) return;
-
     onMove?.(opportunityId, stage);
   };
 
@@ -41,49 +36,60 @@ const PipelineBoard = ({ columns, canUpdate, onSelect, onMove }) => {
               e.dataTransfer.dropEffect = 'move';
               setDropTarget(column.code);
             }}
-            onDragLeave={() => setDropTarget(prev => (prev === column.code ? null : prev))}
+            onDragLeave={() =>
+              setDropTarget(prev => (prev === column.code ? null : prev))
+            }
             onDrop={e => {
               e.preventDefault();
               handleDrop(e.dataTransfer.getData('text/plain'), column.code);
             }}
             className={[
-              'flex-shrink-0 w-72 flex flex-col rounded-2xl border transition-colors',
-              isTarget ? 'border-[#004ad1] bg-[#eff6ff]' : 'border-[#dde3ef] bg-[#f4f7fb]',
+              'flex-shrink-0 w-72 flex flex-col rounded-2xl border transition-all duration-200',
+              isTarget
+                ? 'border-[#004ad1] bg-[#dce1ff]/30 shadow-md shadow-[#004ad1]/10'
+                : 'border-[#c4c6cf] bg-[#f0f4f8]',
             ].join(' ')}
           >
-            {/* ── En-tête de colonne ──────────────────────────────────── */}
-            <header className="p-3.5 border-b border-[#dde3ef]/80">
+            {/* ── En-tête de colonne ───────────────── */}
+            <header className="p-4 border-b border-[#dfe3e7]/80">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span
                     className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                     style={{ background: style.accent }}
                   />
-                  <h3 className="text-xs font-black uppercase tracking-wide text-[#0b2545] truncate">
+                  <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-[#001026] truncate">
                     {column.label}
                   </h3>
                 </div>
-                <span className="text-[10px] font-bold text-[#6b7a99] bg-white px-2 py-0.5 rounded-full border border-[#dde3ef] flex-shrink-0">
+                <span className="text-[11px] font-bold text-[#44474e] bg-white px-2.5 py-0.5 rounded-full border border-[#c4c6cf] flex-shrink-0">
                   {column.count}
                 </span>
               </div>
 
-              <p className="text-[11px] text-[#6b7a99]">
-                {formatAmount(column.totalAmount)}
+              <div className="flex items-baseline gap-1">
+                <span className="text-[12px] font-bold text-[#001026]">
+                  {formatAmountCompact(column.totalAmount)}
+                </span>
                 {column.weightedAmount > 0 && (
-                  <span className="text-[#94a3b8]">
-                    {' '}· {formatAmount(column.weightedAmount)} pondéré
+                  <span className="text-[10px] text-[#74777f]">
+                    · {formatAmountCompact(column.weightedAmount)} pond.
                   </span>
                 )}
-              </p>
+              </div>
             </header>
 
-            {/* ── Cartes ──────────────────────────────────────────────── */}
-            <div className="flex-1 p-2.5 space-y-2.5 overflow-y-auto max-h-[62vh]">
+            {/* ── Cartes ───────────────────────────── */}
+            <div className="flex-1 p-2.5 space-y-2 overflow-y-auto max-h-[62vh]">
               {column.opportunities.length === 0 && (
-                <p className="text-[11px] text-[#94a3b8] text-center py-8">
-                  Aucune affaire
-                </p>
+                <div className="flex flex-col items-center justify-center py-10 gap-2">
+                  <span className="material-symbols-outlined notranslate text-[32px] text-[#c4c6cf]">
+                    inbox
+                  </span>
+                  <p className="text-[11px] text-[#74777f] text-center">
+                    Aucune affaire
+                  </p>
+                </div>
               )}
 
               {column.opportunities.map(opportunity => (

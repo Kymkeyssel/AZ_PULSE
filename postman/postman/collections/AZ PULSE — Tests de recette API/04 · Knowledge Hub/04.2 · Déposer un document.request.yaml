@@ -1,0 +1,48 @@
+$kind: http-request
+description: |-
+  Envoi `multipart/form-data`. Le champ `title` est obligatoire (sinon le nom du fichier sert de titre).
+
+  Le fichier est **renommé côté serveur** : nom « slugifié » + `uniqid()` + extension devinée. Un nom hostile (`../../etc/passwd`) devient donc inoffensif.
+
+  Champs optionnels : `description`, `type`, `category_id`, `folder_id`, `project_id` (rattachement à un projet du Workspace), `tag_ids` (tableau JSON).
+
+  Le document est créé en statut **`DRAFT`** : invisible des lecteurs ordinaires jusqu'à publication (test 04.4).
+url: "{{baseUrl}}/knowledge/documents"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - ./fixtures/document-test.txt
+    - type: text
+      key: title
+      value: Livrable de recette {{suffix}}
+    - type: text
+      key: description
+      value: Document déposé par la collection de tests Postman.
+    - type: text
+      key: type
+      value: GENERAL
+    - type: text
+      key: project_id
+      value: "{{projectId}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — document déposé', () => pm.response.to.have.status(201));
+      const d = pm.response.json().data;
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+      pm.test('statut initial = DRAFT', () => pm.expect(d.status).to.eql('DRAFT'));
+      pm.test('nom du fichier d origine conservé', () => pm.expect(d.originalName).to.eql('document-test.txt'));
+      pm.test('type MIME détecté', () => pm.expect(d.mimeType).to.eql('text/plain'));
+      pm.test('taille du fichier enregistrée', () => pm.expect(d.size).to.be.above(0));
+      pm.test('le document est rattaché au projet', () => pm.expect(d.project).to.not.be.null);
+      pm.test('propriétaire identifié', () => pm.expect(d.owner_name).to.be.a('string').and.not.empty);
+      pm.test('version initiale = 1.0', () => pm.expect(d.currentVersion).to.eql('1.0'));
+
+      pm.collectionVariables.set('documentId', d.id);
+      console.log('📄 Document déposé en brouillon — id =', d.id);
+    language: text/javascript
+order: 2000

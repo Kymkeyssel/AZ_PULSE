@@ -1,0 +1,15 @@
+$kind: http-request
+description: "Second appel volontaire : `readAt` doit rester **inchangé**. Une nouvelle lecture réécrirait l'horodatage et ferait disparaître la trace du moment où la personne a réellement vu la notification."
+url: "{{baseUrl}}/notifications/{{notificationId}}/read"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — toujours lue', () => pm.response.to.have.status(200));
+      pm.test('readAt n a pas été réécrit', () => {
+        pm.expect(pm.response.json().data.readAt).to.eql(pm.collectionVariables.get('readAtFirstTime'));
+      });
+
+      console.log('🔒 Idempotence confirmée : la première date de lecture est préservée.');
+    language: text/javascript
+order: 5000

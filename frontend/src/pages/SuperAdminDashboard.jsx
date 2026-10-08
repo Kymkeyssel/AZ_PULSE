@@ -50,6 +50,7 @@ const SuperAdminDashboard = () => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchStats();
   }, [fetchStats]);
 
@@ -168,250 +169,256 @@ const SuperAdminDashboard = () => {
   return (
     <>
       {/* 1. PERSONA & IDENTITÉ */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#001026] via-[#0b2545] to-[#001c3b] text-white p-6 shadow-xl border border-white/10 mt-2">
-        <div className="absolute -right-16 -top-16 w-80 h-80 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute right-60 -bottom-20 w-64 h-64 bg-[#fbbf24]/10 rounded-full blur-2xl pointer-events-none"></div>
+      <section className="glass-panel-dark rounded-3xl relative overflow-hidden p-8 shadow-2xl border-0 ring-1 ring-white/20 mt-2 group">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-blue-900/40 to-transparent mix-blend-overlay"></div>
+        <div className="absolute -right-16 -top-16 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-400/30 transition-colors"></div>
+        <div className="absolute right-60 -bottom-20 w-64 h-64 bg-amber-400/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-400/20 transition-colors"></div>
         <div className="relative z-10 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container text-white text-[11px] font-bold">
-                <span className="material-symbols-outlined notranslate text-[13px]">verified</span>Supervision Critique AZ Pulse
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-200 text-xs font-bold ring-1 ring-blue-400/30 backdrop-blur-sm">
+                <span className="material-symbols-outlined notranslate text-[14px]">verified</span>Supervision Critique AZ Pulse
               </span>
             </div>
-            <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white">Bonjour, Administrateur Système</h1>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-[#778db2]">
-              <span className="flex items-center gap-1.5 text-white font-medium">
-                <span className="material-symbols-outlined notranslate text-[16px] text-[#fbbf24]">schedule</span>
+            <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white drop-shadow-md">Bonjour, Administrateur Système</h1>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-blue-100/80 font-medium">
+              <span className="flex items-center gap-1.5 text-white">
+                <span className="material-symbols-outlined notranslate text-[18px] text-amber-400">schedule</span>
                 <span>Paris UTC+1 : 18:29:24 • Yaoundé UTC+1 : 18:29:24</span>
               </span>
-              <span className="w-1 h-1 rounded-full bg-white/20"></span>
-              <span className="flex items-center gap-1 text-[#b5c4ff]">
-                <span className="material-symbols-outlined notranslate text-[16px]">history</span>Dernier audit : <strong className="text-white ml-1">Il y a 4 min par Dr. Marc V. (Super Admin)</strong>
+              <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span>
+              <span className="flex items-center gap-1 text-blue-200">
+                <span className="material-symbols-outlined notranslate text-[18px]">history</span>Dernier audit : <strong className="text-white ml-1">Il y a 4 min par Dr. Marc V. (Super Admin)</strong>
               </span>
             </div>
           </div>
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 self-stretch xl:self-auto">
-            <div className="flex items-center gap-3.5 bg-[#001026]/70 backdrop-blur-md px-4 py-3 rounded-xl border border-white/10 shadow-inner">
-              <div className="relative flex items-center justify-center w-11 h-11 rounded-lg bg-[#fbbf24]/10 text-[#fbbf24]">
-                <span className="material-symbols-outlined notranslate text-[28px]">health_and_safety</span>
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-secondary-container rounded-full animate-ping"></span>
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 self-stretch xl:self-auto">
+            <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md px-5 py-3.5 rounded-2xl border border-white/10 shadow-inner group-hover:bg-white/10 transition-colors">
+              <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-amber-400/15 text-amber-400 border border-amber-400/20 shadow-inner">
+                <span className="material-symbols-outlined notranslate text-[30px] drop-shadow-sm">health_and_safety</span>
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full animate-ping"></span>
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full"></span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#778db2]">Santé Globale</span>
-                <span className="text-lg font-bold text-white leading-tight">100% Opérationnel</span>
-                <span className="text-[11px] text-[#ffdea8] font-medium">Zéro anomalie de niveau 1</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-blue-200/70">Santé Globale</span>
+                <span className="text-xl font-bold text-white leading-tight drop-shadow-sm">100% Opérationnel</span>
+                <span className="text-xs text-amber-200/90 font-medium mt-0.5">Zéro anomalie de niveau 1</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => openModal('new-user')} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-secondary-container text-white text-xs font-bold hover:bg-secondary transition-all shadow-lg active:scale-95" type="button">
-                <span className="material-symbols-outlined notranslate text-[18px]">person_add</span>
+            <div className="flex items-center gap-3">
+              <Link to="/superadmin/users" className="flex items-center gap-2 px-5 py-3.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 hover:-translate-y-0.5 transition-all shadow-lg shadow-blue-500/20 active:scale-95">
+                <span className="material-symbols-outlined notranslate text-[20px]">person_add</span>
                 <span>+ Créer Utilisateur</span>
-              </button>
-              <button onClick={() => openModal('rbac')} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white text-[#001026] text-xs font-bold hover:bg-[#f0f4f8] transition-all shadow-lg active:scale-95" type="button">
-                <span className="material-symbols-outlined notranslate text-[18px] text-[#004ad1]">rule_folder</span>
-                <span>Auditer Rôles</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
       {/* 2. Insight Prédictif */}
-      <section className="mt-5 rounded-2xl bg-white border border-[#dfe3e7] p-4 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-start md:items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#001026] text-[#fbbf24] flex items-center justify-center flex-shrink-0 shadow-sm border border-[#dfe3e7]">
-            <span className="material-symbols-outlined notranslate text-[20px]">auto_awesome</span>
+      <section className="mt-6 glass-panel rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-1 h-full bg-amber-400 opacity-80"></div>
+        <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-amber-400/5 rounded-full blur-2xl group-hover:bg-amber-400/10 transition-colors"></div>
+        <div className="flex items-start md:items-center gap-4 relative z-10">
+          <div className="w-12 h-12 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
+            <span className="material-symbols-outlined notranslate text-[24px]">auto_awesome</span>
           </div>
-          <div className="space-y-0.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-extrabold text-[#001026] flex items-center gap-1">Insight Prédictif IA Système</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Modèle Prédictif Nominal</span>
-              <span className="text-[11px] text-[#74777f] font-mono">Confiance 98.7%</span>
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="text-sm font-extrabold text-slate-800 flex items-center gap-1">Insight Prédictif IA Système</span>
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200">Modèle Prédictif Nominal</span>
+              <span className="text-[11px] text-slate-500 font-mono font-semibold">Confiance 98.7%</span>
             </div>
-            <p className="text-xs text-[#44474e] leading-relaxed">
-              <strong className="text-[#001026]">Socle Symfony</strong> : authentification
+            <p className="text-xs text-slate-600 leading-relaxed max-w-4xl font-medium">
+              <strong className="text-slate-800 font-bold">Socle Symfony</strong> : authentification
               par jeton Bearer, autorisation par permissions vérifiées côté serveur
-              (<code>#[IsGranted]</code>), et validation humaine obligatoire avant toute
+              (<code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700">#[IsGranted]</code>), et validation humaine obligatoire avant toute
               action sensible.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0 self-end md:self-auto">
-          <button onClick={() => toast.info("Le diagnostic d'infrastructure sera branché sur les métriques du serveur de supervision.")} type="button" className="px-3 py-1.5 rounded-xl bg-[#f0f4f8] hover:bg-[#dfe3e7] text-[#001026] text-xs font-bold transition-all flex items-center gap-1.5">
-            <span className="material-symbols-outlined notranslate text-[15px] text-[#004ad1]">troubleshoot</span>
+        <div className="flex items-center gap-3 flex-shrink-0 self-end md:self-auto relative z-10">
+          <button onClick={() => toast.info("Le diagnostic d'infrastructure sera branché sur les métriques du serveur de supervision.")} type="button" className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm border border-slate-200">
+            <span className="material-symbols-outlined notranslate text-[16px] text-blue-600">troubleshoot</span>
             <span>Analyser</span>
           </button>
-          <button onClick={() => toast.info("Génération en cours du Rapport d'Intégrité IA en direct (SHA-256 scellé)...")} type="button" className="px-3.5 py-1.5 rounded-xl bg-[#001026] hover:bg-[#0b2545] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
-            <span className="text-[#fbbf24]">✨</span>
+          <button onClick={() => toast.info("Génération en cours du Rapport d'Intégrité IA en direct (SHA-256 scellé)...")} type="button" className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 hover:-translate-y-0.5">
+            <span className="text-amber-400">✨</span>
             <span>Rapport d'intégrité IA</span>
           </button>
         </div>
       </section>
 
       {/* 4. BLOC KPI PRINCIPAL */}
-      <section className="mt-5 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
-        <Link to="/superadmin/users" className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm hover:border-[#004ad1] hover:shadow transition-all group flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#44474e]">Utilisateurs</span>
-            <span className="w-8 h-8 rounded-lg bg-[#f0f4f8] text-[#004ad1] flex items-center justify-center group-hover:bg-[#004ad1] group-hover:text-white transition-colors">
-              <span className="material-symbols-outlined notranslate text-[18px]">group</span>
+      <section className="mt-6 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
+        <Link to="/superadmin/users" className="glass-panel p-5 rounded-2xl hover:-translate-y-1 hover:shadow-xl hover:border-blue-300 transition-all group flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-50/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Utilisateurs</span>
+            <span className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-sm group-hover:scale-110">
+              <span className="material-symbols-outlined notranslate text-[20px]">group</span>
             </span>
           </div>
-          <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">{n(stats?.users)}</div>
-            <div className="text-[11px] text-[#44474e] font-medium">Comptes enregistrés</div>
+          <div className="my-2.5 relative z-10">
+            <div className="text-4xl font-black text-slate-800 tracking-tight drop-shadow-sm">{n(stats?.users)}</div>
+            <div className="text-xs text-slate-500 font-semibold mt-1">Comptes enregistrés</div>
           </div>
-          <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-[#44474e]">Source : table User</span>
+          <div className="pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-[10px] relative z-10">
+            <span className="text-slate-500 font-medium">Source : table User</span>
           </div>
         </Link>
 
-        <Link to="/superadmin/requests" className="bg-white p-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-white to-amber-50/40 shadow-sm hover:border-amber-400 hover:shadow transition-all group flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900">Accès &amp; Privilèges</span>
-            <span className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
-              <span className="material-symbols-outlined notranslate text-[18px]">key</span>
+        <Link to="/superadmin/requests" className="glass-panel p-5 rounded-2xl border-amber-200/60 bg-gradient-to-br from-white to-amber-50/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-300 transition-all group flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 to-amber-100/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-900">Accès &amp; Privilèges</span>
+            <span className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-slate-900 transition-colors shadow-sm group-hover:scale-110">
+              <span className="material-symbols-outlined notranslate text-[20px]">key</span>
             </span>
           </div>
-          <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-amber-900 tracking-tight">{pendingRequests === null ? '—' : pendingRequests.length}</div>
-            <div className="text-[11px] text-amber-800 font-medium">Demandes à arbitrer</div>
+          <div className="my-2.5 relative z-10">
+            <div className="text-4xl font-black text-amber-900 tracking-tight drop-shadow-sm">{pendingRequests === null ? '—' : pendingRequests.length}</div>
+            <div className="text-xs text-amber-800 font-semibold mt-1">Demandes à arbitrer</div>
           </div>
-          <div className="pt-1.5 border-t border-amber-200/60 flex items-center justify-between text-[10px]">
-            <span className="text-amber-800 font-medium">Validation humaine obligatoire</span>
+          <div className="pt-2.5 border-t border-amber-200/60 flex items-center justify-between text-[10px] relative z-10">
+            <span className="text-amber-800 font-bold">Validation humaine obligatoire</span>
           </div>
         </Link>
 
-        <div className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#44474e]">Clients CRM</span>
-            <span className="w-8 h-8 rounded-lg bg-[#f0f4f8] text-[#004ad1] flex items-center justify-center">
-              <span className="material-symbols-outlined notranslate text-[18px]">handshake</span>
+        <div className="glass-panel p-5 rounded-2xl hover:-translate-y-1 hover:shadow-xl transition-all group flex flex-col justify-between relative overflow-hidden">
+          <div className="flex items-center justify-between relative z-10">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Clients CRM</span>
+            <span className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined notranslate text-[20px]">handshake</span>
             </span>
           </div>
-          <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">{n(stats?.customers)}</div>
-            <div className="text-[11px] text-[#44474e] font-medium">Sociétés référencées</div>
+          <div className="my-2.5 relative z-10">
+            <div className="text-4xl font-black text-slate-800 tracking-tight drop-shadow-sm">{n(stats?.customers)}</div>
+            <div className="text-xs text-slate-500 font-semibold mt-1">Sociétés référencées</div>
           </div>
-          <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-[#44474e]">Source : table Customer</span>
+          <div className="pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-[10px] relative z-10">
+            <span className="text-slate-500 font-medium">Source : table Customer</span>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#44474e]">Projets</span>
-            <span className="w-8 h-8 rounded-lg bg-[#f0f4f8] text-[#004ad1] flex items-center justify-center">
-              <span className="material-symbols-outlined notranslate text-[18px]">folder_open</span>
+        <div className="glass-panel p-5 rounded-2xl hover:-translate-y-1 hover:shadow-xl transition-all group flex flex-col justify-between relative overflow-hidden">
+          <div className="flex items-center justify-between relative z-10">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Projets</span>
+            <span className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined notranslate text-[20px]">folder_open</span>
             </span>
           </div>
-          <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">{n(stats?.projects)}</div>
-            <div className="text-[11px] text-[#44474e] font-medium">Dossiers suivis</div>
+          <div className="my-2.5 relative z-10">
+            <div className="text-4xl font-black text-slate-800 tracking-tight drop-shadow-sm">{n(stats?.projects)}</div>
+            <div className="text-xs text-slate-500 font-semibold mt-1">Dossiers suivis</div>
           </div>
-          <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-[#44474e]">Source : table Project</span>
+          <div className="pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-[10px] relative z-10">
+            <span className="text-slate-500 font-medium">Source : table Project</span>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#44474e]">Chiffre d&apos;affaires</span>
-            <span className="w-8 h-8 rounded-lg bg-[#f0f4f8] text-[#004ad1] flex items-center justify-center">
-              <span className="material-symbols-outlined notranslate text-[18px]">payments</span>
+        <div className="glass-panel p-5 rounded-2xl hover:-translate-y-1 hover:shadow-xl transition-all group flex flex-col justify-between relative overflow-hidden">
+          <div className="flex items-center justify-between relative z-10">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Chiffre d&apos;affaires</span>
+            <span className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined notranslate text-[20px]">payments</span>
             </span>
           </div>
-          <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">
+          <div className="my-2.5 relative z-10">
+            <div className="text-3xl font-black text-emerald-900 tracking-tight drop-shadow-sm">
               {stats?.totalRevenue ? stats.totalRevenue.toLocaleString('fr-FR') : '—'}
             </div>
-            <div className="text-[11px] text-[#44474e] font-medium">Affaires gagnées (CRM)</div>
+            <div className="text-xs text-slate-500 font-semibold mt-1">Affaires gagnées (CRM)</div>
           </div>
-          <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-[#44474e]">Opportunités au stade WON</span>
+          <div className="pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-[10px] relative z-10">
+            <span className="text-slate-500 font-medium">Opportunités au stade WON</span>
           </div>
         </div>
 
-        <a href="#infra-it" className="bg-white p-4 rounded-2xl border border-[#dfe3e7] shadow-sm hover:border-[#004ad1] hover:shadow transition-all group flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#001026]">Incidents ouverts</span>
-            <span className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-[#004ad1] group-hover:text-white transition-colors">
-              <span className="material-symbols-outlined notranslate text-[18px]">build_circle</span>
+        <a href="#infra-it" className="glass-panel p-5 rounded-2xl hover:-translate-y-1 hover:shadow-xl hover:border-blue-300 transition-all group flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-50/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Incidents ouverts</span>
+            <span className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors shadow-sm group-hover:scale-110">
+              <span className="material-symbols-outlined notranslate text-[20px]">build_circle</span>
             </span>
           </div>
-          <div className="my-1.5">
-            <div className="text-2xl font-extrabold text-[#001026] tracking-tight">{n(stats?.openIncidents)}</div>
-            <div className="text-[11px] text-[#44474e] font-medium">Tickets non clos</div>
+          <div className="my-2.5 relative z-10">
+            <div className="text-4xl font-black text-slate-800 tracking-tight drop-shadow-sm">{n(stats?.openIncidents)}</div>
+            <div className="text-xs text-slate-500 font-semibold mt-1">Tickets non clos</div>
           </div>
-          <div className="pt-1.5 border-t border-[#dfe3e7]/50 flex items-center justify-between text-[10px]">
-            <span className="text-[#44474e]">Inventaire : GLPI (§8)</span>
+          <div className="pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-[10px] relative z-10">
+            <span className="text-slate-500 font-medium">Inventaire : GLPI (§8)</span>
           </div>
         </a>
       </section>
 
       {/* 5. ZONE D'ACTION REQUISE */}
-      <section className="mt-5 bg-gradient-to-r from-[#001026] via-[#0b2545] to-[#001c3b] rounded-2xl text-white p-5 shadow-lg border border-white/10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
-        <div className="space-y-2.5 max-w-2xl">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/30 text-red-300 text-[11px] font-extrabold uppercase tracking-wider">
+      <section className="mt-6 glass-panel-dark rounded-3xl text-white p-6 shadow-2xl border-0 ring-1 ring-white/10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-900/30 via-slate-900/50 to-transparent mix-blend-overlay"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="space-y-4 max-w-3xl relative z-10">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-xs font-extrabold uppercase tracking-wider shadow-inner backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
               Actions Requises Prioritaires
             </span>
-            <span className="text-xs text-[#b5c4ff] font-medium">• 4 points d'attention détectés</span>
+            <span className="text-sm text-blue-200/80 font-semibold bg-white/5 px-2.5 py-1 rounded-full border border-white/5 backdrop-blur-sm">• 4 points d'attention détectés</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
-              <span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0"></span>
-              <span className="text-[#dfe3e7]"><strong className="text-white">2 services</strong> avec erreurs / latence anormale</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-xl border border-white/10 shadow-sm backdrop-blur-sm hover:bg-white/10 transition-colors cursor-default">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-400 flex-shrink-0 shadow-[0_0_8px_rgba(248,113,113,0.8)]"></span>
+              <span className="text-blue-100/90"><strong className="text-white font-bold">2 services</strong> avec erreurs / latence anormale</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
-              <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></span>
-              <span className="text-[#dfe3e7]"><strong className="text-white">17 demandes d'accès</strong> en attente d'arbitrage</span>
+            <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-xl border border-white/10 shadow-sm backdrop-blur-sm hover:bg-white/10 transition-colors cursor-default">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 shadow-[0_0_8px_rgba(251,191,36,0.8)]"></span>
+              <span className="text-blue-100/90"><strong className="text-white font-bold">17 demandes d'accès</strong> en attente d'arbitrage</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
-              <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></span>
-              <span className="text-[#dfe3e7]"><strong className="text-white">3 comptes à vérifier</strong> (authentification suspecte)</span>
+            <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-xl border border-white/10 shadow-sm backdrop-blur-sm hover:bg-white/10 transition-colors cursor-default">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 shadow-[0_0_8px_rgba(251,191,36,0.8)]"></span>
+              <span className="text-blue-100/90"><strong className="text-white font-bold">3 comptes à vérifier</strong> (authentification suspecte)</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
-              <span className="w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></span>
-              <span className="text-[#dfe3e7]"><strong className="text-white">1 intégration GLPI</strong> nécessite une vérification</span>
+            <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-xl border border-white/10 shadow-sm backdrop-blur-sm hover:bg-white/10 transition-colors cursor-default">
+              <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 flex-shrink-0 shadow-[0_0_8px_rgba(250,204,21,0.8)]"></span>
+              <span className="text-blue-100/90"><strong className="text-white font-bold">1 intégration GLPI</strong> nécessite une vérification</span>
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap lg:flex-nowrap items-center gap-2 self-stretch lg:self-auto justify-end">
-          <button onClick={() => openModal('new-user')} className="px-3 py-2 rounded-xl bg-secondary-container hover:bg-secondary text-white text-xs font-bold transition-all shadow flex items-center gap-1.5 active:scale-95">
-            <span className="material-symbols-outlined notranslate text-[16px]">person_add</span> + Nouvel utilisateur
+        <div className="flex flex-wrap lg:flex-nowrap items-center gap-3 self-stretch lg:self-auto justify-end relative z-10">
+          <Link to="/superadmin/users" className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 active:scale-95 border border-blue-400/30">
+            <span className="material-symbols-outlined notranslate text-[18px]">person_add</span> + Nouvel utilisateur
+          </Link>
+          <button onClick={() => openModal('new-admin')} className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-bold transition-all border border-white/20 flex items-center gap-2 active:scale-95 shadow-sm backdrop-blur-sm">
+            <span className="material-symbols-outlined notranslate text-[18px]">shield_person</span> + Créer admin
           </button>
-          <button onClick={() => openModal('new-admin')} className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/15 flex items-center gap-1.5 active:scale-95">
-            <span className="material-symbols-outlined notranslate text-[16px]">shield_person</span> + Créer admin
-          </button>
-          <button onClick={() => openModal('rbac')} className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/15 flex items-center gap-1.5 active:scale-95">
-            <span className="material-symbols-outlined notranslate text-[16px]">tune</span> Gérer permissions
-          </button>
-          <Link to="/superadmin/requests" className="px-3 py-2 rounded-xl bg-[#fbbf24] hover:bg-amber-400 text-slate-950 text-xs font-extrabold transition-all shadow flex items-center gap-1.5 active:scale-95">
-            <span className="material-symbols-outlined notranslate text-[16px]">check_circle</span> Voir demandes
+          <Link to="/superadmin/requests" className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-sm font-extrabold transition-all shadow-lg shadow-amber-400/20 flex items-center gap-2 active:scale-95">
+            <span className="material-symbols-outlined notranslate text-[18px]">check_circle</span> Voir demandes
           </Link>
         </div>
       </section>
 
       {/* 6. SANTÉ DU SYSTÈME & SÉCURITÉ */}
-      <section className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-5" id="section-system-health">
+      <section className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6" id="section-system-health">
         {/* SANTÉ */}
-        <div className="bg-white rounded-2xl border border-[#dfe3e7] p-5 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-3.5 border-b border-[#dfe3e7]">
-              <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-6 bg-[#004ad1] rounded-full"></span>
+        <div className="glass-panel p-6 rounded-3xl shadow-sm flex flex-col justify-between group hover:shadow-xl transition-shadow relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined notranslate text-[20px]">dns</span>
+                </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#001026]">Santé du Système (Micro-Services)</h3>
-                  <p className="text-[11px] text-[#44474e]">Supervision opérationnelle • Dernier check : 10:42</p>
+                  <h3 className="text-sm font-extrabold text-slate-800">Santé du Système (Micro-Services)</h3>
+                  <p className="text-[11px] text-slate-500 font-medium">Supervision opérationnelle • Dernier check : 10:42</p>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200">
+              <span className="px-3 py-1 rounded-full bg-emerald-100/80 text-emerald-800 text-[11px] font-bold ring-1 ring-emerald-200 backdrop-blur-sm flex items-center gap-1.5 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 8 / 8 En Ligne
               </span>
             </div>
-            <div className="divide-y divide-[#dfe3e7]/60 text-xs mt-1">
+            <div className="divide-y divide-slate-100 text-xs mt-2">
               {[
                 { name: 'Backend Symfony', status: 'API REST & ORM — autorité unique', color: 'emerald', sub: 'PHP 8.3', desc: 'Source de vérité des données, des permissions et des actions.' },
                 { name: 'PostgreSQL', status: 'Base relationnelle', color: 'emerald', sub: 'PostgreSQL', desc: 'Référentiels users, CRM, formations, projets.' },
@@ -420,120 +427,129 @@ const SuperAdminDashboard = () => {
                 { name: 'GLPI', status: 'Inventaire — système de référence', color: 'emerald', sub: 'GLPI', desc: 'Interrogé par Symfony uniquement, via GlpiService.' },
                 { name: 'n8n', status: 'Workflows simples', color: 'amber', sub: 'n8n', desc: 'Orchestration des processus courts, sans Logique métier.' },
               ].map(svc => (
-                <div key={svc.name} className="py-2.5 flex items-center justify-between gap-3 hover:bg-[#f0f4f8] px-2 rounded-lg transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <span className={`w-2 h-2 rounded-full bg-${svc.color}-500 shrink-0`}></span>
-                    <span className="font-bold text-[#001026]">{svc.name}</span>
-                    <span className="text-[10px] text-[#44474e]">{svc.sub}</span>
+                <div key={svc.name} className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 px-2 rounded-xl transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-2.5 h-2.5 rounded-full bg-${svc.color}-400 shrink-0 shadow-[0_0_8px_var(--tw-shadow-color)] shadow-${svc.color}-400/50`}></span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-slate-800">{svc.name}</span>
+                      <span className="text-[10px] text-slate-500 font-medium">{svc.sub}</span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-[11px] text-[#44474e] truncate hidden sm:block">{svc.desc}</span>
-                    <span className={`text-[10px] font-semibold text-${svc.color}-800 bg-${svc.color}-50 px-2 py-0.5 rounded shrink-0`}>{svc.status}</span>
+                    <span className="text-[11px] text-slate-500 truncate hidden sm:block font-medium">{svc.desc}</span>
+                    <span className={`text-[10px] font-bold text-${svc.color}-800 bg-${svc.color}-100/80 px-2.5 py-1 rounded-md shrink-0 backdrop-blur-sm`}>{svc.status}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="pt-3 mt-2 border-t border-[#dfe3e7] flex items-center justify-between">
-            <span className="text-[11px] text-[#44474e]">Socle déclaré par le document d&apos;architecture</span>
-            <a href="#configuration" className="text-xs font-bold text-[#004ad1] hover:underline flex items-center gap-1">
+          <div className="pt-4 mt-2 border-t border-slate-200/60 flex items-center justify-between relative z-10">
+            <span className="text-[11px] text-slate-500 font-medium">Socle déclaré par le document d&apos;architecture</span>
+            <a href="#configuration" className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 transition-colors">
               Détails sondes système →
             </a>
           </div>
         </div>
 
         {/* SÉCURITÉ */}
-        <div className="bg-white rounded-2xl border border-[#dfe3e7] p-5 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-3.5 border-b border-[#dfe3e7]">
-              <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-6 bg-[#fbbf24] rounded-full"></span>
+        <div className="glass-panel p-6 rounded-3xl shadow-sm flex flex-col justify-between group hover:shadow-xl transition-shadow relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-40 h-40 bg-amber-400/5 rounded-full blur-2xl group-hover:bg-amber-400/10 transition-colors pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined notranslate text-[20px]">security</span>
+                </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#001026]">Sécurité & Accès (Gouvernance)</h3>
-                  <p className="text-[11px] text-[#44474e]">RBAC, validation humaine et cloisonnement par domaine</p>
+                  <h3 className="text-sm font-extrabold text-slate-800">Sécurité & Accès (Gouvernance)</h3>
+                  <p className="text-[11px] text-slate-500 font-medium">RBAC, validation humaine et cloisonnement par domaine</p>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-blue-50 text-[#004ad1] text-[11px] font-bold border border-blue-200">
+              <span className="px-3 py-1 rounded-full bg-blue-100/80 text-blue-800 text-[11px] font-bold ring-1 ring-blue-200 backdrop-blur-sm flex items-center gap-1.5 shadow-sm">
+                <span className="material-symbols-outlined notranslate text-[14px]">lock</span>
                 FIDO2 Strict
               </span>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-3">
-              <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200">
-                <div className="text-xs text-amber-900 font-semibold">Demandes d'accès</div>
-                <div className="text-xl font-extrabold text-amber-950 mt-0.5">17</div>
-                <div className="text-[10px] text-amber-700 font-medium">En attente d'arbitrage</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-4">
+              <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/60 backdrop-blur-sm shadow-inner hover:-translate-y-0.5 transition-transform">
+                <div className="text-xs text-amber-900 font-bold uppercase tracking-wider">Demandes d'accès</div>
+                <div className="text-2xl font-black text-amber-950 mt-1 drop-shadow-sm">17</div>
+                <div className="text-[10px] text-amber-700 font-medium mt-1">En attente d'arbitrage</div>
               </div>
-              <div className="p-3 rounded-xl bg-[#f0f4f8] border border-[#dfe3e7]">
-                <div className="text-xs text-[#001026] font-semibold">Rôles modifiés</div>
-                <div className="text-xl font-extrabold text-[#001026] mt-0.5">4</div>
-                <div className="text-[10px] text-[#004ad1] font-bold">2 sensibles</div>
+              <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/60 backdrop-blur-sm shadow-inner hover:-translate-y-0.5 transition-transform">
+                <div className="text-xs text-slate-700 font-bold uppercase tracking-wider">Rôles modifiés</div>
+                <div className="text-2xl font-black text-slate-800 mt-1 drop-shadow-sm">4</div>
+                <div className="text-[10px] text-blue-600 font-bold mt-1">2 sensibles</div>
               </div>
-              <div className="p-3 rounded-xl bg-red-50/70 border border-red-200">
-                <div className="text-xs text-[#ba1a1a] font-semibold">Comptes suspendus</div>
-                <div className="text-xl font-extrabold text-[#ba1a1a] mt-0.5">3</div>
-                <div className="text-[10px] text-red-700">Vérification identité</div>
+              <div className="p-3.5 rounded-2xl bg-red-50/80 border border-red-200/60 backdrop-blur-sm shadow-inner hover:-translate-y-0.5 transition-transform">
+                <div className="text-xs text-red-700 font-bold uppercase tracking-wider">Comptes suspendus</div>
+                <div className="text-2xl font-black text-red-800 mt-1 drop-shadow-sm">3</div>
+                <div className="text-[10px] text-red-600 font-medium mt-1">Vérification identité</div>
               </div>
-              <div className="p-3 rounded-xl bg-[#f0f4f8] border border-[#dfe3e7]">
-                <div className="text-xs text-[#001026] font-semibold">Tentatives bloquées</div>
-                <div className="text-xl font-extrabold text-[#001026] mt-0.5">2</div>
-                <div className="text-[10px] text-[#ba1a1a] font-medium">WAF / IP spoof filtrée</div>
+              <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/60 backdrop-blur-sm shadow-inner hover:-translate-y-0.5 transition-transform">
+                <div className="text-xs text-slate-700 font-bold uppercase tracking-wider">Tentatives bloquées</div>
+                <div className="text-2xl font-black text-slate-800 mt-1 drop-shadow-sm">2</div>
+                <div className="text-[10px] text-red-600 font-medium mt-1">WAF / IP spoof filtrée</div>
               </div>
-              <div className="p-3 rounded-xl bg-[#f0f4f8] border border-[#dfe3e7]">
-                <div className="text-xs text-[#001026] font-semibold">Connexions filtrées</div>
-                <div className="text-xl font-extrabold text-[#001026] mt-0.5">1 482</div>
-                <div className="text-[10px] text-emerald-700 font-medium">Inhabituelles contrôlées</div>
+              <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/60 backdrop-blur-sm shadow-inner hover:-translate-y-0.5 transition-transform">
+                <div className="text-xs text-slate-700 font-bold uppercase tracking-wider">Connexions filtrées</div>
+                <div className="text-2xl font-black text-slate-800 mt-1 drop-shadow-sm">1 482</div>
+                <div className="text-[10px] text-emerald-600 font-medium mt-1">Inhabituelles contrôlées</div>
               </div>
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                <div className="text-xs text-emerald-800 font-semibold">Journal d&apos;audit</div>
-                <div className="text-sm font-extrabold text-emerald-900 mt-1 font-mono">En construction</div>
-                <div className="text-[10px] text-emerald-700">Phase 1 du chantier</div>
+              <div className="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/60 backdrop-blur-sm shadow-inner hover:-translate-y-0.5 transition-transform">
+                <div className="text-xs text-emerald-900 font-bold uppercase tracking-wider">Journal d&apos;audit</div>
+                <div className="text-sm font-black text-emerald-950 mt-2 font-mono bg-emerald-200/50 inline-block px-1 rounded">En construction</div>
+                <div className="text-[10px] text-emerald-700 font-medium mt-1">Phase 1 du chantier</div>
               </div>
             </div>
             
             {/* Sparkline & Alerte */}
-            <div className="p-3 rounded-xl bg-[#001026] text-white space-y-2">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-[#b5c4ff] font-medium">Tentatives de connexion & autorisations (24h)</span>
-                <span className="text-[#fbbf24] font-mono font-bold">1 482 valides • 2 bloquées</span>
+            <div className="p-4 rounded-2xl glass-panel-dark text-white space-y-3 shadow-inner relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+              <div className="flex items-center justify-between text-[11px] relative z-10">
+                <span className="text-blue-200 font-medium">Tentatives de connexion & autorisations (24h)</span>
+                <span className="text-amber-400 font-mono font-bold bg-amber-400/10 px-2 py-0.5 rounded backdrop-blur-sm">1 482 valides • 2 bloquées</span>
               </div>
-              <div className="h-12 w-full">
-                <svg className="w-full h-full text-secondary-container" fill="none" preserveAspectRatio="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 200 40">
+              <div className="h-12 w-full relative z-10">
+                <svg className="w-full h-full text-blue-500" fill="none" preserveAspectRatio="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 200 40">
                   <defs>
                     <linearGradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
-                      <stop offset="0%" style={{stopColor:'#1a62fe', stopOpacity: 0.4}}></stop>
-                      <stop offset="100%" style={{stopColor:'#1a62fe', stopOpacity: 0.0}}></stop>
+                      <stop offset="0%" style={{stopColor:'#3b82f6', stopOpacity: 0.4}}></stop>
+                      <stop offset="100%" style={{stopColor:'#3b82f6', stopOpacity: 0.0}}></stop>
                     </linearGradient>
                   </defs>
                   <path d="M0,35 L20,32 L40,28 L60,30 L80,18 L100,12 L120,16 L140,8 L160,14 L180,10 L200,6 L200,40 L0,40 Z" fill="url(#grad1)"></path>
-                  <path d="M0,35 L20,32 L40,28 L60,30 L80,18 L100,12 L120,16 L140,8 L160,14 L180,10 L200,6" stroke="#1a62fe" strokeWidth="2.5"></path>
-                  <circle cx="80" cy="18" fill="#ba1a1a" r="3"></circle>
-                  <circle cx="160" cy="14" fill="#ba1a1a" r="3"></circle>
+                  <path d="M0,35 L20,32 L40,28 L60,30 L80,18 L100,12 L120,16 L140,8 L160,14 L180,10 L200,6" stroke="#3b82f6" strokeWidth="2.5"></path>
+                  <circle cx="80" cy="18" fill="#f87171" r="4" stroke="#7f1d1d" strokeWidth="1"></circle>
+                  <circle cx="160" cy="14" fill="#f87171" r="4" stroke="#7f1d1d" strokeWidth="1"></circle>
                 </svg>
               </div>
             </div>
-            <div className="mt-3 p-3 rounded-xl bg-amber-50/70 border border-amber-200/70 flex items-start justify-between gap-3">
-              <div className="flex items-start gap-2.5">
-                <span className="text-[#f59e0b] text-base mt-0.5">✨</span>
-                <div className="space-y-0.5">
+            <div className="mt-4 p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 flex items-start justify-between gap-4 backdrop-blur-sm shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 shadow-sm border border-amber-200">
+                  <span className="text-amber-500 text-lg drop-shadow-sm">✨</span>
+                </div>
+                <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-amber-950">Diagnostic IA Opérationnel</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-200 text-amber-900">Recommandation</span>
+                    <span className="text-xs font-black text-amber-950">Diagnostic IA Opérationnel</span>
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900 border border-amber-300/50">Recommandation</span>
                   </div>
-                  <p className="text-[11px] text-[#44474e] leading-snug">Tentative d'injection SQL filtrée par WAF (Paris DC-1). <strong className="text-[#001026]">IP 185.220.101.4</strong> mise en quarantaine recommandée.</p>
+                  <p className="text-[11px] text-amber-900/80 font-medium leading-snug">Tentative d'injection SQL filtrée par WAF (Paris DC-1). <strong className="text-amber-950 font-bold bg-amber-200/30 px-1 rounded">IP 185.220.101.4</strong> mise en quarantaine recommandée.</p>
                 </div>
               </div>
-              <button onClick={() => toast.success('Action IA appliquée : IP 185.220.101.4 ajoutée à la liste noire temporaire du Firewall applicatif pour 72h.')} className="flex-shrink-0 px-2.5 py-1.5 rounded-lg bg-[#001026] hover:bg-[#0b2545] text-white text-[10px] font-bold transition-all flex items-center gap-1">
-                <span className="material-symbols-outlined notranslate text-[12px] text-[#fbbf24]">security</span>
+              <button onClick={() => toast.success('Action IA appliquée : IP 185.220.101.4 ajoutée à la liste noire temporaire du Firewall applicatif pour 72h.')} className="flex-shrink-0 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold transition-all shadow-md flex items-center gap-1.5 hover:-translate-y-0.5">
+                <span className="material-symbols-outlined notranslate text-[14px] text-amber-400">security</span>
                 <span>Isoler l'IP</span>
               </button>
             </div>
           </div>
-          <div className="pt-3 mt-3 border-t border-[#dfe3e7] flex items-center justify-between gap-2">
-            <Link to="/superadmin/requests" className="text-xs font-bold text-[#004ad1] hover:underline">
+          <div className="pt-4 mt-4 border-t border-slate-200/60 flex items-center justify-between gap-2 relative z-10">
+            <Link to="/superadmin/requests" className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline transition-colors">
               Voir les demandes →
             </Link>
-            <button onClick={() => openModal('siem-live')} className="px-3 py-1.5 rounded-lg bg-[#001026] text-white text-xs font-bold hover:bg-[#0b2545] transition-colors">
+            <button onClick={() => openModal('siem-live')} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all shadow-sm border border-slate-200">
               Voir le journal d&apos;audit
             </button>
           </div>
@@ -541,31 +557,34 @@ const SuperAdminDashboard = () => {
       </section>
 
       {/* 7. DEMANDES & ACTIVITÉ */}
-      <section className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-white rounded-2xl border border-[#dfe3e7] p-5 shadow-sm flex flex-col justify-between" id="admin-requests">
-          <div>
-            <div className="flex items-center justify-between pb-3.5 border-b border-[#dfe3e7]">
-              <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-6 bg-amber-500 rounded-full"></span>
+      <section className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+        <div className="glass-panel rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden" id="admin-requests">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined notranslate text-[20px]">how_to_reg</span>
+                </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#001026]">Demandes d'accès à traiter</h3>
-                  <p className="text-[11px] text-[#44474e]">Arbitrage immédiat des privilèges d'utilisateurs</p>
+                  <h3 className="text-sm font-extrabold text-slate-800">Demandes d'accès à traiter</h3>
+                  <p className="text-[11px] text-slate-500 font-medium">Arbitrage immédiat des privilèges d'utilisateurs</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#f0f4f8] text-[#001026] border border-[#dfe3e7] text-[10px] font-bold font-mono">
-                  <span className="text-[#fbbf24]">✨</span><span>Conformité IA : 99.4%</span>
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200 text-[10px] font-bold font-mono shadow-sm">
+                  <span className="text-amber-500">✨</span><span>Conformité IA : 99.4%</span>
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-[11px] font-extrabold">
-                  {pendingRequests?.length ?? '—'} demande(s) à traiter
+                <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-[11px] font-extrabold ring-1 ring-amber-200 shadow-sm">
+                  {pendingRequests?.length ?? '—'} demande(s)
                 </span>
               </div>
             </div>
-            <div className="divide-y divide-[#dfe3e7]/70 text-xs mt-1">
+            <div className="divide-y divide-slate-100 text-xs mt-2">
               {pendingRequests === null ? (
-                <div className="py-4 text-[#44474e]">Chargement des demandes…</div>
+                <div className="py-6 text-center text-slate-500 font-medium">Chargement des demandes…</div>
               ) : pendingRequests.length === 0 ? (
-                <div className="py-4 text-[#44474e]">
+                <div className="py-6 text-center text-slate-500 font-medium">
                   Aucune demande en attente d&apos;arbitrage.
                 </div>
               ) : (
@@ -579,36 +598,34 @@ const SuperAdminDashboard = () => {
                     .join('');
 
                   return (
-                    <div key={req.id} className="py-3 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#001026] text-white flex items-center justify-center font-bold text-xs">
+                    <div key={req.id} className="py-3.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 px-2 rounded-xl transition-colors">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 text-white flex items-center justify-center font-extrabold text-xs shadow-md border border-slate-700">
                           {initials || '?'}
                         </div>
                         <div>
-                          <div className="font-extrabold text-[#001026] flex items-center gap-2">
+                          <div className="font-extrabold text-slate-800 flex items-center gap-2">
                             {name}
                             {req.requestedDomain && (
-                              <span className="text-[10px] font-semibold text-[#44474e]">{req.requestedDomain}</span>
+                              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{req.requestedDomain}</span>
                             )}
                           </div>
-                          <div className="text-[11px] text-[#44474e] flex items-center gap-1.5 mt-0.5">
-                            <span className="material-symbols-outlined notranslate text-[12px]">schedule</span>
+                          <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mt-1">
+                            <span className="material-symbols-outlined notranslate text-[14px]">schedule</span>
                             {req.createdAt
                               ? new Date(req.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })
                               : '—'}
                             {req.requestedProfile?.label && (
-                              <> • Spécialisation : <span className="font-semibold text-[#001026]">{req.requestedProfile.label}</span></>
+                              <> <span className="text-slate-300">•</span> <span className="font-bold text-slate-700">{req.requestedProfile.label}</span></>
                             )}
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">En attente</span>
-                        {/* L'arbitrage se fait sur l'écran dédié : ce bouton ne
-                            simule pas une approbation, il y conduit. */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-amber-100 text-amber-900">En attente</span>
                         <Link
                           to="/superadmin/requests"
-                          className="px-2.5 py-1 rounded-lg bg-secondary-container hover:bg-secondary text-white text-[11px] font-bold"
+                          className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold transition-colors shadow-sm"
                         >
                           Traiter
                         </Link>
@@ -619,207 +636,204 @@ const SuperAdminDashboard = () => {
               )}
             </div>
           </div>
-          <div className="pt-3 mt-2 border-t border-[#dfe3e7] flex items-center justify-between">
-            <span className="text-[11px] text-[#44474e]">
+          <div className="pt-4 mt-2 border-t border-slate-200/60 flex items-center justify-between relative z-10">
+            <span className="text-[11px] text-slate-500 font-medium">
               {pendingRequests && pendingRequests.length > 3
                 ? `${pendingRequests.length - 3} autre(s) dans la file`
                 : 'File complète affichée ci-dessus'}
             </span>
-            <Link to="/superadmin/requests" className="text-xs font-bold text-[#004ad1] hover:underline">
-              Voir les {pendingRequests?.length ?? 0} demande(s) d&apos;accès →
+            <Link to="/superadmin/requests" className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline transition-colors flex items-center gap-1">
+              Voir toutes les demandes →
             </Link>
           </div>
         </div>
         
-        <div className="bg-white rounded-2xl border border-[#dfe3e7] p-5 shadow-sm flex flex-col justify-between" id="admin-logs">
-          <div>
-            <div className="flex items-center justify-between pb-3.5 border-b border-[#dfe3e7]">
-              <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-6 bg-[#001026] rounded-full"></span>
+        <div className="glass-panel rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden" id="admin-logs">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-slate-400/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined notranslate text-[20px]">history</span>
+                </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#001026]">Activité Récente (Traçabilité)</h3>
-                  <p className="text-[11px] text-[#44474e]">Journal immuable horodaté SHA-256</p>
+                  <h3 className="text-sm font-extrabold text-slate-800">Activité Récente (Traçabilité)</h3>
+                  <p className="text-[11px] text-slate-500 font-medium">Journal immuable horodaté SHA-256</p>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-[#f0f4f8] text-[#001026] text-[11px] font-mono font-bold">
+              <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200 text-[11px] font-mono font-bold shadow-sm flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Flux Temps Réel
               </span>
             </div>
-            <div className="relative pl-6 space-y-3.5 mt-3 text-xs before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#dfe3e7]">
+            <div className="relative pl-6 space-y-4 mt-4 text-xs before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
               <div className="relative flex flex-col">
-                <span className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-white"></span>
-                <div className="text-[11px] text-[#74777f] font-mono">10:42</div>
-                <div className="text-[#181c1f]">
-                  <strong className="text-[#001026]">Admin (Keyssel K.)</strong> — a attribué le rôle <span className="font-bold text-[#004ad1]">Responsable CRM</span> à <span className="font-semibold">Jean Dupont</span>
-                </div>
+                <span className="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full bg-blue-500 ring-4 ring-white shadow-sm"></span>
+                <span className="text-[10px] text-slate-500 font-bold mb-0.5">Aujourd'hui, 10:42</span>
+                <span className="font-bold text-slate-800">Dernier rapport d'intégrité IA généré</span>
+                <span className="text-[11px] text-slate-500 font-medium mt-0.5">Validation cryptographique OK. Empreinte: <code className="bg-slate-100 px-1 rounded text-slate-600">8f4a...2c9</code></span>
               </div>
               <div className="relative flex flex-col">
-                <span className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-4 ring-white"></span>
-                <div className="text-[11px] text-[#74777f] font-mono">10:38</div>
-                <div className="text-[#181c1f]">
-                  <strong className="text-[#001026]">Système</strong> — nouvelle demande d'accès <span className="font-mono text-[11px] bg-[#f0f4f8] px-1 rounded">#REQ-8849</span>
-                </div>
+                <span className="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full bg-amber-500 ring-4 ring-white shadow-sm"></span>
+                <span className="text-[10px] text-slate-500 font-bold mb-0.5">Aujourd'hui, 09:15</span>
+                <span className="font-bold text-slate-800">Alerte sécurité WAF (Niveau Bas)</span>
+                <span className="text-[11px] text-slate-500 font-medium mt-0.5">Tentative d'accès non autorisé depuis l'IP 185.220.101.4</span>
               </div>
               <div className="relative flex flex-col">
-                <span className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-[#004ad1] ring-4 ring-white"></span>
-                <div className="text-[11px] text-[#74777f] font-mono">10:31</div>
-                <div className="text-[#181c1f]">
-                  <strong className="text-[#001026]">Responsable IT</strong> — équipement commutateur Cisco importé depuis GLPI
-                </div>
+                <span className="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-white shadow-sm"></span>
+                <span className="text-[10px] text-slate-500 font-bold mb-0.5">Hier, 18:30</span>
+                <span className="font-bold text-slate-800">Mise à jour système v3.9-LIVE</span>
+                <span className="text-[11px] text-slate-500 font-medium mt-0.5">Déploiement automatique par CI/CD terminé avec succès.</span>
               </div>
               <div className="relative flex flex-col">
-                <span className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-[#fbbf24] ring-4 ring-white"></span>
-                <div className="text-[11px] text-[#74777f] font-mono">10:24</div>
-                <div className="text-[#181c1f]">
-                  <strong className="text-[#001026]">IA</strong> — recommandation générée sur le projet Global Tech
-                </div>
-              </div>
-              <div className="relative flex flex-col">
-                <span className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-slate-500 ring-4 ring-white"></span>
-                <div className="text-[11px] text-[#74777f] font-mono">10:17</div>
-                <div className="text-[#181c1f]">
-                  <strong className="text-[#001026]">Utilisateur</strong> — connexion depuis un nouvel appareil (Yaoundé HQ)
-                </div>
+                <span className="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full bg-slate-400 ring-4 ring-white shadow-sm"></span>
+                <span className="text-[10px] text-slate-500 font-bold mb-0.5">Hier, 14:22</span>
+                <span className="font-bold text-slate-800">Création compte administrateur (S. Martin)</span>
+                <span className="text-[11px] text-slate-500 font-medium mt-0.5">Autorisé par Dr. Marc V. (Super Admin)</span>
               </div>
             </div>
           </div>
-          <div className="pt-3 mt-2 border-t border-[#dfe3e7] flex items-center justify-between">
-            <span className="text-[11px] text-[#44474e]">Hash d'intégrité : e3b0c44298fc...</span>
-            <button className="text-xs font-bold text-[#004ad1] hover:underline" onClick={() => openModal('siem-live')}>
-              Consulter tout le journal d'activité →
+          <div className="pt-4 mt-2 border-t border-slate-200/60 flex items-center justify-center relative z-10">
+             <button onClick={() => openModal('siem-live')} className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all shadow-sm border border-slate-200 w-full text-center">
+              Explorer le journal d&apos;audit complet
             </button>
           </div>
         </div>
       </section>
 
       {/* 8. BLOCS SYNTHÉTIQUES */}
-      <section className="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-        <div className="bg-white rounded-2xl border border-[#dfe3e7] p-5 shadow-sm space-y-3.5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-2 border-b border-[#dfe3e7]">
-              <h4 className="text-xs font-extrabold text-[#001026] uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined notranslate text-[16px] text-[#004ad1]">stacked_bar_chart</span>
-                Pilotage Global des Pôles (24h)
+      <section className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pb-6">
+        <div className="glass-panel rounded-3xl p-6 shadow-sm space-y-4 flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <span className="material-symbols-outlined notranslate text-[18px] text-blue-600 bg-blue-50 p-1.5 rounded-lg shadow-sm">stacked_bar_chart</span>
+                Pilotage Global
               </h4>
-              <span className="text-[10px] text-[#44474e] font-mono">Total: 807</span>
+              <span className="text-[10px] text-slate-500 font-mono font-bold bg-slate-100 px-2 py-0.5 rounded-full">Total: 807</span>
             </div>
-            <div className="space-y-2 pt-2 text-xs">
+            <div className="space-y-3 pt-4 text-xs font-medium">
               <div>
-                <div className="flex justify-between text-[11px] mb-0.5"><span className="font-medium text-[#181c1f]">CRM</span><span className="font-bold text-[#001026]">142 actions (87%)</span></div>
-                <div className="w-full bg-[#eaeef2] h-1.5 rounded-full overflow-hidden"><div className="bg-secondary-container h-full rounded-full" style={{width:'87%'}}></div></div>
+                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-600">CRM</span><span className="font-bold text-slate-800">142 actions (87%)</span></div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner"><div className="bg-blue-600 h-full rounded-full" style={{width:'87%'}}></div></div>
               </div>
               <div>
-                <div className="flex justify-between text-[11px] mb-0.5"><span className="font-medium text-[#181c1f]">Workspace</span><span className="font-bold text-[#001026]">286 actions (76%)</span></div>
-                <div className="w-full bg-[#eaeef2] h-1.5 rounded-full overflow-hidden"><div className="bg-[#001026] h-full rounded-full" style={{width:'76%'}}></div></div>
+                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-600">Workspace</span><span className="font-bold text-slate-800">286 actions (76%)</span></div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner"><div className="bg-slate-800 h-full rounded-full" style={{width:'76%'}}></div></div>
               </div>
               <div>
-                <div className="flex justify-between text-[11px] mb-0.5"><span className="font-medium text-[#181c1f]">Formation</span><span className="font-bold text-[#001026]">92 actions (62%)</span></div>
-                <div className="w-full bg-[#eaeef2] h-1.5 rounded-full overflow-hidden"><div className="bg-[#fbbf24] h-full rounded-full" style={{width:'62%'}}></div></div>
+                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-600">Formation</span><span className="font-bold text-slate-800">92 actions (62%)</span></div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner"><div className="bg-amber-500 h-full rounded-full" style={{width:'62%'}}></div></div>
               </div>
               <div>
-                <div className="flex justify-between text-[11px] mb-0.5"><span className="font-medium text-[#181c1f]">Knowledge Hub</span><span className="font-bold text-[#001026]">58 actions (43%)</span></div>
-                <div className="w-full bg-[#eaeef2] h-1.5 rounded-full overflow-hidden"><div className="bg-emerald-600 h-full rounded-full" style={{width:'43%'}}></div></div>
+                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-600">Knowledge Hub</span><span className="font-bold text-slate-800">58 actions (43%)</span></div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner"><div className="bg-emerald-500 h-full rounded-full" style={{width:'43%'}}></div></div>
               </div>
               <div>
-                <div className="flex justify-between text-[11px] mb-0.5"><span className="font-medium text-[#181c1f]">Infrastructure</span><span className="font-bold text-[#001026]">74 actions (58%)</span></div>
-                <div className="w-full bg-[#eaeef2] h-1.5 rounded-full overflow-hidden"><div className="bg-blue-600 h-full rounded-full" style={{width:'58%'}}></div></div>
+                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-600">Infrastructure</span><span className="font-bold text-slate-800">74 actions (58%)</span></div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner"><div className="bg-indigo-500 h-full rounded-full" style={{width:'58%'}}></div></div>
               </div>
               <div>
-                <div className="flex justify-between text-[11px] mb-0.5"><span className="font-medium text-[#181c1f]">Analytics</span><span className="font-bold text-[#001026]">39 actions (31%)</span></div>
-                <div className="w-full bg-[#eaeef2] h-1.5 rounded-full overflow-hidden"><div className="bg-purple-600 h-full rounded-full" style={{width:'31%'}}></div></div>
+                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-600">Analytics</span><span className="font-bold text-slate-800">39 actions (31%)</span></div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner"><div className="bg-purple-500 h-full rounded-full" style={{width:'31%'}}></div></div>
               </div>
               <div>
-                <div className="flex justify-between text-[11px] mb-0.5"><span className="font-medium text-[#181c1f]">AI Workspace</span><span className="font-bold text-[#001026]">112 actions (68%)</span></div>
-                <div className="w-full bg-[#eaeef2] h-1.5 rounded-full overflow-hidden"><div className="bg-amber-500 h-full rounded-full" style={{width:'68%'}}></div></div>
+                <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-600">AI Workspace</span><span className="font-bold text-slate-800">112 actions (68%)</span></div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner"><div className="bg-rose-500 h-full rounded-full" style={{width:'68%'}}></div></div>
               </div>
             </div>
           </div>
-          <div className="pt-2 border-t border-[#dfe3e7] text-[11px] text-[#44474e]">
-            Charge moyenne plateforme : <strong className="text-emerald-700">62.4%</strong>
+          <div className="pt-3 border-t border-slate-200/60 text-[11px] text-slate-500 font-medium relative z-10 flex justify-between items-center">
+            Charge plateforme :
+            <span className="px-2 py-0.5 rounded text-emerald-700 bg-emerald-100 font-bold border border-emerald-200/50">62.4%</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-[#dfe3e7] p-5 shadow-sm space-y-3.5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-2 border-b border-[#dfe3e7]">
-              <h4 className="text-xs font-extrabold text-[#001026] uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined notranslate text-[16px] text-[#fbbf24]">psychology</span>
-                AI Workspace Monitoring
+        <div className="glass-panel rounded-3xl p-6 shadow-sm space-y-4 flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <span className="material-symbols-outlined notranslate text-[18px] text-amber-500 bg-amber-50 p-1.5 rounded-lg shadow-sm">psychology</span>
+                AI Monitoring
               </h4>
-              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-900">v2.4 Core</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 ring-1 ring-amber-200 shadow-sm">v2.4 Core</span>
             </div>
-            <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
-              <div className="p-2 rounded-xl bg-[#f0f4f8]"><div className="text-[10px] text-[#44474e]">Analyses aujourd'hui</div><div className="text-base font-extrabold text-[#001026]">42</div></div>
-              <div className="p-2 rounded-xl bg-[#f0f4f8]"><div className="text-[10px] text-[#44474e]">Recommandations</div><div className="text-base font-extrabold text-[#004ad1]">18</div></div>
-              <div className="p-2 rounded-xl bg-[#f0f4f8]"><div className="text-[10px] text-[#44474e]">Échecs d'analyse</div><div className="text-base font-extrabold text-[#ba1a1a]">2</div></div>
-              <div className="p-2 rounded-xl bg-[#f0f4f8]"><div className="text-[10px] text-[#44474e]">Temps moyen</div><div className="text-base font-extrabold text-emerald-700 font-mono">2.4s</div></div>
+            <div className="grid grid-cols-2 gap-3 pt-4 text-xs">
+              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/60 shadow-inner hover:-translate-y-0.5 transition-transform"><div className="text-[10px] text-slate-500 font-bold mb-1">Analyses/jour</div><div className="text-xl font-black text-slate-800 drop-shadow-sm">42</div></div>
+              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/60 shadow-inner hover:-translate-y-0.5 transition-transform"><div className="text-[10px] text-slate-500 font-bold mb-1">Recommandations</div><div className="text-xl font-black text-blue-600 drop-shadow-sm">18</div></div>
+              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/60 shadow-inner hover:-translate-y-0.5 transition-transform"><div className="text-[10px] text-slate-500 font-bold mb-1">Échecs</div><div className="text-xl font-black text-red-600 drop-shadow-sm">2</div></div>
+              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/60 shadow-inner hover:-translate-y-0.5 transition-transform"><div className="text-[10px] text-slate-500 font-bold mb-1">Temps moyen</div><div className="text-xl font-black text-emerald-600 font-mono drop-shadow-sm">2.4s</div></div>
             </div>
-            <div className="mt-3">
-              <div className="text-[11px] font-bold text-[#44474e] mb-1.5">État des 6 agents IA :</div>
-              <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                {['Project Agent', 'Commercial Agent', 'Document Agent', 'IT Agent', 'Analytics Agent', 'Formation Agent'].map(agent => (
-                  <div key={agent} className="flex items-center gap-1.5 bg-[#f0f4f8] px-2 py-1 rounded-lg">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    <span className="truncate">{agent}</span>
+            <div className="mt-4">
+              <div className="text-[11px] font-bold text-slate-500 mb-2">État des 6 agents IA :</div>
+              <div className="grid grid-cols-2 gap-2 text-[11px] font-medium">
+                {['Project', 'Commercial', 'Document', 'IT', 'Analytics', 'Formation'].map(agent => (
+                  <div key={agent} className="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_5px_var(--tw-shadow-color)] shadow-emerald-400"></span>
+                    <span className="truncate text-slate-700">{agent}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-          <a className="text-xs font-bold text-[#004ad1] hover:underline block pt-2 border-t border-[#dfe3e7]" href="#ai-workspace">
+          <a className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline block pt-3 border-t border-slate-200/60 relative z-10 transition-colors" href="#ai-workspace">
             Ouvrir AI Workspace →
           </a>
         </div>
 
-        <div className="bg-white rounded-2xl border border-[#dfe3e7] p-5 shadow-sm space-y-3.5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-2 border-b border-[#dfe3e7]">
-              <h4 className="text-xs font-extrabold text-[#001026] uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined notranslate text-[16px] text-blue-600">dns</span>
-                Infrastructure & IT
+        <div className="glass-panel rounded-3xl p-6 shadow-sm space-y-4 flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <span className="material-symbols-outlined notranslate text-[18px] text-indigo-600 bg-indigo-50 p-1.5 rounded-lg shadow-sm">dns</span>
+                Infra & IT
               </h4>
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Sync GLPI</span>
+              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full ring-1 ring-emerald-200 shadow-sm">Sync GLPI</span>
             </div>
-            <div className="space-y-2.5 pt-2 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f0f4f8]">
-                <span className="text-[#44474e]">Équipements inventoriés :</span><strong className="text-[#001026] font-extrabold text-sm">248</strong>
+            <div className="space-y-3 pt-4 text-xs font-medium">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
+                <span className="text-slate-600">Équipements :</span><strong className="text-slate-800 font-black text-sm drop-shadow-sm">248</strong>
               </div>
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/60">
-                <span className="text-amber-900">Incidents ouverts :</span><strong className="text-amber-900 font-extrabold text-sm">12</strong>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 shadow-sm">
+                <span className="text-amber-900">Incidents ouverts :</span><strong className="text-amber-900 font-black text-sm drop-shadow-sm">12</strong>
               </div>
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-red-50/60 border border-red-200/60">
-                <span className="text-[#ba1a1a]">Incidents critiques :</span><strong className="text-[#ba1a1a] font-extrabold text-sm">2</strong>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-red-50/80 border border-red-200/80 shadow-sm">
+                <span className="text-red-700">Incidents critiques :</span><strong className="text-red-700 font-black text-sm drop-shadow-sm">2</strong>
               </div>
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f0f4f8]">
-                <span className="text-[#44474e]">Maintenances prévues :</span><strong className="text-[#001026] font-extrabold text-sm">7</strong>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
+                <span className="text-slate-600">Maintenances :</span><strong className="text-slate-800 font-black text-sm drop-shadow-sm">7</strong>
               </div>
             </div>
           </div>
-          <a className="text-xs font-bold text-[#004ad1] hover:underline block pt-2 border-t border-[#dfe3e7]" href="#infra-it">
+          <a className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline block pt-3 border-t border-slate-200/60 relative z-10 transition-colors" href="#infra-it">
             Voir Infrastructure IT →
           </a>
         </div>
 
-        <div className="bg-white rounded-2xl border border-[#dfe3e7] p-5 shadow-sm space-y-3.5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-2 border-b border-[#dfe3e7]">
-              <h4 className="text-xs font-extrabold text-[#001026] uppercase tracking-wider flex items-center gap-1.5">
-                <span className="material-symbols-outlined notranslate text-[16px] text-purple-600">analytics</span>
-                Analytics Global
+        <div className="glass-panel rounded-3xl p-6 shadow-sm space-y-4 flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors pointer-events-none"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/60">
+              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <span className="material-symbols-outlined notranslate text-[18px] text-purple-600 bg-purple-50 p-1.5 rounded-lg shadow-sm">analytics</span>
+                Analytics
               </h4>
-              <span className="text-[10px] text-[#74777f]">Cockpit synthèse</span>
+              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full ring-1 ring-slate-200">Cockpit</span>
             </div>
-            <div className="space-y-2 pt-2 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Comptes enregistrés :</span><span className="font-bold text-[#001026]">{n(stats?.users)}</span></div>
-              <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Activité système globale :</span><span className="font-bold text-emerald-700">807 actions/24h</span></div>
-              <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Demandes d'accès :</span><span className="font-bold text-amber-700">17 en attente</span></div>
-              <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Actions administratives :</span><span className="font-bold text-[#004ad1]">48 auditées</span></div>
-              <div className="flex justify-between items-center py-1 border-b border-[#dfe3e7]/50"><span className="text-[#44474e]">Utilisation IA :</span><span className="font-bold text-[#fbbf24]">42 requêtes</span></div>
-              <div className="flex justify-between items-center py-1"><span className="text-[#44474e]">Incidents IT résolus :</span><span className="font-bold text-emerald-700">94.8% SLA</span></div>
+            <div className="space-y-3 pt-4 text-xs font-medium">
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-100"><span className="text-slate-500">Comptes enregistrés :</span><span className="font-extrabold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">{n(stats?.users)}</span></div>
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-100"><span className="text-slate-500">Activité système :</span><span className="font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">807 / 24h</span></div>
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-100"><span className="text-slate-500">Demandes d'accès :</span><span className="font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">17 attente</span></div>
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-100"><span className="text-slate-500">Actions admin :</span><span className="font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">48 auditées</span></div>
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-100"><span className="text-slate-500">Utilisation IA :</span><span className="font-extrabold text-amber-500 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">42 requêtes</span></div>
+              <div className="flex justify-between items-center py-1.5"><span className="text-slate-500">Incidents résolus :</span><span className="font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">94.8% SLA</span></div>
             </div>
           </div>
-          <a className="text-xs font-bold text-[#004ad1] hover:underline block pt-2 border-t border-[#dfe3e7]" href="#analytics">
-            Consulter le rapport Analytics →
+          <a className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline block pt-3 border-t border-slate-200/60 relative z-10 transition-colors" href="#analytics">
+            Consulter le rapport →
           </a>
         </div>
       </section>

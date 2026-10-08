@@ -65,6 +65,10 @@ class Document
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Project $project = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -123,6 +127,8 @@ class Document
 
     public function getOwner(): ?User { return $this->owner; }
     public function setOwner(?User $owner): static { $this->owner = $owner; return $this; }
+    public function getProject(): ?Project { return $this->project; }
+    public function setProject(?Project $project): static { $this->project = $project; return $this; }
     public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
     public function setCreatedAt(\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
     public function getUpdatedAt(): ?\DateTimeInterface { return $this->updatedAt; }

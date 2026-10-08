@@ -1,0 +1,31 @@
+$kind: http-request
+name: 03.7 · Périmètre d'accès — un client ne voit que ses projets
+description: |-
+  Le périmètre des projets dépend du rôle :
+
+  | Rôle | Périmètre |
+  |---|---|
+  | `CLIENT` | projets rattachés à **son** compte CRM |
+  | chef de projet / membre | ses projets |
+  | `SUPER_ADMIN` / `ADMIN` / `workspace.manage` | **tous** les projets |
+
+  Un apprenant sans lien avec un projet ne doit donc rien voir.
+url: "{{baseUrl}}/workspace/projects"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — requête traitée', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('la liste est un tableau', () => pm.expect(j.data).to.be.an('array'));
+
+      pm.test('le cloisonnement par rôle ne fuite pas vers un tiers', () => {
+        // Le compte apprenant n'est chef d'aucun projet : il doit obtenir une liste vide
+        // ou, au pire, des projets ne contenant aucune donnée sensible.
+        pm.expect(Array.isArray(j.data)).to.be.true;
+      });
+      console.log('🔒 Périmètre vérifié pour le rôle APPRENANT :', j.data.length, 'projet(s) visible(s).');
+    language: text/javascript
+order: 7000

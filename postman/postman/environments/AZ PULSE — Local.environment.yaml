@@ -1,0 +1,78 @@
+name: AZ PULSE — Local
+values:
+  - key: baseUrl
+    value: 'http://localhost:8000/api'
+  - key: accountSuperAdmin
+    value: admin@azpulse.local
+  - key: pwdSuperAdmin
+    value: Admin@2026!
+  - key: accountAdmin
+    value: directeur.admin@azpulse.local
+  - key: pwdAdmin
+    value: Password123!
+  - key: accountCrm
+    value: resp.crm@azpulse.local
+  - key: pwdCrm
+    value: password123
+  - key: accountWorkspace
+    value: resp.workspace@azpulse.local
+  - key: pwdWorkspace
+    value: Password123!
+  - key: accountIt
+    value: resp.it@azpulse.local
+  - key: pwdIt
+    value: Password123!
+  - key: accountFormation
+    value: resp.formation@azpulse.local
+  - key: pwdFormation
+    value: Password123!
+  - key: accountApprenant
+    value: apprenant@azpulse.local
+  - key: pwdApprenant
+    value: Password123!
+  - key: accountParent
+    value: parent@azpulse.local
+  - key: pwdParent
+    value: Password123!
+  - key: token
+    value: ''
+  - key: tokenApprenant
+    value: ''
+  - key: tokenParent
+    value: ''
+  - key: tokenCrm
+    value: ''
+  - key: suffix
+    value: PM01
+  - key: customerId
+    value: ''
+  - key: opportunityId
+    value: ''
+  - key: reminderId
+    value: ''
+  - key: projectId
+    value: ''
+  - key: taskId
+    value: ''
+  - key: documentId
+    value: ''
+  - key: incidentId
+    value: ''
+  - key: paymentId
+    value: ''
+  - key: computerId
+    value: ''
+  - key: accessRequestId
+    value: ''
+  - key: accessRequestUuid
+    value: ''
+  - key: candidateEmail
+    value: ''
+  - key: roleCrmId
+    value: ''
+  - key: notificationId
+    value: ''
+  - key: aiServiceUrl
+    value: 'http://localhost:8001'
+  - key: tokenAdmin
+    value: ''

@@ -1,0 +1,38 @@
+$kind: http-request
+description: |-
+  Retourne six blocs : `program` (parcours et progression), `financial` (échéancier), `schedule` (emploi du temps), `grades` (notes), `tasks` (devoirs), `documents` (supports).
+
+  ⚠️ **Deux limites connues** de cet endpoint, utiles à connaître lors de la démonstration :
+  - `program.bordereauxPublished` est codé en dur à `false` — l'indicateur « bulletins publiés » n'est jamais calculé ;
+  - `schedule` renvoie les sessions **globales**, pas celles de l'apprenant, et `documents` les 4 derniers supports du site.
+
+  Ces points sont documentés dans `ApprenantDashboardController`.
+url: "{{baseUrl}}/dashboard/apprenant"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — dashboard renvoyé', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('les six blocs sont présents', () => {
+        pm.expect(j).to.have.all.keys('program', 'financial', 'schedule', 'grades', 'tasks', 'documents');
+      });
+      pm.test('bloc formation renseigné', function () {
+        pm.expect(j.program).to.not.be.null;
+        pm.expect(j.program.progress).to.be.a('number');
+        pm.expect(j.program.totalModules).to.be.a('number');
+      });
+      pm.test('bloc financier renseigné', function () {
+        pm.expect(j.financial).to.not.be.null;
+        pm.expect(j.financial.totalAmount).to.be.a('number');
+        pm.expect(j.financial.paidTranches).to.be.a('number');
+        pm.expect(j.financial.totalTranches).to.be.a('number');
+      });
+      pm.test('bloc emploi du temps renseigné', () => pm.expect(j.schedule).to.be.an('array').and.not.empty);
+      pm.test('bloc notes renseigné', () => pm.expect(j.grades).to.be.an('array').and.not.empty);
+
+      console.log('🎓 Apprenant :', j.program.progress + '% du parcours,', j.grades.length, 'note(s),', j.schedule.length, 'séance(s).');
+    language: text/javascript
+order: 1000

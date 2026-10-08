@@ -1,0 +1,8 @@
+$kind: collection
+description: |-
+  À lancer **en premier**.
+
+  1. Établit le jeton du Super Administrateur (utilisé par tous les modules suivants).
+  2. Vérifie que l'inventaire GLPI répond.
+  3. Isole les deux endpoints actuellement en erreur 500 et affiche le diagnostic exact du correctif à appliquer.
+order: 1000

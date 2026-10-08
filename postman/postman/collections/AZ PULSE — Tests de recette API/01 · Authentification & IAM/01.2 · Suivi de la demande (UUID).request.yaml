@@ -1,0 +1,28 @@
+$kind: http-request
+description: |-
+  Endpoint public qui rend l'état réel du dossier à partir de la seule référence connue du demandeur (celle reçue par e-mail). Il **n'accorde aucun droit** : l'activation reste bloquée tant qu'un administrateur n'a pas agi.
+
+  À lancer une seconde fois après 01.6 pour montrer le passage `PENDING → APPROVED`.
+url: "{{baseUrl}}/auth/status"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "uuid": "{{accessRequestUuid}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — statut renvoyé', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('la demande est bien-known', () => pm.expect(j.reference).to.eql(pm.collectionVariables.get('accessRequestUuid')));
+      pm.test('un statut est présent', () => pm.expect(j.status).to.be.oneOf(['PENDING', 'APPROVED', 'REJECTED']));
+      pm.test('l email du demandeur est rappelé', () => pm.expect(j.email).to.include('@'));
+      console.log('📄 Statut du dossier :', j.status);
+    language: text/javascript
+order: 2000

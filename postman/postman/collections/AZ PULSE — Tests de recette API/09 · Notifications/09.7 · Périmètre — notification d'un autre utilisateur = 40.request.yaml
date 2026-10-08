@@ -1,0 +1,18 @@
+$kind: http-request
+name: 09.7 · Périmètre — notification d'un autre utilisateur = 404
+description: |-
+  Le Super Admin a potentiellement marqué une notification qui n'est pas la sienne… non : cette notification **est** la sienne. Ce test tente donc de lire un identifiant **étranger à l'appelant**.
+
+  Un `999999` inexistant et une notification réellement appartenant au Super Admin produisent **la même réponse 404** : l'API ne distingue pas « n'existe pas » de « n'est pas à toi », elle ne confirme rien.
+url: "{{baseUrl}}/notifications/{{notificationId}}/read"
+method: POST
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('404 — existence non divulguée', () => pm.response.to.have.status(404));
+
+      console.log('🔒 Cloisonnement vérifié : une notification étrangère répond 404, pas 403.');
+    language: text/javascript
+order: 7000

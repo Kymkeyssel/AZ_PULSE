@@ -17,10 +17,21 @@ class LLMService:
             config['response_mime_type'] = 'application/json'
             config['response_schema'] = response_schema
             
-        response = self.client.models.generate_content(
-            model=settings.gemini_model,
-            contents=prompt,
-            config=config if config else None
-        )
-
-        return response.text or ""
+        try:
+            response = self.client.models.generate_content(
+                model=settings.gemini_model,
+                contents=prompt,
+                config=config if config else None
+            )
+            return response.text or ""
+        except Exception as e:
+            # Fallback structuré si Gemini retourne une erreur (quota, connexion, etc.)
+            if response_schema:
+                import json
+                return json.dumps({
+                    "status": "failed",
+                    "analysis": f"Diagnostic interrompu : le service IA Gemini est temporairement indisponible ({str(e)}).",
+                    "risks": ["Indisponibilité temporaire de l'API Gemini ou quota de clés atteint."],
+                    "recommendations": ["Vérifier la clé GEMINI_API_KEY et la connectivité au service Gemini."]
+                })
+            raise RuntimeError(f"Erreur du service LLM: {str(e)}")

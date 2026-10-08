@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/academy/grades"
+method: GET
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — notes renvoyées', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+      pm.test('au moins une note est enregistrée', () => pm.expect(j.data.length).to.be.above(0));
+      pm.test('chaque note est chiffrée', () => {
+        j.data.forEach(g => pm.expect(g.score).to.be.a('number'));
+      });
+    language: text/javascript
+order: 4000

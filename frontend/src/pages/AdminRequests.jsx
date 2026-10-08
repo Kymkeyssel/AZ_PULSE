@@ -298,19 +298,18 @@ const AdminRequests = () => {
           <div>
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined notranslate text-[16px]" style={{ color: C.textMuted }}>admin_panel_settings</span>
-              <span style={{ color: C.textMuted }} className="text-xs font-medium">Administration</span>
-              <span style={{ color: C.border }} className="text-xs">/</span>
-              <span style={{ color: C.blue }} className="text-xs font-bold">Demandes d'accès</span>
-              <span style={{ background: C.amberBg, color: C.amber }}
-                    className="ml-1 px-2 py-0.5 rounded-full text-[11px] font-black">
+              <span className="material-symbols-outlined notranslate text-[16px] text-slate-500">admin_panel_settings</span>
+              <span className="text-xs font-medium text-slate-500">Administration</span>
+              <span className="text-xs text-slate-300">/</span>
+              <span className="text-xs font-bold text-blue-600">Demandes d'accès</span>
+              <span className="ml-1 px-2 py-0.5 rounded-full text-[11px] font-black bg-amber-100 text-amber-600 border border-amber-200">
                 {pendingCount} en attente
               </span>
             </div>
-            <h1 style={{ color: C.navy }} className="text-2xl font-extrabold tracking-tight">
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">
               Gestion des Demandes d'Accès
             </h1>
-            <p style={{ color: C.textMuted }} className="text-sm mt-0.5">
+            <p className="text-sm mt-1 text-slate-500">
               Supervision et validation des nouveaux comptes AZ Pulse.
             </p>
           </div>
@@ -333,118 +332,108 @@ const AdminRequests = () => {
         {/* ── KPI Cards ───────────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
           {/* KPI 1 — En attente */}
-          <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.gold}` }}
-               className="p-5 rounded-xl shadow-sm">
-            <div className="flex items-start justify-between">
+          <div className="glass-panel p-5 rounded-2xl shadow-sm border-t-4 border-t-amber-500 hover:shadow-lg transition-shadow relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors pointer-events-none"></div>
+            <div className="relative z-10 flex items-start justify-between">
               <div>
-                <p style={{ color: C.textMuted }} className="text-xs font-bold uppercase tracking-wider mb-1">En attente</p>
-                <p style={{ color: C.navy }} className="text-4xl font-black leading-none">{pendingCount}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">En attente</p>
+                <p className="text-4xl font-black text-slate-800 leading-none drop-shadow-sm">{pendingCount}</p>
               </div>
-              <div style={{ background: '#fef9ec', color: C.gold }} className="w-10 h-10 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shadow-sm border border-amber-100">
                 <span className="material-symbols-outlined notranslate text-[22px]">pending_actions</span>
               </div>
             </div>
-            <p style={{ color: C.textMuted }} className="text-xs mt-3">Demandes en attente d'arbitrage</p>
+            <p className="text-xs mt-3 text-slate-500 font-medium relative z-10">Demandes en attente d'arbitrage</p>
           </div>
 
           {/* KPI 2 — Approuvées */}
-          <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.blue}` }}
-               className="p-5 rounded-xl shadow-sm">
-            <div className="flex items-start justify-between">
+          <div className="glass-panel p-5 rounded-2xl shadow-sm border-t-4 border-t-emerald-500 hover:shadow-lg transition-shadow relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors pointer-events-none"></div>
+            <div className="relative z-10 flex items-start justify-between">
               <div>
-                <p style={{ color: C.textMuted }} className="text-xs font-bold uppercase tracking-wider mb-1">Approuvées</p>
-                <p style={{ color: C.navy }} className="text-4xl font-black leading-none">{approvedCount}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Approuvées</p>
+                <p className="text-4xl font-black text-slate-800 leading-none drop-shadow-sm">{approvedCount}</p>
               </div>
-              <div style={{ background: '#eff6ff', color: C.blue }} className="w-10 h-10 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm border border-emerald-100">
                 <span className="material-symbols-outlined notranslate text-[22px]">verified_user</span>
               </div>
             </div>
-            <p style={{ color: C.textMuted }} className="text-xs mt-3">Comptes activés avec succès</p>
+            <p className="text-xs mt-3 text-slate-500 font-medium relative z-10">Comptes activés avec succès</p>
           </div>
 
           {/* KPI 3 — Rejetées */}
-          <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}`, borderTop: `3px solid ${C.red}` }}
-               className="p-5 rounded-xl shadow-sm">
-            <div className="flex items-start justify-between">
+          <div className="glass-panel p-5 rounded-2xl shadow-sm border-t-4 border-t-red-500 hover:shadow-lg transition-shadow relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-2xl group-hover:bg-red-500/10 transition-colors pointer-events-none"></div>
+            <div className="relative z-10 flex items-start justify-between">
               <div>
-                <p style={{ color: C.textMuted }} className="text-xs font-bold uppercase tracking-wider mb-1">Rejetées</p>
-                <p style={{ color: C.navy }} className="text-4xl font-black leading-none">{rejectedCount}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Rejetées</p>
+                <p className="text-4xl font-black text-slate-800 leading-none drop-shadow-sm">{rejectedCount}</p>
               </div>
-              <div style={{ background: '#fff1f2', color: C.red }} className="w-10 h-10 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shadow-sm border border-red-100">
                 <span className="material-symbols-outlined notranslate text-[22px]">rule_folder</span>
               </div>
             </div>
-            <p style={{ color: C.textMuted }} className="text-xs mt-3">Dossiers refusés ou incomplets</p>
+            <p className="text-xs mt-3 text-slate-500 font-medium relative z-10">Dossiers refusés ou incomplets</p>
           </div>
 
           {/* KPI 4 — IA Copilot placeholder */}
-          <div style={{ background: C.navy, border: `1px solid ${C.navy}` }}
-               className="p-5 rounded-xl shadow-sm relative overflow-hidden">
-            <div className="flex items-start justify-between">
+          <div className="glass-panel-dark p-5 rounded-2xl shadow-lg relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl group-hover:bg-amber-500/30 transition-colors pointer-events-none"></div>
+            <div className="relative z-10 flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-1.5 mb-1">
-                  <span className="material-symbols-outlined notranslate text-[14px]" style={{ color: C.gold }}>auto_awesome</span>
-                  <p style={{ color: C.gold }} className="text-xs font-bold uppercase tracking-wider">IA Copilot</p>
+                  <span className="material-symbols-outlined notranslate text-[14px] text-amber-400">auto_awesome</span>
+                  <p className="text-xs font-bold uppercase tracking-wider text-amber-400">IA Copilot</p>
                 </div>
-                <p style={{ color: '#ffffff' }} className="text-lg font-extrabold leading-snug">Analyse prédictive</p>
+                <p className="text-lg font-extrabold leading-snug text-white">Analyse prédictive</p>
               </div>
-              <div style={{ background: 'rgba(255,255,255,0.08)', color: C.gold }}
-                   className="w-10 h-10 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-white/10 text-amber-400 flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-inner">
                 <span className="material-symbols-outlined notranslate text-[22px]">smart_toy</span>
               </div>
             </div>
-            <div style={{ background: 'rgba(255,184,0,0.12)', border: '1px dashed rgba(255,184,0,0.4)', color: '#fbbf24' }}
-                 className="mt-4 px-3 py-2 rounded-lg flex items-center gap-2 text-xs font-semibold">
+            <div className="mt-4 px-3 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold bg-amber-500/10 border border-amber-500/20 text-amber-400 relative z-10">
               <span className="material-symbols-outlined notranslate text-[14px]">schedule</span>
               Bientôt disponible
             </div>
-            <div className="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-white/5 blur-xl pointer-events-none" />
           </div>
         </div>
 
         {/* ── IA Recommendation Banner — placeholder ────────────── */}
-        <div style={{ background: C.navy, border: `1px solid rgba(255,184,0,0.2)` }}
-             className="rounded-xl p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="glass-panel-dark rounded-2xl p-6 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl group-hover:bg-amber-500/30 transition-colors pointer-events-none"></div>
           <div className="flex items-center gap-4 z-10">
-            <div style={{ background: 'rgba(255,184,0,0.12)', color: C.gold }}
-                 className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-white/10 text-amber-400 backdrop-blur-sm border border-white/10 shadow-inner">
               <span className="material-symbols-outlined notranslate text-[24px]">smart_toy</span>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span style={{ color: '#ffffff' }} className="font-bold text-sm">AZ Copilot — Recommandations IA</span>
-                <span style={{ background: 'rgba(255,184,0,0.15)', color: C.gold, border: '1px dashed rgba(255,184,0,0.5)' }}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide">
+                <span className="font-bold text-sm text-white">AZ Copilot — Recommandations IA</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-amber-500/10 border border-amber-500/30 text-amber-400">
                   Bientôt disponible
                 </span>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.55)' }} className="text-xs max-w-xl">
+              <p className="text-xs max-w-xl text-slate-400">
                 L'analyse prédictive et la validation automatique des dossiers à haut score de conformité seront disponibles dans une prochaine mise à jour.
               </p>
             </div>
           </div>
           <button disabled
-                  style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.35)', cursor: 'not-allowed' }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold flex-shrink-0 z-10">
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold flex-shrink-0 z-10 bg-white/5 text-slate-500 cursor-not-allowed border border-white/5">
             <span className="material-symbols-outlined notranslate text-[18px]">lock</span>
             Indisponible
           </button>
-          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/[0.02] blur-2xl pointer-events-none" />
         </div>
 
         {/* ── Filters & Search ────────────────────────────────────── */}
-        <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}` }}
-             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 rounded-xl mb-4">
+        <div className="glass-panel flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 rounded-2xl mb-4 shadow-sm">
           {/* Search */}
           <div className="relative flex-1">
-            <span className="material-symbols-outlined notranslate absolute left-3 top-1/2 -translate-y-1/2 text-[18px]"
-                  style={{ color: C.textMuted }}>search</span>
+            <span className="material-symbols-outlined notranslate absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">search</span>
             <input
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Rechercher par nom, email, rôle..."
-              style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.textBody }}
-              className="w-full h-10 pl-10 pr-4 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-slate-400"
+              className="w-full h-10 pl-10 pr-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-slate-50/50 border border-slate-200/60 text-slate-800 placeholder:text-slate-400"
             />
           </div>
 
@@ -453,15 +442,13 @@ const AdminRequests = () => {
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.textBody }}
-              className="appearance-none h-10 pl-3 pr-8 rounded-lg text-sm focus:outline-none cursor-pointer">
+              className="appearance-none h-10 pl-3 pr-8 rounded-xl text-sm focus:outline-none cursor-pointer bg-slate-50/50 border border-slate-200/60 text-slate-800">
               <option value="ALL">Tous ({requests.length})</option>
               <option value="PENDING">En attente ({pendingCount})</option>
               <option value="APPROVED">Approuvées ({approvedCount})</option>
               <option value="REJECTED">Rejetées ({rejectedCount})</option>
             </select>
-            <span className="material-symbols-outlined notranslate absolute right-2 top-1/2 -translate-y-1/2 text-[16px] pointer-events-none"
-                  style={{ color: C.textMuted }}>expand_more</span>
+            <span className="material-symbols-outlined notranslate absolute right-2 top-1/2 -translate-y-1/2 text-[16px] pointer-events-none text-slate-400">expand_more</span>
           </div>
         </div>
 
@@ -470,16 +457,16 @@ const AdminRequests = () => {
 
           {/* ── TABLE ─────────────────────────────────────────────── */}
           <div className={selectedRequest ? 'xl:col-span-2' : ''}>
-            <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}` }} className="rounded-xl overflow-hidden shadow-sm">
+            <div className="glass-panel rounded-2xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr style={{ background: C.surfaceMid, borderBottom: `1px solid ${C.border}` }}>
-                      <th style={{ color: C.textMuted }} className="py-3 px-4 text-xs font-bold uppercase tracking-wider">Demandeur</th>
-                      <th style={{ color: C.textMuted }} className="py-3 px-4 text-xs font-bold uppercase tracking-wider">Rôle demandé</th>
-                      <th style={{ color: C.textMuted }} className="py-3 px-4 text-xs font-bold uppercase tracking-wider hidden md:table-cell">Motif</th>
-                      <th style={{ color: C.textMuted }} className="py-3 px-4 text-xs font-bold uppercase tracking-wider">Statut</th>
-                      <th style={{ color: C.textMuted }} className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-right">Actions</th>
+                    <tr className="bg-slate-50/50 border-b border-slate-200/60">
+                      <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Demandeur</th>
+                      <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Rôle demandé</th>
+                      <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 hidden md:table-cell">Motif</th>
+                      <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Statut</th>
+                      <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -493,8 +480,8 @@ const AdminRequests = () => {
                     ) : filteredRequests.length === 0 ? (
                       <tr>
                         <td colSpan="5" className="py-16 text-center">
-                          <span className="material-symbols-outlined notranslate text-[40px]" style={{ color: C.border }}>inbox</span>
-                          <p style={{ color: C.textMuted }} className="text-sm mt-2">Aucune demande trouvée.</p>
+                          <span className="material-symbols-outlined notranslate text-[40px] text-slate-300">inbox</span>
+                          <p className="text-sm mt-2 text-slate-500 font-medium">Aucune demande trouvée.</p>
                         </td>
                       </tr>
                     ) : (
@@ -502,21 +489,20 @@ const AdminRequests = () => {
                         <tr
                           key={req.id}
                           onClick={() => setSelectedRequest(req)}
-                          style={{
-                            borderBottom: i < filteredRequests.length - 1 ? `1px solid ${C.border}` : 'none',
-                            background: selectedRequest?.id === req.id ? '#f0f5ff' : 'transparent',
-                            cursor: 'pointer',
-                          }}
-                          className="hover:bg-blue-50 transition-colors"
+                          className={`
+                            group cursor-pointer transition-all duration-200
+                            ${i < filteredRequests.length - 1 ? 'border-b border-slate-200/60' : ''}
+                            ${selectedRequest?.id === req.id ? 'bg-blue-50/60' : 'hover:bg-slate-50'}
+                          `}
                         >
                           {/* Demandeur */}
                           <td className="py-3.5 px-4">
                             <div className="flex items-center gap-3">
                               <Avatar name={req.user.fullName} />
                               <div className="min-w-0">
-                                <p style={{ color: C.navy }} className="text-sm font-bold truncate">{req.user.fullName}</p>
-                                <p style={{ color: C.textMuted }} className="text-xs truncate">{req.user.email}</p>
-                                <p style={{ color: C.textMuted }} className="text-[11px] flex items-center gap-1 mt-0.5">
+                                <p className="text-sm font-bold truncate text-slate-800">{req.user.fullName}</p>
+                                <p className="text-xs truncate text-slate-500">{req.user.email}</p>
+                                <p className="text-[11px] flex items-center gap-1 mt-0.5 text-slate-400 font-medium">
                                   <span className="material-symbols-outlined notranslate text-[12px]">schedule</span>
                                   {new Date(req.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                                 </p>
@@ -526,15 +512,14 @@ const AdminRequests = () => {
 
                           {/* Rôle */}
                           <td className="py-3.5 px-4">
-                            <span style={{ background: '#eff6ff', color: C.blue }}
-                                  className="px-2.5 py-1 rounded-md text-xs font-semibold">
+                            <span className="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-md text-xs font-semibold border border-blue-100">
                               {req.requestedDomain || 'Général'}
                             </span>
                           </td>
 
                           {/* Motif */}
                           <td className="py-3.5 px-4 hidden md:table-cell">
-                            <p style={{ color: C.textBody }} className="text-xs line-clamp-2 max-w-xs italic">
+                            <p className="text-xs line-clamp-2 max-w-xs italic text-slate-600">
                               « {req.motivation} »
                             </p>
                           </td>
@@ -546,22 +531,19 @@ const AdminRequests = () => {
 
                           {/* Actions */}
                           <td className="py-3.5 px-4 text-right" onClick={e => e.stopPropagation()}>
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button onClick={() => setSelectedRequest(req)}
-                                      style={{ background: C.surfaceMid, color: C.textMuted, border: `1px solid ${C.border}` }}
-                                      className="p-1.5 rounded-lg hover:opacity-70 transition-opacity" title="Examiner">
+                                      className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all border border-slate-200/60" title="Examiner">
                                 <span className="material-symbols-outlined notranslate text-[16px]">visibility</span>
                               </button>
                               {req.status === 'PENDING' && (
                                 <>
                                   <button onClick={() => setActionModal({ open: true, type: 'APPROVE', reqId: req.id })}
-                                          style={{ background: C.blue, color: C.white }}
-                                          className="px-3 py-1.5 rounded-lg text-xs font-bold hover:opacity-80 transition-opacity shadow-sm">
+                                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 hover:shadow-sm hover:-translate-y-0.5 transition-all">
                                     Valider
                                   </button>
                                   <button onClick={() => setActionModal({ open: true, type: 'REJECT', reqId: req.id })}
-                                          style={{ background: C.redBg, color: C.red, border: `1px solid #fecaca` }}
-                                          className="p-1.5 rounded-lg hover:opacity-70 transition-opacity" title="Rejeter">
+                                          className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-100" title="Rejeter">
                                     <span className="material-symbols-outlined notranslate text-[16px]">close</span>
                                   </button>
                                 </>
@@ -580,29 +562,27 @@ const AdminRequests = () => {
           {/* ── DETAIL DRAWER ──────────────────────────────────────── */}
           {selectedRequest && (
             <div className="xl:col-span-1">
-              <div style={{ background: C.surfaceCard, border: `1px solid ${C.border}` }}
-                   className="rounded-xl shadow-sm overflow-hidden sticky top-4">
-
+              <div className="glass-panel rounded-2xl shadow-sm overflow-hidden sticky top-4 border-t-4 border-t-blue-500">
                 {/* Drawer header */}
-                <div style={{ background: C.navy }} className="p-5">
-                  <div className="flex items-start justify-between mb-4">
+                <div className="bg-slate-900/95 p-5 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                  <div className="relative z-10 flex items-start justify-between mb-4">
                     <div>
-                      <span style={{ color: C.gold }} className="text-[10px] font-black uppercase tracking-widest">Dossier</span>
-                      <p style={{ color: '#ffffff' }} className="font-bold text-base mt-0.5">{selectedRequest.id || 'REQ-NEW'}</p>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">Dossier</span>
+                      <p className="font-bold text-base mt-0.5 text-white">{selectedRequest.id || 'REQ-NEW'}</p>
                     </div>
                     <button onClick={() => setSelectedRequest(null)}
-                            style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)' }}
-                            className="p-1.5 rounded-lg hover:opacity-70 transition-opacity">
+                            className="p-1.5 rounded-xl bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white transition-all backdrop-blur-sm border border-white/10 shadow-sm">
                       <span className="material-symbols-outlined notranslate text-[18px]">close</span>
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="relative z-10 flex items-center gap-3">
                     <Avatar name={selectedRequest.user.fullName} size={48} />
                     <div className="min-w-0">
-                      <p style={{ color: '#ffffff' }} className="font-bold text-sm truncate">{selectedRequest.user.fullName}</p>
-                      <p style={{ color: 'rgba(255,255,255,0.6)' }} className="text-xs truncate">{selectedRequest.user.email}</p>
-                      <p style={{ color: C.gold }} className="text-xs font-semibold mt-0.5">{selectedRequest.user.phone}</p>
+                      <p className="font-bold text-sm truncate text-white">{selectedRequest.user.fullName}</p>
+                      <p className="text-xs truncate text-slate-300">{selectedRequest.user.email}</p>
+                      <p className="text-xs font-semibold mt-0.5 text-amber-400">{selectedRequest.user.phone}</p>
                     </div>
                   </div>
                 </div>
@@ -611,23 +591,23 @@ const AdminRequests = () => {
                 <div className="p-5 space-y-4">
                   {/* Statut */}
                   <div>
-                    <p style={{ color: C.textMuted }} className="text-[10px] font-bold uppercase tracking-wider mb-1.5">Statut actuel</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5 text-slate-500">Statut actuel</p>
                     <StatusBadge status={selectedRequest.status} />
                   </div>
 
                   {/* Rôle sollicité */}
                   <div>
-                    <p style={{ color: C.textMuted }} className="text-[10px] font-bold uppercase tracking-wider mb-1.5">Rôle sollicité</p>
-                    <div style={{ background: C.surfaceMid, border: `1px solid ${C.border}` }} className="p-3 rounded-lg">
-                      <span style={{ color: C.navy }} className="font-bold text-sm">{selectedRequest.requestedDomain || 'Général'}</span>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5 text-slate-500">Rôle sollicité</p>
+                    <div className="bg-slate-50/80 border border-slate-200/60 p-3 rounded-xl shadow-inner">
+                      <span className="font-bold text-sm text-slate-800">{selectedRequest.requestedDomain || 'Général'}</span>
                     </div>
                   </div>
 
                   {/* Motivation */}
                   <div>
-                    <p style={{ color: C.textMuted }} className="text-[10px] font-bold uppercase tracking-wider mb-1.5">Motivation</p>
-                    <div style={{ background: C.surface, border: `1px solid ${C.border}` }} className="p-3 rounded-lg">
-                      <p style={{ color: C.textBody }} className="text-xs italic leading-relaxed">
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5 text-slate-500">Motivation</p>
+                    <div className="bg-slate-50/50 border border-slate-200/60 p-3 rounded-xl">
+                      <p className="text-xs italic leading-relaxed text-slate-700">
                         « {selectedRequest.motivation} »
                       </p>
                     </div>
@@ -635,18 +615,17 @@ const AdminRequests = () => {
 
                   {/* IA Analyse — placeholder */}
                   <div>
-                    <p style={{ color: C.textMuted }} className="text-[10px] font-bold uppercase tracking-wider mb-1.5">Analyse IA</p>
-                    <div style={{ background: C.navy, border: '1px dashed rgba(255,184,0,0.3)' }}
-                         className="p-3 rounded-lg flex items-center gap-2">
-                      <span className="material-symbols-outlined notranslate text-[16px]" style={{ color: C.gold }}>smart_toy</span>
-                      <p style={{ color: 'rgba(255,255,255,0.5)' }} className="text-xs">
-                        Analyse prédictive — <span style={{ color: C.gold }} className="font-semibold">Bientôt disponible</span>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5 text-slate-500">Analyse IA</p>
+                    <div className="bg-slate-900 border border-amber-500/30 p-3 rounded-xl flex items-center gap-2 shadow-inner">
+                      <span className="material-symbols-outlined notranslate text-[16px] text-amber-400">smart_toy</span>
+                      <p className="text-xs text-slate-400">
+                        Analyse prédictive — <span className="font-semibold text-amber-400">Bientôt disponible</span>
                       </p>
                     </div>
                   </div>
 
                   {/* Date */}
-                  <p style={{ color: C.textMuted }} className="text-xs flex items-center gap-1">
+                  <p className="text-xs flex items-center gap-1 text-slate-500 font-medium pt-2">
                     <span className="material-symbols-outlined notranslate text-[14px]">event</span>
                     Soumis le {new Date(selectedRequest.createdAt).toLocaleString('fr-FR')}
                   </p>
@@ -654,16 +633,14 @@ const AdminRequests = () => {
 
                 {/* Actions */}
                 {selectedRequest.status === 'PENDING' && (
-                  <div style={{ borderTop: `1px solid ${C.border}` }} className="p-4 flex gap-2">
+                  <div className="border-t border-slate-200/60 p-4 flex gap-2 bg-slate-50/50">
                     <button onClick={() => setActionModal({ open: true, type: 'APPROVE', reqId: selectedRequest.id })}
-                            style={{ background: C.blue, color: C.white }}
-                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold hover:opacity-80 transition-opacity shadow-sm">
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
                       <span className="material-symbols-outlined notranslate text-[18px]">check_circle</span>
                       Approuver
                     </button>
                     <button onClick={() => setActionModal({ open: true, type: 'REJECT', reqId: selectedRequest.id })}
-                            style={{ background: C.redBg, color: C.red, border: `1px solid #fecaca` }}
-                            className="flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-lg text-sm font-bold hover:opacity-80 transition-opacity">
+                            className="flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-xl text-sm font-bold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors">
                       <span className="material-symbols-outlined notranslate text-[18px]">block</span>
                       Rejeter
                     </button>
@@ -676,58 +653,55 @@ const AdminRequests = () => {
       </div>
 
       {/* ── MODALS ──────────────────────────────────────────────────── */}
+      {/* ── MODALS ──────────────────────────────────────────────────── */}
       {actionModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-             style={{ background: 'rgba(0,16,38,0.65)', backdropFilter: 'blur(4px)' }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
              onClick={() => setActionModal({ open: false, type: null, reqId: null })}>
           <div onClick={e => e.stopPropagation()}
-               style={{ background: C.surfaceCard, border: `1px solid ${C.border}` }}
-               className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+               className="w-full max-w-md rounded-3xl shadow-2xl overflow-hidden glass-panel">
 
             {actionModal.type === 'APPROVE' ? (
               <form onSubmit={handleApprove}>
                 {/* Modal header */}
-                <div style={{ background: C.navy }} className="px-6 py-5 flex items-center gap-3">
-                  <div style={{ background: 'rgba(255,255,255,0.1)', color: C.gold }}
-                       className="w-10 h-10 rounded-full flex items-center justify-center">
+                <div className="bg-slate-900/95 px-6 py-5 flex items-center gap-4 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                  <div className="relative z-10 w-12 h-12 rounded-2xl flex items-center justify-center bg-white/10 text-amber-400 backdrop-blur-sm border border-white/10 shadow-inner flex-shrink-0">
                     <span className="material-symbols-outlined notranslate">security</span>
                   </div>
-                  <div>
-                    <p style={{ color: '#ffffff' }} className="font-extrabold text-base">Valider l'accès</p>
-                    <p style={{ color: 'rgba(255,255,255,0.5)' }} className="text-xs">
+                  <div className="relative z-10">
+                    <p className="font-extrabold text-base text-white">Valider l'accès</p>
+                    <p className="text-xs text-slate-400 leading-tight mt-1">
                       Attribuer un rôle, éventuellement une spécialisation, et activer le compte
                     </p>
                   </div>
                 </div>
 
-                <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div className="px-6 py-5 space-y-5 max-h-[65vh] overflow-y-auto">
                   {/* ── Étape 1 : Rôle ─────────────────────────────────── */}
                   <div>
-                    <label style={{ color: C.textMuted }} className="block text-xs font-bold uppercase tracking-wide mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-wide mb-2 text-slate-500">
                       1. Rôle à assigner
                     </label>
                     <select
                       required value={selectedRole} onChange={e => handleRoleChange(e.target.value)}
-                      style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.textBody }}
-                      className="w-full px-4 py-2.5 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
+                      className="w-full px-4 py-3 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-slate-50/80 border border-slate-200/60 text-slate-800 shadow-inner">
                       <option value="">Sélectionner un rôle...</option>
                       {roles.map(r => <option key={r.code} value={r.code}>{r.label} ({r.code})</option>)}
                     </select>
-                    <p style={{ color: C.textMuted }} className="text-[11px] mt-1.5">
-                      Le casier de clés du demandeur. C'est ce qui autorise ses actions.
+                    <p className="text-[11px] mt-2 text-slate-500 font-medium">
+                      Le casier de clés du demandeur. C'est ce qui autorise ses actions principales.
                     </p>
                   </div>
 
                   {/* ── Étape 2 : Spécialisation (collaborateur) ────────── */}
                   {isCollaboratorRole && (
                     <div>
-                      <label style={{ color: C.textMuted }} className="block text-xs font-bold uppercase tracking-wide mb-2">
+                      <label className="block text-xs font-bold uppercase tracking-wide mb-2 text-slate-500">
                         2. Spécialisation
                       </label>
                       <select
                         required value={selectedProfile} onChange={e => handleProfileChange(e.target.value)}
-                        style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.textBody }}
-                        className="w-full px-4 py-2.5 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        className="w-full px-4 py-3 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-slate-50/80 border border-slate-200/60 text-slate-800 shadow-inner">
                         <option value="">Sélectionner une spécialisation...</option>
                         {profiles.map(p => <option key={p.code} value={p.code}>{p.label}</option>)}
                       </select>
@@ -737,62 +711,56 @@ const AdminRequests = () => {
                         const profile = profiles.find(p => p.code === selectedProfile);
                         if (!profile) return null;
                         return (
-                          <div style={{ background: C.surfaceMid, border: `1px solid ${C.border}` }}
-                               className="mt-2 p-3 rounded-lg flex items-start gap-2.5">
-                            <span className="material-symbols-outlined notranslate text-[18px] flex-shrink-0" style={{ color: C.blue }}>
+                          <div className="mt-3 p-4 rounded-xl flex items-start gap-3 bg-blue-50/50 border border-blue-100 shadow-inner">
+                            <span className="material-symbols-outlined notranslate text-[20px] text-blue-600 flex-shrink-0 bg-blue-100/50 p-1.5 rounded-lg">
                               {profile.icon}
                             </span>
                             <div className="min-w-0">
-                              <p style={{ color: C.navy }} className="text-xs font-bold">{profile.label}</p>
-                              <p style={{ color: C.textMuted }} className="text-[11px] leading-relaxed mt-0.5">
+                              <p className="text-sm font-bold text-slate-800">{profile.label}</p>
+                              <p className="text-[11px] leading-relaxed mt-1 text-slate-600 font-medium">
                                 {profile.description}
                               </p>
-                              <p style={{ color: C.blue }} className="text-[10px] font-mono mt-1.5">
-                                Interface : {profile.interfaceRoute}
+                              <p className="text-[10px] font-mono mt-2 bg-blue-100/50 text-blue-700 inline-block px-2 py-0.5 rounded border border-blue-200">
+                                Route : {profile.interfaceRoute}
                               </p>
                             </div>
                           </div>
                         );
                       })()}
-
-                      <p style={{ color: C.textMuted }} className="text-[11px] mt-1.5">
-                        Détermine l'interface affichée après connexion. Les droits ci-dessous sont pré-cochés, vous pouvez les ajuster.
-                      </p>
                     </div>
                   )}
 
-
-
                   {/* ── Récapitulatif de l'espace personnel ───────────── */}
                   {selectedRole && (
-                    <div style={{ background: C.navy, border: `1px solid ${C.navy}` }} className="p-3.5 rounded-xl">
-                      <p style={{ color: '#fbbf24' }} className="text-[10px] font-black uppercase tracking-widest mb-1.5">
-                        Récapitulatif
-                      </p>
-                      <p style={{ color: '#fff' }} className="text-xs font-bold">
-                        {roles.find(r => r.code === selectedRole)?.label ?? selectedRole}
-                      </p>
-                      {isCollaboratorRole && selectedProfile && (
-                        <p style={{ color: '#b5c4ff' }} className="text-[11px] mt-0.5">
-                          Spécialisation : {profiles.find(p => p.code === selectedProfile)?.label}
+                    <div className="glass-panel-dark p-4 rounded-2xl relative overflow-hidden group mt-4 shadow-md">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                      <div className="relative z-10">
+                        <p className="text-[10px] font-black uppercase tracking-widest mb-2 text-amber-400">
+                          Récapitulatif
                         </p>
-                      )}
-                      <p style={{ color: 'rgba(255,255,255,0.45)' }} className="text-[10px] mt-2 leading-relaxed">
-                        Le compte héritera des droits standards définis pour ce rôle/profil.
-                      </p>
+                        <p className="text-sm font-extrabold text-white">
+                          {roles.find(r => r.code === selectedRole)?.label ?? selectedRole}
+                        </p>
+                        {isCollaboratorRole && selectedProfile && (
+                          <p className="text-[11px] mt-1 text-blue-300 font-medium">
+                            Spécialisation : {profiles.find(p => p.code === selectedProfile)?.label}
+                          </p>
+                        )}
+                        <p className="text-[10px] mt-3 leading-relaxed text-slate-400 font-medium">
+                          Le compte héritera des droits standards définis pour ce rôle/profil.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                <div style={{ borderTop: `1px solid ${C.border}` }} className="px-6 py-4 flex justify-end gap-2">
+                <div className="px-6 py-4 flex justify-end gap-3 bg-slate-50/50 border-t border-slate-200/60 rounded-b-3xl">
                   <button type="button" onClick={() => setActionModal({ open: false })}
-                          style={{ color: C.textMuted }}
-                          className="px-4 py-2 rounded-xl text-sm font-bold hover:opacity-70 transition-opacity">
+                          className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all">
                     Annuler
                   </button>
                   <button type="submit"
-                          style={{ background: C.blue, color: C.white }}
-                          className="px-5 py-2 rounded-xl text-sm font-bold hover:opacity-80 transition-opacity shadow-md">
+                          className="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
                     Confirmer l'accès
                   </button>
                 </div>
@@ -800,14 +768,13 @@ const AdminRequests = () => {
             ) : (
               <form onSubmit={handleReject}>
                 {/* Modal header */}
-                <div style={{ background: C.redBg, borderBottom: `1px solid #fecaca` }} className="px-6 py-5 flex items-center gap-3">
-                  <div style={{ background: '#fee2e2', color: C.red }}
-                       className="w-10 h-10 rounded-full flex items-center justify-center">
+                <div className="bg-red-50/90 border-b border-red-200 px-6 py-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-red-100 text-red-600 shadow-inner flex-shrink-0">
                     <span className="material-symbols-outlined notranslate">cancel</span>
                   </div>
                   <div>
-                    <p style={{ color: C.red }} className="font-extrabold text-base">Refuser la demande</p>
-                    <p style={{ color: '#b91c1c' }} className="text-xs">Cette action est irréversible</p>
+                    <p className="font-extrabold text-base text-red-700">Refuser la demande</p>
+                    <p className="text-xs text-red-500/80 mt-0.5 font-medium">Cette action est irréversible</p>
                   </div>
                 </div>
 

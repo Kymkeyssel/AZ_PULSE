@@ -1,0 +1,25 @@
+$kind: http-request
+description: |-
+  Réponse **toujours identique**, que l'adresse existe ou non : c'est une mesure anti-énumération de comptes (cf. `docs/SECURITY_NOTES.md` §G). Un attaquant ne peut pas découvrir les comptes enregistrés.
+
+  Un jeton de réinitialisation d'une heure est posé en base et envoyé par e-mail.
+url: "{{baseUrl}}/auth/forgot-password"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{accountApprenant}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — toujours accepté', () => pm.response.to.have.status(200));
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+      pm.test('message neutre (anti-énumération)', () => pm.expect(pm.response.json().message).to.include("Si l'adresse existe"));
+    language: text/javascript
+order: 18000

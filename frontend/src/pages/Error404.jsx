@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const Error404 = () => {
   const navigate = useNavigate();
   const inputRef = useRef(null);
+  const [traceId] = React.useState(() => Math.random().toString(36).substr(2, 7));
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -93,7 +94,7 @@ const Error404 = () => {
                   <div className="bg-surface-container-lowest/5 rounded-lg p-space-sm flex flex-col">
                     <span className="font-label-sm text-label-sm text-surface-tint uppercase font-semibold">Trace ID</span>
                     <span className="font-body-sm text-body-sm text-surface-bright font-mono mt-0.5 truncate select-all" title="req_azp_404">
-                      req_azp_404_{Math.random().toString(36).substr(2, 7)}
+                      req_azp_404_{traceId}
                     </span>
                   </div>
                   <div className="bg-surface-container-lowest/5 rounded-lg p-space-sm flex flex-col">

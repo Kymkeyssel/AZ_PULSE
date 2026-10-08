@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 const Error403 = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [sessionId] = React.useState(() => Math.random().toString(36).substr(2, 6));
   const [isEscalating, setIsEscalating] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
@@ -99,7 +100,7 @@ const Error403 = () => {
                 <div className="mt-space-sm pt-space-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs text-outline-variant font-label-sm text-label-sm">
                   <div className="flex items-center gap-space-xs">
                     <span className="">ID de session :</span>
-                    <code className="px-space-xs py-0.5 rounded bg-surface-container-lowest/10 text-primary-fixed font-mono select-all">sess_rbac_sec_{Math.random().toString(36).substr(2, 6)}</code>
+                    <code className="px-space-xs py-0.5 rounded bg-surface-container-lowest/10 text-primary-fixed font-mono select-all">sess_rbac_sec_{sessionId}</code>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-[14px]">shield</span>

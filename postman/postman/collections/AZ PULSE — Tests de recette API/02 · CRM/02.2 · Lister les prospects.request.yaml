@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{baseUrl}}/customers?status=PROSPECT"
+method: GET
+queryParams:
+  status: PROSPECT
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — liste renvoyée', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+      pm.test('le prospect de 02.1 figure dans la liste', () => {
+        const found = j.data.find(c => String(c.id) === String(pm.collectionVariables.get('customerId')));
+        pm.expect(found, 'prospect ' + pm.collectionVariables.get('customerId')).to.not.be.undefined;
+      });
+      pm.test('chaque fiche expose un propriétaire (UUID)', () => {
+        j.data.forEach(c => pm.expect(c.owner_id).to.match(/^[0-9a-f-]{36}$/));
+      });
+    language: text/javascript
+order: 2000

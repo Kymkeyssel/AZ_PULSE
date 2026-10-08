@@ -1,0 +1,15 @@
+$kind: http-request
+description: Sans en-tête `Authorization`, `IS_AUTHENTICATED_FULLY` rejette la requête. L'API ne renvoie jamais de données partielles « pour aider ».
+url: "{{baseUrl}}/crm/customers"
+method: GET
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('401 — jeton obligatoire', () => pm.response.to.have.status(401));
+      pm.test('aucune donnéeclient exposée', () => pm.expect(pm.response.text()).to.not.include('customerId'));
+
+      console.log('🔒 Négation par défaut : /api est fermé par défaut.');
+    language: text/javascript
+order: 1000

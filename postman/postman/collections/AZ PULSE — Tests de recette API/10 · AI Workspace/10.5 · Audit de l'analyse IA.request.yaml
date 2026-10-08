@@ -1,0 +1,20 @@
+$kind: http-request
+description: "Chaque appel à l'IA laisse une trace de catégorie `AI` : action, acteur, cible et latence. Le journal est le seul moyen de répondre à « qui a lancé cette analyse et sur quel projet ? »."
+url: "{{baseUrl}}/audit?category=AI&limit=10"
+method: GET
+queryParams:
+  category: AI
+  limit: "10"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — journal filtré sur la catégorie AI', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+      pm.test('toutes les lignes sont bien de catégorie AI', () => {
+        j.data.forEach(a => pm.expect(a.category).to.eql('AI'));
+      });
+
+      console.log('📋 Traces IA :', j.meta.total);
+    language: text/javascript
+order: 6000

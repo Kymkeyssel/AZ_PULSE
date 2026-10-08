@@ -4,16 +4,17 @@ namespace App\EventSubscriber;
 
 use App\Entity\Project;
 use App\Event\OpportunityWonEvent;
+use App\Event\ProjectCreatedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProjectCreationSubscriber implements EventSubscriberInterface
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->em = $em;
+    public function __construct(
+        private EntityManagerInterface $em,
+        private EventDispatcherInterface $eventDispatcher,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -54,5 +55,10 @@ class ProjectCreationSubscriber implements EventSubscriberInterface
 
         $this->em->persist($project);
         $this->em->flush();
+
+        $this->eventDispatcher->dispatch(
+            (new ProjectCreatedEvent($project))->withActor($project->getManager()),
+            ProjectCreatedEvent::NAME
+        );
     }
 }

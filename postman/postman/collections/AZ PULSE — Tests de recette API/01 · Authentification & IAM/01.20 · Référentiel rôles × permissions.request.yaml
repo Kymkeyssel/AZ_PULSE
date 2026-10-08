@@ -1,0 +1,42 @@
+$kind: http-request
+description: Expose les 13 rôles et les 38 permissions du catalogue. Réservé au `SUPER_ADMIN`.
+url: "{{baseUrl}}/roles"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — catalogue renvoyé', () => pm.response.to.have.status(200));
+      const j = pm.response.json().data;
+      pm.test('13 rôles définis', () => pm.expect(j.roles).to.have.lengthOf(13));
+      pm.test('38 permissions définies', () => pm.expect(j.permissions).to.have.lengthOf(38));
+      pm.test('SUPER_ADMIN possède toutes les permissions', () => {
+        const sa = j.roles.find(r => r.code === 'SUPER_ADMIN');
+        pm.expect(sa.permissions).to.have.lengthOf(38);
+      });
+      pm.test('ADMIN = SUPER_ADMIN moins role.manage et permission.manage', () => {
+        const admin = j.roles.find(r => r.code === 'ADMIN');
+        pm.expect(admin.permissions).to.have.lengthOf(36);
+        pm.expect(admin.permissions).to.not.include('role.manage');
+        pm.expect(admin.permissions).to.not.include('permission.manage');
+      });
+      pm.test('les permissions sont groupées par module', () => {
+        const modules = [...new Set(j.permissions.map(p => p.module))];
+        pm.expect(modules).to.include.members(['CRM', 'Formation', 'Workspace', 'Knowledge Hub']);
+      });
+
+      // Les tests suivants ont besoin d'un identifiant de rôle : on les capture ici
+      // plutôt que de les figer dans l'environnement.
+      const crmRole = j.roles.find(r => r.code === 'RESPONSABLE_CRM');
+      const saRole  = j.roles.find(r => r.code === 'SUPER_ADMIN');
+      if (crmRole) {
+        pm.collectionVariables.set('roleCrmId', crmRole.id);
+        // Sauvegarde du jeu de permissions d'origine : 01.21 le restaure.
+        pm.collectionVariables.set('roleCrmOriginal', JSON.stringify(crmRole.permissions));
+      }
+      if (saRole) {
+        pm.collectionVariables.set('roleSuperAdminId', saRole.id);
+      }
+
+      console.log('🔑 Rôles capturés — CRM #' + (crmRole ? crmRole.id : '?') + ', SUPER_ADMIN #' + (saRole ? saRole.id : '?'));
+    language: text/javascript
+order: 20000

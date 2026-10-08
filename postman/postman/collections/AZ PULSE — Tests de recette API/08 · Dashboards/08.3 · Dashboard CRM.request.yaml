@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{baseUrl}}/dashboard/crm"
+method: GET
+headers:
+  Authorization: Bearer {{tokenCrm}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — dashboard CRM renvoyé', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('opportunités totales et gagnées', () => {
+        pm.expect(d.totalOpportunities).to.be.a('number');
+        pm.expect(d.wonOpportunities).to.be.at.most(d.totalOpportunities);
+      });
+      pm.test('valeur du pipeline et chiffre d affaires gagné', () => {
+        pm.expect(d.pipelineValue).to.be.a('number');
+        pm.expect(d.wonValue).to.be.a('number');
+      });
+    language: text/javascript
+order: 3000

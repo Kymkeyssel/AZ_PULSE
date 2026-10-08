@@ -1,0 +1,33 @@
+$kind: http-request
+description: |-
+  Exige `it.manage` (donc Super Admin, Admin/Direction ou Responsable IT).
+
+  Catégories : `HARDWARE`, `SOFTWARE`, `NETWORK`, `OTHER`. Priorités : `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
+
+  Effet de bord : l'événement `incident.opened` est publié → notification au technicien responsable et au Responsable IT + journal d'audit.
+url: "{{baseUrl}}/it/incidents"
+method: POST
+body:
+  type: text
+  content: |-
+    {
+      "title": "Post de travail inaccessible — {{suffix}}",
+      "description": "Le poste de travail du service comptabilité refuse toute authentification depuis la mise à jour de mardi.",
+      "priority": "HIGH",
+      "category": "HARDWARE"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — incident ouvert', () => pm.response.to.have.status(201));
+      const d = pm.response.json().data;
+      pm.test('statut initial = OPEN', () => pm.expect(d.status).to.eql('OPEN'));
+      pm.test('catégorie HARDWARE conservée', () => pm.expect(d.category).to.eql('HARDWARE'));
+      pm.test('priorité HIGH conservée', () => pm.expect(d.priority).to.eql('HIGH'));
+      pm.test('le déclarant est identifié', () => pm.expect(d.reporter).to.be.a('string').and.not.empty);
+      pm.test('aucun horodatage de résolution', () => pm.expect(d.resolvedAt).to.be.null);
+
+      pm.collectionVariables.set('incidentId', d.id);
+      console.log('🎫 Incident ouvert — id =', d.id);
+    language: text/javascript
+order: 3000

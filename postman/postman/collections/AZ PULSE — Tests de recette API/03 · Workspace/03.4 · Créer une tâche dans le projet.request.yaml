@@ -1,0 +1,17 @@
+$kind: http-request
+description: |-
+  Un `assignee_id` peut être fourni pour déléguer la tâche. La date d'échéance est optionnelle.
+
+  Ce test **fonctionne** : il ne manipule pas le repository `Task`.
+url: "{{baseUrl}}/workspace/projects/{{projectId}}/tasks"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — tâche créée', () => pm.response.to.have.status(201));
+      pm.test('un identifiant est renvoyé', () => pm.expect(pm.response.json().data.id).to.be.a('number'));
+
+      pm.collectionVariables.set('taskId', pm.response.json().data.id);
+      console.log('✅ Tâche créée — id =', pm.collectionVariables.get('taskId'));
+    language: text/javascript
+order: 4000

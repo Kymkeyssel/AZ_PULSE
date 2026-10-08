@@ -1,0 +1,15 @@
+$kind: http-request
+description: Vérifie que FastAPI répond **avant** de lancer une analyse qui prend 9 secondes. Utile en début de campagne pour distinguer « le module IA est cassé » de « le micro-service est arrêté ».
+url: "{{aiServiceUrl}}/health"
+method: GET
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — micro-service IA joignable', () => pm.response.to.have.status(200));
+      pm.test('statut reported = ok', () => pm.expect(pm.response.text()).to.include('ok'));
+
+      console.log('🤖 FastAPI en ligne :', pm.response.text());
+    language: text/javascript
+order: 1000

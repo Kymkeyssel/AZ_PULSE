@@ -1,0 +1,24 @@
+$kind: http-request
+description: |-
+  Le passage à `RESOLVED` ou `CLOSED` horodate automatiquement `resolvedAt` — **une seule fois**, seulement au premier franchissement.
+
+  L'événement `incident.resolved` n'est publié que si le statut a réellement changé : un ré-enregistrement d'un incident déjà résolu ne redéclenche pas de notification au déclarant.
+url: "{{baseUrl}}/it/incidents/{{incidentId}}"
+method: PATCH
+body:
+  type: text
+  content: |-
+    {
+      "status": "RESOLVED"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — incident résolu', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('statut = RESOLVED', () => pm.expect(d.status).to.eql('RESOLVED'));
+      pm.test('la date de résolution est horodatée automatiquement', () => pm.expect(d.resolvedAt).to.be.a('string'));
+
+      console.log('✅ Incident résolu — le déclarant reçoit une notification.');
+    language: text/javascript
+order: 6000

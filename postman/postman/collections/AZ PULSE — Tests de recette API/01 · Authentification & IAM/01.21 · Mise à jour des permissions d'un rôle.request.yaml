@@ -1,0 +1,41 @@
+$kind: http-request
+description: |-
+  Restriction volontaire du rôle `RESPONSABLE_CRM` (perte de `crm.delete` et `analytics.read`), puis **restauration immédiate** du jeu de permissions d'origine.
+
+  Le script de test restaure lui-même les droits : relancer la collection ne laisse jamais le rôle amputé. C'est ce qui rend un test de mutation sur le RBAC acceptable en recette.
+url: "{{baseUrl}}/roles/{{roleCrmId}}/permissions"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "permissions": ["crm.read", "crm.create", "crm.update", "analytics.read", "workspace.read", "ai.read"]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — permissions enregistrées', () => pm.response.to.have.status(200));
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+
+      // Restauration immédiate de l'état initial.
+      const original = JSON.parse(pm.collectionVariables.get('roleCrmOriginal'));
+      const baseUrl = pm.collectionVariables.get('baseUrl');
+      const roleId  = pm.collectionVariables.get('roleCrmId');
+
+      pm.test('restauration du jeu de permissions d origine', function (done) {
+        pm.sendRequest({
+          url: baseUrl + '/roles/' + roleId + '/permissions',
+          method: 'POST',
+          header: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + pm.collectionVariables.get('tokenSuperAdmin') },
+          body: { mode: 'raw', raw: JSON.stringify({ permissions: original }) }
+        }, function (err, res) {
+          pm.expect(err, 'erreur réseau').to.be.null;
+          pm.expect(res.code).to.eql(200);
+          console.log('♻️  Rôle RESPONSABLE_CRM restauré (' + original.length + ' permissions).');
+          done();
+        });
+      });
+    language: text/javascript
+order: 21000

@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{baseUrl}}/audit"
+method: POST
+body:
+  type: text
+  content: |-
+    {
+      "action": "user.delete",
+      "category": "SECURITY",
+      "severity": "info",
+      "description": "Tentative de forge depuis Postman"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('405 — aucune route d écriture sur le journal', () => pm.response.to.have.status(405));
+
+      console.log('🔒 Impossible de fabriquer une trace : c est le but de l audit.');
+    language: text/javascript
+order: 10000

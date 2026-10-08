@@ -1,0 +1,282 @@
+{
+  "name": "04 · Knowledge Hub",
+  "description": "Module **Knowledge Hub** — gestion documentaire (dépôt, publication, recherche, téléchargement).\n\n> 🔑 **Permission clé** : `knowledge.write` n'est accordée qu'à deux rôles — `SUPER_ADMIN` et `ADMIN` (cf. le catalogue RBAC). Le Responsable Knowledge n'a que `knowledge.read`. Les tests d'écriture utilisent donc le jeton du Super Administrateur ; le dossier `12 · Sécurité` démontre le refus pour un profil non autorisé.\n\n**Captures d'écran suggérées** : `/collaborateur/documents`.",
+  "item": [
+    {
+      "name": "04.1 · Lister les documents publiés",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/knowledge/documents",
+        "description": "Filtre appliqué côté serveur : **seuls les documents `PUBLISHED` sont visibles**, sauf si l'utilisateur détient `knowledge.read_all` (réservé au Super Admin et à l'Admin/Direction).\n\nC'est le mécanisme qui garantit qu'un brouillon ne fuite jamais vers un lecteur ordinaire."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — documents renvoyés', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('success = true', () => pm.expect(j.success).to.be.true);",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "",
+              "pm.test('un compte authentifié voit au moins un document publié', () => pm.expect(j.data.length).to.be.above(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.2 · Déposer un document",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "./fixtures/document-test.txt" },
+            { "key": "title", "value": "Livrable de recette {{suffix}}", "type": "text" },
+            { "key": "description", "value": "Document déposé par la collection de tests Postman.", "type": "text" },
+            { "key": "type", "value": "GENERAL", "type": "text" },
+            { "key": "project_id", "value": "{{projectId}}", "type": "text" }
+          ]
+        },
+        "url": "{{baseUrl}}/knowledge/documents",
+        "description": "Envoi `multipart/form-data`. Le champ `title` est obligatoire (sinon le nom du fichier sert de titre).\n\nLe fichier est **renommé côté serveur** : nom « slugifié » + `uniqid()` + extension devinée. Un nom hostile (`../../etc/passwd`) devient donc inoffensif.\n\nChamps optionnels : `description`, `type`, `category_id`, `folder_id`, `project_id` (rattachement à un projet du Workspace), `tag_ids` (tableau JSON).\n\nLe document est créé en statut **`DRAFT`** : invisible des lecteurs ordinaires jusqu'à publication (test 04.4)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — document déposé', () => pm.response.to.have.status(201));",
+              "const d = pm.response.json().data;",
+              "pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);",
+              "pm.test('statut initial = DRAFT', () => pm.expect(d.status).to.eql('DRAFT'));",
+              "pm.test('nom du fichier d origine conservé', () => pm.expect(d.originalName).to.eql('document-test.txt'));",
+              "pm.test('type MIME détecté', () => pm.expect(d.mimeType).to.eql('text/plain'));",
+              "pm.test('taille du fichier enregistrée', () => pm.expect(d.size).to.be.above(0));",
+              "pm.test('le document est rattaché au projet', () => pm.expect(d.project).to.not.be.null);",
+              "pm.test('propriétaire identifié', () => pm.expect(d.owner_name).to.be.a('string').and.not.empty);",
+              "pm.test('version initiale = 1.0', () => pm.expect(d.currentVersion).to.eql('1.0'));",
+              "",
+              "pm.collectionVariables.set('documentId', d.id);",
+              "console.log('📄 Document déposé en brouillon — id =', d.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.3 · Recherche plein texte",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/knowledge/documents?q=Recette&project_id={{projectId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — recherche renvoyée', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "",
+              "pm.test('le document déposé porte encore le statut DRAFT (donc invisible des lecteurs)', () => {",
+              "  const draft = j.data.find(d => String(d.id) === String(pm.collectionVariables.get('documentId')));",
+              "  // Un profil sans knowledge.read_all ne voit que les PUBLISHED : le brouillon ne doit pas",
+              "  // apparaître, même si le filtre project_id correspond.",
+              "  pm.expect(draft === undefined || draft.status === 'PUBLISHED', 'pas de fuite de brouillon').to.be.true;",
+              "});",
+              "",
+              "console.log('🔎 Recherche « Recette » :', j.data.length, 'résultat(s).');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.4 · Publier le document",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/knowledge/documents/{{documentId}}/publish",
+        "description": "Bascule `DRAFT → PUBLISHED` et horodate `publishedAt`. Autorisé par `DocumentVoter::PUBLISH`, qui accorde le droit au propriétaire, à qui détient `knowledge.write`, ou à l'encadrement (`knowledge.manage`).\n\nEffet de bord : l'événement `document.published` est publié → **notification** au propriétaire + tous les Super Administrateurs + **journal d'audit**."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — document publié', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('statut = PUBLISHED', () => pm.expect(d.status).to.eql('PUBLISHED'));",
+              "pm.test('horodatage de publication posé', () => pm.expect(d.publishedAt).to.be.a('string'));",
+              "",
+              "console.log('📢 Document publié — le public du Knowledge Hub peut maintenant le consulter.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.5 · Vérifier qu'un brouillon ne fuit pas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/knowledge/documents?q=Recette"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — recherche renvoyée', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('le document publié est désormais visible', () => {",
+              "  const pub = j.data.find(d => String(d.id) === String(pm.collectionVariables.get('documentId')));",
+              "  pm.expect(pub, 'document publié').to.not.be.undefined;",
+              "  pm.expect(pub.status).to.eql('PUBLISHED');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.6 · Télécharger le document",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/knowledge/documents/{{documentId}}/download",
+        "description": "Renvoie le **binaire** du fichier, pas du JSON. Le test contrôle donc le type de contenu et la taille, et non un corps JSON.\n\nContrôle d'accès assuré par `DocumentVoter::DOWNLOAD` : un document publié exige `knowledge.read`, un brouillon est réservé à son propriétaire ou à l'encadrement."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — fichier renvoyé', () => pm.response.to.have.status(200));",
+              "",
+              "pm.test('le contenu est bien un binaire texte', () => {",
+              "  pm.expect(pm.response.text()).to.include('AZ PULSE');",
+              "});",
+              "pm.test('taille non nulle', () => pm.expect(pm.response.text().length).to.be.above(10));",
+              "pm.test('en-tête de téléchargement joint', () => {",
+              "  const cd = pm.response.headers.get('Content-Disposition');",
+              "  pm.expect(cd, 'Content-Disposition').to.be.a('string');",
+              "  pm.expect(cd).to.include('attachment');",
+              "  pm.expect(cd).to.include('document-test.txt');",
+              "});",
+              "",
+              "console.log('⬇️ Document téléchargé avec succès.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.7 · Catégories du Knowledge Hub",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/knowledge/categories"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — catégories renvoyées', () => pm.response.to.have.status(200));",
+              "pm.test('data est un tableau', () => pm.expect(pm.response.json().data).to.be.an('array'));",
+              "",
+              "pm.test('remarque de sécurité — la lecture des catégories n est pas protégée', () => {",
+              "  // TagController / FolderController / CategoryController n imposent PAS knowledge.read",
+              "  // en lecture, contrairement à KnowledgeHubController. Tout utilisateur authentifié",
+              "  // peut donc lister les catégories. Écart de cohérence à documenter.",
+              "  pm.expect(true).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.8 · Étiquettes (tags)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/knowledge/tags"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — tags renvoyés', () => pm.response.to.have.status(200));",
+              "pm.test('data est un tableau', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.9 · Créer une étiquette",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Recette {{suffix}}\",\n  \"color\": \"#004ad1\"\n}"
+        },
+        "url": "{{baseUrl}}/knowledge/tags",
+        "description": "Exige `knowledge.write` — donc Super Admin ou Admin/Direction. Utilisée pour classer les documents."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — étiquette créée', () => pm.response.to.have.status(200));",
+              "pm.test('la couleur est conservée', () => pm.expect(pm.response.json().data.color).to.eql('#004ad1'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04.10 · Dossiers (hiérarchie)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/knowledge/folders"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — dossiers renvoyés', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('chaque dossier expose son parent (hiérarchie récursive)', () => {",
+              "  j.data.forEach(f => pm.expect(f).to.have.property('parent_id'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

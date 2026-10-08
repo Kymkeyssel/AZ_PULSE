@@ -1,0 +1,18 @@
+$kind: http-request
+description: |-
+  Une date mal saisie depuis la barre d'URL est **ignorée** plutôt que fatale. Le journal complet reste accessible en retirant le paramètre.
+
+  Même logique pour `?category=` : une chaîne vide est normalisée à `null`, sinon elle filtrerait sur la valeur vide et renverrait un journal vide au lieu du journal entier.
+url: "{{baseUrl}}/audit?since=nimporte-quoi"
+method: GET
+queryParams:
+  since: nimporte-quoi
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — le filtre invalide est ignoré', () => pm.response.to.have.status(200));
+      pm.test('le journal complet reste accessible', () => pm.expect(pm.response.json().data.length).to.be.above(0));
+
+      console.log('✅ Robustesse : une saisie utilisateur erronée ne casse pas l API.');
+    language: text/javascript
+order: 8000

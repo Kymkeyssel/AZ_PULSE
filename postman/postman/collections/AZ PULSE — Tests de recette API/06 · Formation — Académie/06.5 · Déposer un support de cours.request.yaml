@@ -1,0 +1,29 @@
+$kind: http-request
+description: |-
+  Envoi `multipart/form-data`. Le champ `type` qualifie le dépôt (`document`, `submission`, `tuition`).
+
+  > ⚠️ **Limite connue** : le fichier est rattaché au **premier cours trouvé en base** (`findOneBy([])`), pas au module réellement concerné. Le même point d'entrée sert aujourd'hui à trois usages distincts (support, rendu de devoir, bordereau de paiement) sans les différencier en base.
+url: "{{baseUrl}}/dashboard/apprenant/upload"
+method: POST
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - ./fixtures/document-test.txt
+    - type: text
+      key: type
+      value: document
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — document déposé', () => pm.response.to.have.status(200));
+      pm.test('le dépôt est confirmé', () => {
+        const j = pm.response.json();
+        pm.expect(j.success !== false).to.be.true;
+      });
+    language: text/javascript
+order: 5000

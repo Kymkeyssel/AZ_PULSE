@@ -1,0 +1,225 @@
+{
+  "name": "08 · Dashboards",
+  "description": "Module **Dashboard** — synthèse multi-rôle consolidée.\n\nUn contrôleur unique expose sept points d'entrée, un par profil :\n\n| Endpoint | Rôle | État |\n|---|---|---|\n| `/dashboard/super-admin` | Super Admin | ✅ données réelles |\n| `/dashboard/admin` | Admin / Direction | ✅ données réelles |\n| `/dashboard/workspace` | Responsable Workspace | ❌ **500** — bug `TaskRepository` |\n| `/dashboard/crm` | Responsable CRM | ✅ données réelles |\n| `/dashboard/it` | Responsable IT | ✅ données réelles |\n| `/dashboard/apprenant` | Apprenant | ✅ données réelles |\n| `/dashboard/parent` | Parent | 🟡 **statique** — collision de route |\n\n**Captures d'écran suggérées** : `/superadmin`, `/admin`, `/apprenant`, `/collaborateur`.",
+  "item": [
+    {
+      "name": "08.1 · Dashboard Super Administrateur",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/dashboard/super-admin"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — dashboard renvoyé', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('volumétrie : utilisateurs, clients, projets', () => {",
+              "  pm.expect(d.users).to.be.a('number');",
+              "  pm.expect(d.customers).to.be.a('number');",
+              "  pm.expect(d.projects).to.be.a('number');",
+              "});",
+              "pm.test('chiffre d affaires des affaires gagnées', () => pm.expect(d.totalRevenue).to.be.a('string'));",
+              "pm.test('référentiel RBAC exposé', () => {",
+              "  pm.expect(d.roles).to.be.a('number');",
+              "  pm.expect(d.permissions).to.be.a('number');",
+              "});",
+              "pm.test('répartition des effectifs par rôle', () => {",
+              "  pm.expect(d.usersByRole).to.be.an('array').and.not.empty;",
+              "  d.usersByRole.forEach(r => {",
+              "    pm.expect(r).to.have.property('code');",
+              "    pm.expect(r).to.have.property('label');",
+              "    pm.expect(r.total).to.be.a('number');",
+              "  });",
+              "});",
+              "pm.test('les 6 dernières traces d audit sont jointes', () => pm.expect(d.recentAudit).to.be.an('array'));",
+              "",
+              "console.log('📊 Super Admin :', d.users, 'utilisateurs,', d.roles, 'rôles, CA =', d.totalRevenue);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08.2 · Dashboard Admin / Direction",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/dashboard/admin"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — dashboard renvoyé', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('répartition des utilisateurs par statut', () => {",
+              "  pm.expect(d.usersByStatus).to.be.an('object');",
+              "});",
+              "pm.test('demandes d accès en attente', () => pm.expect(d.pendingRequests).to.be.a('number'));",
+              "pm.test('état des micro-services — sondé pour de vrai', () => {",
+              "  pm.expect(d.systemStatus).to.be.an('object');",
+              "});",
+              "",
+              "console.log('🗂 Admin :', d.pendingRequests, 'demande(s) en attente.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08.3 · Dashboard CRM",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenCrm}}" }],
+        "url": "{{baseUrl}}/dashboard/crm"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — dashboard CRM renvoyé', () => pm.response.to.have.status(200));",
+              "const d = pm.response.json().data;",
+              "pm.test('opportunités totales et gagnées', () => {",
+              "  pm.expect(d.totalOpportunities).to.be.a('number');",
+              "  pm.expect(d.wonOpportunities).to.be.at.most(d.totalOpportunities);",
+              "});",
+              "pm.test('valeur du pipeline et chiffre d affaires gagné', () => {",
+              "  pm.expect(d.pipelineValue).to.be.a('number');",
+              "  pm.expect(d.wonValue).to.be.a('number');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08.4 · Dashboard Workspace",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/dashboard/workspace",
+        "description": "**Ce test échoue volontairement** : même cause que 00.4 — `DashboardController::workspace()` parcourt les tâches de chaque projet et bute sur le repository `Task` inexistant."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const status = pm.response.code;",
+              "",
+              "if (status === 200) {",
+              "  pm.test('200 — statistiques workspace renvoyées', () => pm.response.to.have.status(200));",
+              "  pm.test('tâches ouvertes comptées', () => pm.expect(pm.response.json().data.myOpenTasks).to.be.a('number'));",
+              "} else {",
+              "  console.warn('❌ BUG CONFIRMÉ — HTTP ' + status + ' (TaskRepository manquante)');",
+              "  pm.test('BUG DOCUMENTÉ — TaskRepository manquante', () => {",
+              "    pm.expect(status).to.eql(500);",
+              "    pm.expect(pm.response.text()).to.include('TaskRepository');",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08.5 · Dashboard Apprenant",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/dashboard/apprenant",
+        "description": "Sixième et dernier test du bloc Formation côté API. Détail des limites connues : voir le test 06.1."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — dashboard renvoyé', () => pm.response.to.have.status(200));",
+              "pm.test('les six blocs sont présents', () => {",
+              "  pm.expect(pm.response.json()).to.have.all.keys('program', 'financial', 'schedule', 'grades', 'tasks', 'documents');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08.6 · Statistiques apprenant (contrôleur agrégé)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/dashboard/apprenant"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — endpoint accessible', () => pm.response.to.have.status(200));",
+              "",
+              "const j = pm.response.json();",
+              "const isStub = j.hasOwnProperty('activeCourses') || j.hasOwnProperty('averageGrade');",
+              "",
+              "if (isStub) {",
+              "  console.warn('⚠️ Route dupliquée : DashboardController::apprenantStats() a gagné la course');",
+              "  console.warn('   et renvoie des VALEURS CODÉES EN DUR (' + JSON.stringify(j) + ').');",
+              "  console.warn('   Supprimer la route /apprenant de DashboardController pour');",
+              "  console.warn('   laisser la place à ApprenantDashboardController (données réelles).');",
+              "  pm.test('CONSTATÉ — valeurs statiques en base de données', () => {",
+              "    pm.expect(j.activeCourses).to.eql(3);",
+              "    pm.expect(j.averageGrade).to.eql('15.5 / 20');",
+              "  });",
+              "} else {",
+              "  pm.test('✅ Données réelles — le contrôleur détaillé est prioritaire', () => pm.expect(j.program).to.not.be.undefined);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08.7 · Dashboard Responsable",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/dashboard/responsable"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const status = pm.response.code;",
+              "",
+              "if (status === 200) {",
+              "  const d = pm.response.json().data;",
+              "  pm.test('200 — statistiques responsable renvoyées', () => pm.response.to.have.status(200));",
+              "  pm.test('tâches assignées et terminées comptées', () => {",
+              "    pm.expect(d.assignedTasks).to.be.a('number');",
+              "    pm.expect(d.completedTasks).to.be.a('number');",
+              "  });",
+              "  pm.test('CONSTATÉ — hoursWorked est codé en dur à 32', () => pm.expect(d.hoursWorked).to.eql(32));",
+              "  console.warn('⚠️ hoursWorked = 32 en dur — aucune source de données réelle.');",
+              "} else {",
+              "  pm.test('CONSTATÉ — endpoint indisponible', () => pm.expect([404, 500]).to.include(status));",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

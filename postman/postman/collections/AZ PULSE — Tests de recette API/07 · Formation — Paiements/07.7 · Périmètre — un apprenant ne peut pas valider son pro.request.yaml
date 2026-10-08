@@ -1,0 +1,19 @@
+$kind: http-request
+name: 07.7 · Périmètre — un apprenant ne peut pas valider son propre paiement
+description: |-
+  Séparation des pouvoirs : l'apprenant **dépose**, l'encadrement **valide**. Un apprenant qui tenterait de valider son propre règlement doit être refusé.
+
+  C'est un contrôle qui protège l'entreprise autant que l'étudiant.
+url: "{{baseUrl}}/academy/payments/{{paymentId}}/validate"
+method: POST
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — validation réservée à l encadrement', () => pm.response.to.have.status(403));
+      pm.test('message d accès refusé', () => pm.expect(pm.response.json().error).to.include('Access Denied'));
+
+      console.log('🔒 Séparation des pouvoirs vérifiée : dépôt et validation sont distincts.');
+    language: text/javascript
+order: 7000

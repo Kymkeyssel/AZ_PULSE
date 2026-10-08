@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 
 import { API_BASE_URL, TOKEN_KEY } from '../services/config';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 import { authService } from '../services/api';
 
@@ -13,6 +14,7 @@ import './Auth.css';
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refetchMe } = useAuth();
   const mode = searchParams.get('mode');
   const [viewMode, setViewMode] = useState(mode === 'register' ? 'register' : 'login');
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +30,7 @@ const Auth = () => {
     try {
       const data = await authService.login(form.email.value, form.password.value);
       localStorage.setItem(TOKEN_KEY, data.token);
+      await refetchMe();
       
       // On transmet l'email afin que les écrans d'attente/refus affichent le
       // dossier réellement concerné et non une donnée d'exemple.
@@ -44,8 +47,8 @@ const Auth = () => {
           navigate('/superadmin');
         } else if (data.user.primaryRole === 'ADMIN') {
           navigate('/admin');
-        } else if (data.user.primaryRole === 'COLLABORATEUR') {
-          // Le sous-rôle attribué par l'administrateur décide de l'écran d'entrée.
+        } else if (data.user.primaryRole === 'COLLABORATEUR' || data.user.primaryRole.startsWith('RESPONSABLE_')) {
+          // Le sous-rôle ou profil attribué décide de l'écran d'entrée.
           navigate(data.user.interfaceRoute || '/collaborateur');
         } else if (data.user.primaryRole === 'APPRENANT') {
           navigate('/apprenant');

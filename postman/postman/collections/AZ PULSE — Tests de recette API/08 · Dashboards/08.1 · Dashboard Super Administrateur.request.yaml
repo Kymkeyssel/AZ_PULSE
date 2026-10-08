@@ -1,0 +1,31 @@
+$kind: http-request
+url: "{{baseUrl}}/dashboard/super-admin"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — dashboard renvoyé', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('volumétrie : utilisateurs, clients, projets', () => {
+        pm.expect(d.users).to.be.a('number');
+        pm.expect(d.customers).to.be.a('number');
+        pm.expect(d.projects).to.be.a('number');
+      });
+      pm.test('chiffre d affaires des affaires gagnées', () => pm.expect(d.totalRevenue).to.be.a('string'));
+      pm.test('référentiel RBAC exposé', () => {
+        pm.expect(d.roles).to.be.a('number');
+        pm.expect(d.permissions).to.be.a('number');
+      });
+      pm.test('répartition des effectifs par rôle', () => {
+        pm.expect(d.usersByRole).to.be.an('array').and.not.empty;
+        d.usersByRole.forEach(r => {
+          pm.expect(r).to.have.property('code');
+          pm.expect(r).to.have.property('label');
+          pm.expect(r.total).to.be.a('number');
+        });
+      });
+      pm.test('les 6 dernières traces d audit sont jointes', () => pm.expect(d.recentAudit).to.be.an('array'));
+
+      console.log('📊 Super Admin :', d.users, 'utilisateurs,', d.roles, 'rôles, CA =', d.totalRevenue);
+    language: text/javascript
+order: 1000

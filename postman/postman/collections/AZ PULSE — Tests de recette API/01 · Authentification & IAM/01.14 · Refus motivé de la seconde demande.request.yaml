@@ -1,0 +1,27 @@
+$kind: http-request
+description: "Le motif est **obligatoire** : une chaîne vide est rejetée par `AccessRequestService::reject()` avant tout traitement. Le demandeur passe en statut `REJECTED` et le motif est conservé."
+url: "{{baseUrl}}/admin/access-requests/{{accessRequestUuidReject}}/reject"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "reason": "Pièces justificatives incomplètes — merci de préciser le service concerné."
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — demande refusée', () => pm.response.to.have.status(200));
+
+      const j = pm.response.json();
+      pm.test('success = true', () => pm.expect(j.success).to.be.true);
+      pm.test('la demande est REJECTED', () => pm.expect(j.request.status).to.eql('REJECTED'));
+      pm.test('le compte du demandeur est REJECTED', () => pm.expect(j.request.user.status).to.eql('REJECTED'));
+      pm.test('le motif est conservé', () => pm.expect(j.request.rejectionReason).to.include('justificatives'));
+      pm.test('traité par un administrateur nommé', () => pm.expect(j.request.processedBy).to.be.a('string'));
+
+      console.log('🚫 Demande refusée — le motif est transmis au demandeur.');
+    language: text/javascript
+order: 14000

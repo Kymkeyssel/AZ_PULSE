@@ -1,0 +1,29 @@
+$kind: http-request
+name: 07.8 · Périmètre — un profil sans droit Formation est écarté
+description: |-
+  La liste des paiements s'applique selon le rôle :
+
+  - `formation.manage` → tous les règlements ;
+  - `APPRENANT` → les siens ;
+  - `PARENT` → boucle sur ses enfants ;
+  - tout autre profil → **403**.
+
+  Ce test cible un profil **sans** aucune des trois premières qualités pour vérifier le refus explicite plutôt qu'un retour vide silencieux.
+url: "{{baseUrl}}/academy/payments"
+method: GET
+headers:
+  Authorization: Bearer {{tokenParent}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 ou 403 — comportement dépend du profil retenu', () => {
+        pm.expect([200, 403]).to.include(pm.response.code);
+      });
+
+      if (pm.response.code === 403) {
+        pm.test('403 — refus explicite', () => pm.expect(pm.response.json().error).to.include('Access Denied'));
+      } else {
+        pm.test('200 — le profil PARENT voit les règlements de ses enfants', () => pm.expect(pm.response.json().data).to.be.an('array'));
+      }
+    language: text/javascript
+order: 8000

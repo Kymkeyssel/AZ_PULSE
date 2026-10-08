@@ -1,0 +1,27 @@
+$kind: http-request
+description: Charge la file d'approbation. Mémorise l'identifiant de la demande déposée en 01.1 dans `{{accessRequestId}}` pour les tests d'approbation et de refus.
+url: "{{baseUrl}}/admin/access-requests?status=PENDING"
+method: GET
+queryParams:
+  status: PENDING
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — file renvoyée', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('success = true', () => pm.expect(j.success).to.be.true);
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+
+      const target = j.data.find(r => r.user.email === pm.collectionVariables.get('candidateEmail'));
+      pm.test('la demande de 01.1 est présente et PENDING', () => {
+        pm.expect(target, 'demande ' + pm.collectionVariables.get('candidateEmail')).to.not.be.undefined;
+        pm.expect(target.status).to.eql('PENDING');
+      });
+      pm.test('la motivation du candidat est restituée', () => pm.expect(target.motivation).to.include('Postman'));
+
+      if (target) {
+        pm.collectionVariables.set('accessRequestId', target.id);
+        console.log('🗂 Demande à traiter :', target.id, '—', target.user.fullName);
+      }
+    language: text/javascript
+order: 11000

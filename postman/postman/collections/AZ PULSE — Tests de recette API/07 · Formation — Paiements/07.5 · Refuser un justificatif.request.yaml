@@ -1,0 +1,26 @@
+$kind: http-request
+description: Second dépôt, destiné à être refusé (test 07.6).
+url: "{{baseUrl}}/academy/payments"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - ./fixtures/justificatif-test.txt
+    - type: text
+      key: amount
+      value: "50000"
+    - type: text
+      key: reference
+      value: VIR-{{suffix}}-REJET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — second justificatif déposé', () => pm.response.to.have.status(201));
+      pm.test('statut = PENDING', () => pm.expect(pm.response.json().data.status).to.eql('PENDING'));
+
+      pm.collectionVariables.set('paymentIdReject', pm.response.json().data.id);
+    language: text/javascript
+order: 5000

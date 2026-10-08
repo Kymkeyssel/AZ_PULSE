@@ -1,0 +1,29 @@
+$kind: http-request
+name: 01.17 · Connexion avec le compte nouvellement activé (bout en bout)
+description: |-
+  **Clôture du parcours IAM complet** : inscription (01.1) → approbation (01.12) → activation (01.15) → connexion. Le compte nouvellement créé doit recevoir le rôle attribué par l'administrateur.
+
+  C'est le scénario de démonstration le plus convaincant pour la soutenance.
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{candidateEmail}}",
+      "password": "Recette2026!"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — connexion réussie', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('le rôle attribué par l admin est appliqué', () => pm.expect(j.user.primaryRole).to.eql('RESPONSABLE_CRM'));
+      pm.test('les surcharges individuelles sont appliquées', () => pm.expect(j.user.permissions).to.include('crm.read'));
+      pm.test('un jeton est délivré', () => pm.expect(j.token).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 17000

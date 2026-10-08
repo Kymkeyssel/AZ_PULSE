@@ -1,0 +1,11 @@
+$kind: http-request
+description: "Un 403 confirmerait **qu'il existe** une notification portant cet identifiant. En répondant 404, l'API ne révèle rien : la notification n'existe pas **pour cet appelant**."
+url: "{{baseUrl}}/notifications/1/read"
+method: POST
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+scripts:
+  - type: afterResponse
+    code: pm.test('404 — existence non divulguée', () => pm.response.to.have.status(404));
+    language: text/javascript
+order: 11000

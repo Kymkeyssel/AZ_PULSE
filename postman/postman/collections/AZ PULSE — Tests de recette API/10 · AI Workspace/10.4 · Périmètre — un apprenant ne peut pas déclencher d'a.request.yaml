@@ -1,0 +1,21 @@
+$kind: http-request
+name: 10.4 · Périmètre — un apprenant ne peut pas déclencher d'analyse
+description: "`ProjectVoter::ANALYZE` refuse le profil `APPRENANT`. Un appel IA coûte une ressource GPU/CPU : le droit d'y accéder doit être réservé à l'encadrement du projet."
+url: "{{baseUrl}}/projects/{{projectId}}/ai-analysis"
+method: POST
+headers:
+  Authorization: Bearer {{tokenApprenant}}
+body:
+  type: text
+  content: |-
+    {
+      "question": "Tentative hors perimetre"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('403 — analyse réservée à l encadrement', () => pm.response.to.have.status(403));
+
+      console.log('🔒 Périmètre IA vérifié : un apprenant ne déclenche pas d analyse.');
+    language: text/javascript
+order: 5000

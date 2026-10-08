@@ -1,0 +1,55 @@
+$kind: http-request
+description: |-
+  **Ce test échoue : le module Analytics est actuellement hors service.**
+
+  `AnalyticsController::kpis()` appelle `$em->getRepository(Task::class)->count([…])` à la ligne 58. L'entité `Task` déclare `repositoryClass="App\\Repository\\TaskRepository"`, une classe qui n'existe pas dans le projet : Doctrine lève
+
+  ```
+  The "App\Entity\Task" entity has a repositoryClass set to "App\Repository\TaskRepository",
+  but this is not a valid class.
+  ```
+
+  et la requête entière répond **HTTP 500**. Le blocage survient à la dernière ligne de calcul : tout ce qui précède (pipeline CRM, projets, incidents, documents) fonctionne parfaitement, mais la réponse ne part jamais.
+
+  **Correctif** : créer `Backend/src/Repository/TaskRepository.php` (`extends ServiceEntityRepository`), faire de même pour `MilestoneRepository` et `DeliverableRepository`, et le bloc entier répond 200. Aucun test n'est nécessaire pour le vérifier : relancer 11.1 suffit.
+url: "{{baseUrl}}/analytics/kpis"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      const status = pm.response.code;
+
+      if (status === 200) {
+        pm.test('✅ 200 — module réparé, KPIs complets', () => {
+          const d = pm.response.json().data;
+          pm.expect(d).to.have.all.keys('crm', 'workspace', 'knowledge', 'it', 'generatedAt');
+        });
+        pm.test('bloc CRM cohérent', () => {
+          const c = pm.response.json().data.crm;
+          pm.expect(c.prospects).to.be.a('number');
+          pm.expect(c.clients).to.be.a('number');
+          pm.expect(c.wonOpportunities).to.be.at.most(c.opportunities);
+          pm.expect(c.pipelineValue).to.be.at.least(0);
+        });
+        pm.test('bloc Workspace cohérent', () => {
+          const w = pm.response.json().data.workspace;
+          pm.expect(w.activeProjects).to.be.at.most(w.projects);
+          pm.expect(w.overdueTasks).to.be.a('number');
+        });
+        pm.test('knowledge et IT comptés', () => {
+          pm.expect(pm.response.json().data.knowledge).to.have.all.keys('published', 'drafts');
+          pm.expect(pm.response.json().data.it.openIncidents).to.be.a('number');
+        });
+        pm.test('horodatage de génération ISO 8601', () => {
+          pm.expect(pm.response.json().data.generatedAt).to.match(/^\d{4}-\d{2}-\d{2}T/);
+        });
+      } else {
+        console.error('❌ MODULE ANALYTICS INDISPONIBLE — HTTP ' + status);
+        pm.test('❌ BUG CONFIRMÉ — TaskRepository manquante', () => {
+          pm.expect(status).to.eql(500);
+          pm.expect(pm.response.text()).to.include('TaskRepository');
+        });
+        console.error('   Correctif : créer TaskRepository, MilestoneRepository et DeliverableRepository.');
+      }
+    language: text/javascript
+order: 1000

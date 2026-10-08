@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{accountWorkspace}}",
+      "password": "{{pwdWorkspace}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — connexion réussie', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('rôle = RESPONSABLE_WORKSPACE', () => pm.expect(j.user.primaryRole).to.eql('RESPONSABLE_WORKSPACE'));
+      pm.test('détient workspace.write', () => pm.expect(j.user.permissions).to.include('workspace.write'));
+      pm.test('détient ai.read (accès au module IA)', () => pm.expect(j.user.permissions).to.include('ai.read'));
+      pm.test('ne détient PAS crm.manage', () => pm.expect(j.user.permissions).to.not.include('crm.manage'));
+
+      pm.collectionVariables.set('tokenWorkspace', j.token);
+      pm.environment.set('tokenWorkspace', j.token);
+    language: text/javascript
+order: 4000

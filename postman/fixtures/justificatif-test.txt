@@ -1,0 +1,15 @@
+AZ PULSE — Justificatif de paiement (fixture)
+=============================================
+
+Établissement      : AZ CORPORATION
+Bénéficiaire       : Apprenant de démonstration
+Montant            : 250 000 FCFA
+Tranche            : 4 / 4
+Mode de règlement   : Virement bancaire
+Référence          : VIR-PMTEST-0001
+Date               : 05/10/2026
+
+Ce fichier sert de fixture à la requête « Déposer un justificatif »
+du module Formation — Paiements. En production, l'application
+attend ici un scan du bordereau (PDF ou image) qui serait ensuite
+soumis à un OCR — functionality non encore implémentée.

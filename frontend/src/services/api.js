@@ -12,7 +12,7 @@ export async function fetchApi(endpoint, options = {}) {
     ...options.headers,
   };
 
-  if (token) {
+  if (token && !options.skipToken) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
@@ -30,16 +30,12 @@ export async function fetchApi(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    if (response.status === 500) {
-      window.location.href = '/500';
-      return;
-    }
-    if (response.status === 403) {
-      window.location.href = '/403';
-      return;
+    if (response.status === 401) {
+      localStorage.removeItem(TOKEN_KEY);
     }
 
-    const error = new Error(data.message || 'Une erreur est survenue.');
+    const message = data.error || data.message || data.details || `Erreur ${response.status}: Une erreur est survenue.`;
+    const error = new Error(message);
     error.status = response.status;
     error.data = data;
     throw error;
@@ -53,6 +49,7 @@ export const authService = {
     return fetchApi('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+      skipToken: true,
     });
   },
 
@@ -60,6 +57,7 @@ export const authService = {
     return fetchApi('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
+      skipToken: true,
     });
   },
 
@@ -67,6 +65,7 @@ export const authService = {
     return fetchApi('/auth/activate', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+      skipToken: true,
     });
   },
 
@@ -74,6 +73,7 @@ export const authService = {
     return fetchApi('/auth/status', {
       method: 'POST',
       body: JSON.stringify({ uuid }),
+      skipToken: true,
     });
   },
 
@@ -89,6 +89,7 @@ export const authService = {
     return fetchApi('/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
+      skipToken: true,
     });
   },
 
@@ -96,6 +97,7 @@ export const authService = {
     return fetchApi('/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify({ token, password }),
+      skipToken: true,
     });
   }
 };
@@ -279,3 +281,102 @@ export const auditService = {
   /** Valeurs closes des filtres, fournies par le serveur. */
   getFilters: () => fetchApi('/audit/filters'),
 };
+
+/**
+ * Knowledge Hub — gestion documentaire
+ */
+export const knowledgeService = {
+  listDocuments: ({ q, project_id } = {}) => {
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (project_id) params.set('project_id', project_id);
+    
+    const qs = params.toString();
+    return fetchApi(`/knowledge/documents${qs ? `?${qs}` : ''}`);
+  },
+
+  uploadDocument: (file, payload = {}) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (payload.title) formData.append('title', payload.title);
+    if (payload.description) formData.append('description', payload.description);
+    if (payload.type) formData.append('type', payload.type);
+    if (payload.category_id) formData.append('category_id', payload.category_id);
+    if (payload.project_id) formData.append('project_id', payload.project_id);
+    if (payload.tag_ids) formData.append('tag_ids', JSON.stringify(payload.tag_ids));
+
+    return fetchApi('/knowledge/documents', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  publishDocument: (id) => {
+    return fetchApi(`/knowledge/documents/${id}/publish`, { method: 'POST' });
+  },
+
+  downloadUrl: (id) => {
+    return `${API_BASE_URL}/knowledge/documents/${id}/download`;
+  }
+};
+
+export const roleService = {
+  list: () => fetchApi('/roles'),
+  updatePermissions: (id, permissions) => fetchApi(`/roles/${id}/permissions`, { method: 'POST', body: JSON.stringify({ permissions }) }),
+};
+
+/**
+ * Workspace — projets et tâches
+ */
+export const workspaceService = {
+  listProjects: () => fetchApi('/workspace/projects'),
+  getProject: (id) => fetchApi(`/workspace/projects/${id}`),
+  createProject: (payload) => fetchApi('/workspace/projects', { method: 'POST', body: JSON.stringify(payload) }),
+  updateProject: (id, payload) => fetchApi(`/workspace/projects/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  
+  listTasks: (projectId) => fetchApi(`/workspace/projects/${projectId}/tasks`),
+  createTask: (projectId, payload) => fetchApi(`/workspace/projects/${projectId}/tasks`, { method: 'POST', body: JSON.stringify(payload) }),
+  updateTask: (taskId, payload) => fetchApi(`/workspace/tasks/${taskId}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+};
+
+/**
+ * Analytics — indicateurs et KPIs
+ */
+export const analyticsService = {
+  getKpis: () => fetchApi('/analytics/kpis'),
+};
+
+/**
+ * Service IA — analyse contextuelle de projets via proxy Symfony
+ */
+export const aiService = {
+  analyzeProject: (projectId, question = 'Analyse générale du projet et de ses risques.') => {
+    return fetchApi(`/projects/${projectId}/ai-analysis`, {
+      method: 'POST',
+      body: JSON.stringify({ question }),
+    });
+  },
+
+  chat: (message, conversationId = null, context = {}) => {
+    return fetchApi('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message, conversation_id: conversationId, context }),
+    });
+  },
+
+  getInsights: (metrics = {}, scope = 'CRM & Performance') => {
+    return fetchApi('/ai/insights', {
+      method: 'POST',
+      body: JSON.stringify({ metrics, scope }),
+    });
+  },
+
+  getRecommendations: (context = {}, scope = 'Opérations & CRM') => {
+    return fetchApi('/ai/recommendations', {
+      method: 'POST',
+      body: JSON.stringify({ ...context, scope }),
+    });
+  },
+};
+
+

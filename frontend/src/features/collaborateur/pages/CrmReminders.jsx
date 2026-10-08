@@ -3,6 +3,9 @@ import { toast } from 'sonner';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crmService } from '../../../services/api';
 import ReminderForm from '../components/crm/ReminderForm';
+import AIInsightsWidget from '../components/AIInsightsWidget';
+import AIChatDrawer from '../components/AIChatDrawer';
+import { Sparkles } from 'lucide-react';
 import {
   formatRelativeDue,
   reminderTypeIcon,
@@ -39,6 +42,7 @@ const CrmReminders = () => {
   const [showDone, setShowDone] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
   // Tant que le premier chargement n'est pas terminé, on affiche le
   // spinner. Un `setLoading(true)` dans l'effet provoquerait un rendu en
@@ -258,16 +262,38 @@ const CrmReminders = () => {
           </p>
         </div>
 
-        {canCreate && (
+        <div className="flex items-center gap-2.5">
           <button
-            onClick={() => { setEditing(null); setFormOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#0b2545] text-white text-sm font-bold hover:opacity-90 transition-opacity"
+            onClick={() => setIsAiChatOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold shadow-md hover:shadow-blue-500/25 transition-all"
           >
-            <span className="material-symbols-outlined notranslate text-[18px]">add_task</span>
-            Planifier une relance
+            <Sparkles className="w-4 h-4 animate-pulse" />
+            <span>Assistant IA</span>
           </button>
-        )}
+
+          {canCreate && (
+            <button
+              onClick={() => { setEditing(null); setFormOpen(true); }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0b2545] text-white text-sm font-bold hover:bg-[#071326] transition"
+            >
+              <span className="material-symbols-outlined notranslate text-[18px]">add_task</span>
+              Planifier une relance
+            </button>
+          )}
+        </div>
       </header>
+
+      {/* ── Widget IA Analyse des Relances ─────────────────────────────────── */}
+      <AIInsightsWidget
+        metrics={{
+          overdue: summary.overdue,
+          today: summary.today,
+          upcoming: summary.upcoming,
+          total: (summary.overdue || 0) + (summary.today || 0) + (summary.upcoming || 0)
+        }}
+        scope="Relances & Urgences CRM"
+        title="Analyse de Priorisation des Relances IA"
+      />
 
       {/* ── Compteurs ───────────────────────────────────────────────────── */}
       <section className="grid grid-cols-3 gap-3">
@@ -351,6 +377,17 @@ const CrmReminders = () => {
           </div>
         </div>
       )}
+
+      {/* ── Chat Assistant IA Drawer ─────────────────────────────────────── */}
+      <AIChatDrawer
+        isOpen={isAiChatOpen}
+        onClose={() => setIsAiChatOpen(false)}
+        currentContext={{
+          module: 'CRM_REMINDERS',
+          summary,
+          pendingCount: reminders.filter(r => r.status === 'PENDING').length,
+        }}
+      />
     </div>
   );
 };

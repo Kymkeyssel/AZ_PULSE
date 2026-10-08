@@ -1,0 +1,13 @@
+$kind: collection
+description: |-
+  Module **Formation** — espaces apprenant, parent et responsable.
+
+  > ⚠️ **Prérequis** : la base doit contenir des données pédagogiques. Exécuter au préalable :
+  > ```
+  > cd Backend
+  > php bin/console app:seed-dashboard-data
+  > ```
+  > Cet espace **en lecture seule** côté API : les cours, sessions, notes et inscriptions ne peuvent pas être créés ni modifiés par l'API. Les tests ci-dessous vérifient donc la consultation, l'upload de documents et les dashboards.
+
+  **Captures d'écran suggérées** : `/apprenant`, `/apprenant/planning`, `/apprenant/evaluations`, `/apprenant/formations`, `/apprenant/paiements`, `/apprenant/documents`.
+order: 7000

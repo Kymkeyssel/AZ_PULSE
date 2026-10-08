@@ -1,0 +1,40 @@
+$kind: http-request
+description: |-
+  Groupe les opportunités par étape et pondère chaque colonne par la probabilité.
+
+  `scope=mine` ne montre que le portefeuille du connecté. `scope=all` exige `crm.manage` et **retombe automatiquement sur `mine`** pour un simple commercial — c'est ce que vérifie le test suivant.
+
+  Toutes les colonnes sont renvoyées, **même vides** : une colonne qui disparaît selon la donnée ferait « sauter » le tableau.
+url: "{{baseUrl}}/crm/pipeline?scope=mine"
+method: GET
+headers:
+  Authorization: Bearer {{tokenCrm}}
+queryParams:
+  scope: mine
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — pipeline renvoyé', () => pm.response.to.have.status(200));
+      const j = pm.response.json().data;
+      pm.test('le périmètre est bien « mes affaires »', () => pm.expect(j.scope).to.eql('mine'));
+      pm.test('les colonnes sont préchargées', () => pm.expect(j.columns.length).to.be.above(2));
+      pm.test('chaque colonne porte un libellé français', () => {
+        j.columns.forEach(col => pm.expect(col.label).to.be.a('string').and.not.empty);
+      });
+      pm.test('l opportunité de 02.4 est dans la colonne PROSPECTING', () => {
+        const col = j.columns.find(c => c.code === 'PROSPECTING');
+        const found = col.opportunities.find(o => String(o.id) === String(pm.collectionVariables.get('opportunityId')));
+        pm.expect(found, 'opportunité dans le pipeline').to.not.be.undefined;
+        pm.expect(found.amount).to.eql(1850000);
+      });
+      pm.test('montant pondéré = montant x probabilité', () => {
+        const col = j.columns.find(c => c.code === 'PROSPECTING');
+        pm.expect(Math.abs(col.weightedAmount - col.totalAmount * 0.30)).to.be.below(1);
+      });
+      pm.test('totaux agrégés présents', () => {
+        pm.expect(j.totals.count).to.be.a('number');
+        pm.expect(j.totals.totalAmount).to.be.a('number');
+        pm.expect(j.totals.weightedAmount).to.be.a('number');
+      });
+    language: text/javascript
+order: 5000

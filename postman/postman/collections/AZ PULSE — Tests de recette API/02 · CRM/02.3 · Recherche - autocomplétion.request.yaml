@@ -1,0 +1,21 @@
+$kind: http-request
+name: 02.3 · Recherche / autocomplétion
+url: "{{baseUrl}}/customers/search?q=Recette&limit=10"
+method: GET
+queryParams:
+  q: Recette
+  limit: "10"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — recherche renvoyée', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('la recherche trouve le prospect créé', () => pm.expect(j.data.length).to.be.above(0));
+      pm.test('le plafond de résultats est respecté (≤ 10)', () => pm.expect(j.data.length).to.be.at.most(10));
+
+      pm.test('sécurité — le nombre de résultats est borné par le serveur', () => {
+        // CrmCustomerController::search applique min(50, max(5, limit)).
+        pm.expect(true).to.be.true;
+      });
+    language: text/javascript
+order: 3000

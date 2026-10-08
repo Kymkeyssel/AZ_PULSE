@@ -1,0 +1,31 @@
+$kind: http-request
+description: |-
+  Crée un contact en statut `PROSPECT` (valeur forcée par `CustomerService` quand le champ est absent) et l'attribue automatiquement au connecté en `owner`.
+
+  Aucun `status` n'est envoyé : le statut ne se choisit pas à la création, il résulte du cycle de vie commercial (cf. test 02.4).
+url: "{{baseUrl}}/customers"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Groupe Recette {{suffix}}",
+      "email": "recette.{{suffix}}@exemple.cm",
+      "phone": "+237690000002",
+      "industry": "Services numériques"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 — prospect créé', () => pm.response.to.have.status(201));
+      const j = pm.response.json();
+      pm.test('success = true', () => pm.expect(j.success).to.be.true);
+      pm.test('statut initial = PROSPECT', () => pm.expect(j.data.status).to.eql('PROSPECT'));
+      pm.test('le nom porte le suffixe de recette', () => pm.expect(j.data.name).to.include(pm.collectionVariables.get('suffix')));
+
+      pm.collectionVariables.set('customerId', j.data.id);
+      console.log('🏢 Prospect créé — id =', j.data.id);
+    language: text/javascript
+order: 1000

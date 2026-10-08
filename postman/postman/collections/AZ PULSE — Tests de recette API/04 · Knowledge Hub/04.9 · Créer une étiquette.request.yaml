@@ -1,0 +1,20 @@
+$kind: http-request
+description: Exige `knowledge.write` — donc Super Admin ou Admin/Direction. Utilisée pour classer les documents.
+url: "{{baseUrl}}/knowledge/tags"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Recette {{suffix}}",
+      "color": "#004ad1"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — étiquette créée', () => pm.response.to.have.status(200));
+      pm.test('la couleur est conservée', () => pm.expect(pm.response.json().data.color).to.eql('#004ad1'));
+    language: text/javascript
+order: 9000

@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/reminders/summary"
+method: GET
+headers:
+  Authorization: Bearer {{tokenCrm}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — résumé renvoyé', () => pm.response.to.have.status(200));
+      const d = pm.response.json().data;
+      pm.test('trois compteurs : en retard / aujourd hui / à venir', () => {
+        pm.expect(d).to.have.all.keys('overdue', 'today', 'upcoming');
+      });
+      pm.test('les compteurs sont numériques', () => {
+        pm.expect(d.overdue).to.be.a('number');
+        pm.expect(d.today).to.be.a('number');
+        pm.expect(d.upcoming).to.be.a('number');
+      });
+      pm.test('la relance à échéance lointaine est comptée « à venir »', () => pm.expect(d.upcoming).to.be.above(0));
+    language: text/javascript
+order: 8000

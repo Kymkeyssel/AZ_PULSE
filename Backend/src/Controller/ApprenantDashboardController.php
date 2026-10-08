@@ -48,20 +48,43 @@ class ApprenantDashboardController extends AbstractController
         $tuition = $em->getRepository(Tuition::class)->findOneBy(['student' => $user], ['id' => 'DESC']);
         $financialData = null;
         if ($tuition) {
-            // Calcul d'une date d'échéance bidon pour la démo (ex: dans 15 jours si non payé)
-            $nextDeadline = ($tuition->getPaidTranches() < $tuition->getTotalTranches()) ? (new \DateTime('+15 days'))->format('Y-m-d H:i') : null;
-            // Calcul fictif d'un montant en retard (ex: pour simuler un impayé)
-            $overdueAmount = ($tuition->getPaidTranches() == 0 && $tuition->getTotalTranches() > 0) ? 50000 : 0;
-            
+            $totalTranches = $tuition->getTotalTranches();
+            $paidTranches = $tuition->getPaidTranches();
+            $totalAmount = $tuition->getTotalAmount();
+            $remainingBalance = $tuition->getRemainingBalance();
+
+            // Le document d'architecture (§7.3) ne prévoit aucune date
+            // d'échéance : la seule date gérée est celle du paiement portée par
+            // le justificatif bancaire, et elle vit dans le reçu validé. Cette
+            // clé renvoie donc `null` tant que l'échéancier n'existe pas en
+            // base. Elle valait `now + 15 jours`, ce qui affichait une date
+            // differente a chaque ouverture et mouvements chaque jour.
+            $nextDeadline = null;
+
+            // Idem pour l'impayé : sans date d'échéance, aucune somme ne peut
+            // être qualifiée de « en retard ». La valeur était en dur (50 000).
+            $overdueAmount = null;
+
             $financialData = [
-                'totalAmount' => $tuition->getTotalAmount(),
-                'remainingBalance' => $tuition->getRemainingBalance(),
-                'totalTranches' => $tuition->getTotalTranches(),
-                'paidTranches' => $tuition->getPaidTranches(),
-                'status' => ($tuition->getPaidTranches() >= $tuition->getTotalTranches()) ? 'Solde réglé' : ($tuition->getPaidTranches() . '/' . $tuition->getTotalTranches() . ' Payées'),
+                'totalAmount' => $totalAmount,
+                'remainingBalance' => $remainingBalance,
+                // `paidAmount` est calcule, jamais stocke : le solde restant
+                // est la seule donnee saisie, en deduire le paye evite deux
+                // verites qui divergent.
+                'paidAmount' => $totalAmount - $remainingBalance,
+                'totalTranches' => $totalTranches,
+                'paidTranches' => $paidTranches,
+                'status' => $totalTranches === 0
+                    ? 'Echeancier non defini'
+                    : ($paidTranches >= $totalTranches
+                        ? 'Solde regle'
+                        : $paidTranches . '/' . $totalTranches . ' payees'),
                 'nextDeadline' => $nextDeadline,
-                'amountDue' => ($tuition->getTotalAmount() / $tuition->getTotalTranches()), // montant de la tranche
-                'overdueAmount' => $overdueAmount
+                // Le montant d'une tranche n'a de sens que si le decoupage est
+                // defini. La division precedente levait une DivisionByZeroError
+                // -- et donc une erreur 500 -- des que totalTranches valait 0.
+                'amountDue' => $totalTranches > 0 ? round($totalAmount / $totalTranches, 2) : null,
+                'overdueAmount' => $overdueAmount,
             ];
         }
 

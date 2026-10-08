@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Sidebar = () => {
   const [adminOpen, setAdminOpen] = useState(false);
-  const { fullName, initials, primaryRole, sidebarStats } = useAuth();
+  const { fullName, initials, primaryRole, sidebarStats, logout } = useAuth();
   const navigate = useNavigate();
 
   // Chiffres réels depuis la BD
@@ -94,20 +94,13 @@ const Sidebar = () => {
               </span>
             </NavLink>
 
-            {/* Actifs — chiffre réel */}
-            <NavLink to="/superadmin/admins"
-              className="flex items-center justify-between py-1.5 px-2.5 rounded text-[#b5c4ff] hover:text-white hover:bg-white/5 transition-colors">
-              <span>├ Comptes actifs</span>
-              <span className="text-[10px] bg-white/10 px-1 rounded text-white">
-                {activeUsers !== null ? activeUsers : '…'}
-              </span>
-            </NavLink>
-
-            {/* Rôles — placeholder */}
-            <button className="w-full flex items-center justify-between py-1.5 px-2.5 rounded text-[#b5c4ff] hover:text-white hover:bg-white/5 transition-colors" type="button">
+            {/* Rôles */}
+            <NavLink to="/superadmin/roles"
+              className={({ isActive }) =>
+                `w-full flex items-center justify-between py-1.5 px-2.5 rounded transition-colors ${isActive ? 'text-white font-semibold bg-white/5' : 'text-[#b5c4ff] hover:text-white hover:bg-white/5'}`
+              }>
               <span>├ Rôles &amp; permissions</span>
-              <span className="text-[10px] bg-white/10 px-1 rounded text-[#b5c4ff] italic">—</span>
-            </button>
+            </NavLink>
 
             {/* Demandes — chiffre réel */}
             <NavLink to="/superadmin/requests"
@@ -224,7 +217,7 @@ const Sidebar = () => {
           </div>
           <button className="text-[#b5c4ff] hover:text-[#ba1a1a] transition-colors flex-shrink-0"
                   title="Déconnexion"
-                  onClick={() => { localStorage.removeItem(TOKEN_KEY); navigate('/'); }}>
+                  onClick={logout}>
             <span className="material-symbols-outlined notranslate text-[16px]">logout</span>
           </button>
         </div>

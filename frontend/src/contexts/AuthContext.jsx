@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     if (!token) { setLoadingUser(false); return; }
 
     try {
-      const res = await fetch($API_BASE_URL + '/auth/me', {
+      const res = await fetch(API_BASE_URL + '/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     if (!ADMIN_ROLES.includes(roleCode)) return; // Pas admin → on ne fait pas l'appel
 
     try {
-      const res = await fetch($API_BASE_URL + '/dashboard/admin', {
+      const res = await fetch(API_BASE_URL + '/dashboard/admin', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
       if (!token) { setLoadingUser(false); return; }
 
       try {
-        const res = await fetch($API_BASE_URL + '/auth/me', {
+        const res = await fetch(API_BASE_URL + '/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -124,6 +124,13 @@ export const AuthProvider = ({ children }) => {
 
   const hasPermission = (code) => permissions.includes(code);
 
+  const logout = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    setUser(null);
+    setSidebarStats(null);
+    window.location.href = '/auth';
+  }, []);
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -139,6 +146,7 @@ export const AuthProvider = ({ children }) => {
       collaboratorProfileLabel,
       sidebarStats,
       loadingUser,
+      logout,
       refetchMe:           fetchMe,
       refetchSidebarStats: (u) => fetchSidebarStats(u ?? user),
     }}>

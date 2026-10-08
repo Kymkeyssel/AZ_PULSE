@@ -1,0 +1,24 @@
+$kind: http-request
+name: 01.15 · Une décision est définitive (double traitement refusé)
+description: "Relance **intentionnelle** du refus. `AccessRequestService::reject()` vérifie que la demande est encore `PENDING` : une seconde décision renvoie 400."
+url: "{{baseUrl}}/admin/access-requests/{{accessRequestUuidReject}}/reject"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "reason": "Seconde tentative, volontairement refusée."
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('400 — double traitement refusé', () => pm.response.to.have.status(400));
+      pm.test('message explicite', () => pm.expect(pm.response.json().message).to.include('déjà été traitée'));
+
+      console.log('🔒 Une décision d accès est définitive : elle ne se rejoue pas.');
+    language: text/javascript
+order: 15000

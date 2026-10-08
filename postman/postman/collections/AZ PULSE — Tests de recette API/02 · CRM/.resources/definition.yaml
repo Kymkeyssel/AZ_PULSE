@@ -1,0 +1,22 @@
+$kind: collection
+description: |-
+  Module **CRM** — prospects, opportunités, pipeline commercial et relances.
+
+  Scenario :
+  ```
+  Prospect → Opportunité → changement d'étape → WON → Client devient CLIENT
+                                                      ↓
+                                      création AUTOMATIQUE d'un projet Workspace
+  ```
+  Ce scénario est le **scénario transversal de démonstration** du projet. Le passage Opportunité → WON déclenche `ProjectCreationSubscriber`, qui crée un projet, reprend le montant comme budget et désigne le propriétaire de l'affaire comme chef de projet. Le projet créé est récupérable dans `{{projectId}}`.
+
+  **Captures d'écran suggérées** : `/collaborateur/crm`, `/collaborateur/clients`, `/collaborateur/relances`, `/collaborateur`.
+scripts:
+  - type: http:beforeRequest
+    code: |-
+      // Échéance de relance : 7 jours plus tard, au format ISO 8601.
+      // Calculée à chaque requête pour rester valable même si le module est relancé plus tard.
+      const due = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+      pm.collectionVariables.set('reminderDueDate', due.toISOString());
+    language: text/javascript
+order: 3000

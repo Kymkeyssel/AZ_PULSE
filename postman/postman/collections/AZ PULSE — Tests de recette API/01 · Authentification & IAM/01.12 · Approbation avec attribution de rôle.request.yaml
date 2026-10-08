@@ -1,0 +1,36 @@
+$kind: http-request
+description: |-
+  Le cœur du workflow IAM. Effets :
+
+  - la demande passe `APPROVED` ;
+  - le compte bascule de `PENDING_APPROVAL` à `ACTIVE` ;
+  - les rôles de l'utilisateur sont **remplacés** par `RESPONSABLE_CRM` ;
+  - les droits individuels demandés (`customGrants`) sont enregistrés comme surcharges positives, et les retraits (`customRevokes`) comme surcharges négatives ;
+  - l'événement `access_request.approved` est publié → **journal d'audit** + **notification** au demandeur.
+
+  `customGrants` et `customRevokes` sont dédoublonnés puis différenciés : un droit demandé puis retiré dans le même appel n'est jamais accordé.
+url: "{{baseUrl}}/admin/access-requests/{{accessRequestId}}/approve"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "roleCode": "RESPONSABLE_CRM",
+      "customGrants": ["crm.read", "crm.update"],
+      "customRevokes": ["crm.delete"]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — demande approuvée', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('success = true', () => pm.expect(j.success).to.be.true);
+      pm.test('la demande est APPROVED', () => pm.expect(j.request.status).to.eql('APPROVED'));
+      pm.test('le compte est désormais ACTIVE', () => pm.expect(j.request.user.status).to.eql('ACTIVE'));
+      pm.test('rôle attribué = RESPONSABLE_CRM', () => pm.expect(j.request.assignedRole.code).to.eql('RESPONSABLE_CRM'));
+      pm.test('traité par un administrateur nommé', () => pm.expect(j.request.processedBy).to.be.a('string'));
+      pm.test('horodatage du traitement présent', () => pm.expect(j.request.processedAt).to.be.a('string'));
+    language: text/javascript
+order: 12000

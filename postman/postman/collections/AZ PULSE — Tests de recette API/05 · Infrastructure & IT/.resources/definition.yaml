@@ -1,0 +1,8 @@
+$kind: collection
+description: |-
+  Module **Infrastructure & IT** — inventaire du parc informatique et gestion d'incidents.
+
+  L'inventaire est alimenté par **GLPI**, qui reste la source de vérité opérationnelle : aucun repli sur une base locale n'est prévu. Si GLPI est injoignable, l'API répond `503 GLPI_UNAVAILABLE` plutôt que de renvoyer des données obsolètes.
+
+  **Captures d'écran suggérées** : `/superadmin` (bloc « Santé du Système ») — l'écran `/collaborateur/infrastructure` est encore une maquette statique, non raccordée à l'API.
+order: 6000

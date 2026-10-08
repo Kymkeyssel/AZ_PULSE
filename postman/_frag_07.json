@@ -1,0 +1,225 @@
+{
+  "name": "07 · Formation — Paiements",
+  "description": "Module **Formation — Paiements** — circuit complet du règlement de scolarité.\n\n```\nApprenant dépose un justificatif  →  Responsable Formation valide\n        statut PENDING                          statut VALIDATED\n                                                    ↓\n                              +1 tranche payée · solde décrémenté\n                                                    ↓\n                        événement tuition.payment_received → notification\n```\n\nExige `formation.manage` pour valider ou refuser — donc le Super Admin, l'Admin/Direction ou le Responsable Formation. Le jeton du dossier est celui du Responsable Formation.\n\n> ⚠️ **Prérequis** : l'apprenant doit disposer d'un échéancier de scolarité. Exécuter `php bin/console app:seed-dashboard-data` si nécessaire.\n\n**Captures d'écran suggérées** : `/apprenant/paiements`.",
+  "item": [
+    {
+      "name": "07.1 · Déposer un justificatif de paiement",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "./fixtures/justificatif-test.txt" },
+            { "key": "amount", "value": "250000", "type": "text" },
+            { "key": "reference", "value": "VIR-{{suffix}}-0001", "type": "text" }
+          ]
+        },
+        "url": "{{baseUrl}}/academy/payments",
+        "description": "Envoi `multipart/form-data`. Le fichier est stocké sous un nom « slugifié » + `uniqid()` ; seul ce nom est conservé en base.\n\nLe justificatif est créé en statut **`PENDING`** et rattaché à l'échéancier du demandeur. Le champ `student_id` permet à un Responsable Formation ou à un parent de déposer pour le compte d'un apprenant.\n\n> **Limite connue** : l'API ne renvoie que le **nom** du fichier dans `documentUrl` — aucun endpoint ne permet de le télécharger ensuite. L'interface doit reconstruire le chemin, ce qui n'est pas fait.\n> **OCR non implémenté** : la documentation évoque une analyse automatique du justificatif ; elle n'existe pas. Un dossier de test le prouve en affichant de fausses confiances (98 %, 65 %, 100 %)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — justificatif déposé', () => pm.response.to.have.status(201));",
+              "const d = pm.response.json().data;",
+              "pm.test('statut initial = PENDING', () => pm.expect(d.status).to.eql('PENDING'));",
+              "pm.test('montant enregistré', () => pm.expect(d.amount).to.eql(250000));",
+              "pm.test('référence bancaire conservée', () => pm.expect(d.reference).to.include('VIR-'));",
+              "pm.test('l identifiant est un UUID', () => pm.expect(d.id).to.match(/^[0-9a-f-]{36}$/));",
+              "pm.test('l apprenant est rattaché', () => pm.expect(d.studentEmail).to.include('@'));",
+              "pm.test('le fichier a été stocké', () => pm.expect(d.documentUrl).to.be.a('string').and.not.empty);",
+              "",
+              "pm.collectionVariables.set('paymentId', d.id);",
+              "console.log('💳 Justificatif déposé (PENDING) — id =', d.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07.2 · File des paiements à valider",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academy/payments"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — file renvoyée', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('le justificatif déposé est en attente', () => {",
+              "  const p = j.data.find(x => String(x.id) === String(pm.collectionVariables.get('paymentId')));",
+              "  pm.expect(p, 'paiement').to.not.be.undefined;",
+              "  pm.expect(p.status).to.eql('PENDING');",
+              "});",
+              "pm.test('les paiements sont triés du plus récent au plus ancien', () => {",
+              "  for (let i = 1; i < j.data.length; i++) {",
+              "    pm.expect(j.data[i - 1].createdAt >= j.data[i].createdAt).to.be.true;",
+              "  }",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07.3 · Valider le paiement",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/academy/payments/{{paymentId}}/validate",
+        "description": "⭐ Action la plus structurante du module financier. Effets automatiques :\n\n1. le justificatif passe `VALIDATED` ;\n2. **`paidTranches` est incrémenté** ;\n3. le **solde restant est décrémenté** du montant versé (jamais négatif — `max(0, …)`) ;\n4. l'événement `tuition.payment_received` est publié → **notification** à l'apprenant et au Responsable Formation + **journal d'audit**.\n\nL'opération est **idempotente** : revalider un justificatif déjà validé renvoie la fiche telle quelle, sans décrémenter le solde une seconde fois."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — paiement validé', () => pm.response.to.have.status(200));",
+              "pm.test('statut = VALIDATED', () => pm.expect(pm.response.json().data.status).to.eql('VALIDATED'));",
+              "",
+              "console.log('✅ Paiement validé — tranche comptée, solde décrémenté, apprenant notifié.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07.4 · Idempotence de la validation",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/academy/payments/{{paymentId}}/validate",
+        "description": "Relance **intentionnelle** du test précédent. Un second appel ne doit produire **aucun effet de bord** : ni tranche supplémentaire, ni nouvelle notification.\n\nC'est une garantie importante — une double validation par un clic en double ne doit jamais facturer deux tranches à l'apprenant."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — réponse idempotente', () => pm.response.to.have.status(200));",
+              "pm.test('le statut reste VALIDATED', () => pm.expect(pm.response.json().data.status).to.eql('VALIDATED'));",
+              "pm.test('aucune erreur renvoyée', () => pm.expect(pm.response.json().success).to.not.eql(false));",
+              "",
+              "console.log('🔒 Idempotence confirmée : une double validation ne compte qu une tranche.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07.5 · Refuser un justificatif",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "./fixtures/justificatif-test.txt" },
+            { "key": "amount", "value": "50000", "type": "text" },
+            { "key": "reference", "value": "VIR-{{suffix}}-REJET", "type": "text" }
+          ]
+        },
+        "url": "{{baseUrl}}/academy/payments",
+        "description": "Second dépôt, destiné à être refusé (test 07.6)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 — second justificatif déposé', () => pm.response.to.have.status(201));",
+              "pm.test('statut = PENDING', () => pm.expect(pm.response.json().data.status).to.eql('PENDING'));",
+              "",
+              "pm.collectionVariables.set('paymentIdReject', pm.response.json().data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07.6 · Rejeter le justificatif",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/academy/payments/{{paymentIdReject}}/reject",
+        "description": "Le justificatif passe `REJECTED`. **Aucun effet sur l'échéancier** : ni tranche comptée, ni solde modifié — le contrôleur ne touche à `Tuition` que sur le chemin de la validation.\n\nLe motif n'est pas transporté par l'API : rien ne sera indiqué à l'apprenant sur la raison du refus."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — justificatif rejeté', () => pm.response.to.have.status(200));",
+              "pm.test('statut = REJECTED', () => pm.expect(pm.response.json().data.status).to.eql('REJECTED'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07.7 · Périmètre — un apprenant ne peut pas valider son propre paiement",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/academy/payments/{{paymentId}}/validate",
+        "description": "Séparation des pouvoirs : l'apprenant **dépose**, l'encadrement **valide**. Un apprenant qui tenterait de valider son propre règlement doit être refusé.\n\nC'est un contrôle qui protège l'entreprise autant que l'étudiant."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — validation réservée à l encadrement', () => pm.response.to.have.status(403));",
+              "pm.test('message d accès refusé', () => pm.expect(pm.response.json().error).to.include('Access Denied'));",
+              "",
+              "console.log('🔒 Séparation des pouvoirs vérifiée : dépôt et validation sont distincts.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07.8 · Périmètre — un profil sans droit Formation est écarté",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenParent}}" }],
+        "url": "{{baseUrl}}/academy/payments",
+        "description": "La liste des paiements s'applique selon le rôle :\n\n- `formation.manage` → tous les règlements ;\n- `APPRENANT` → les siens ;\n- `PARENT` → boucle sur ses enfants ;\n- tout autre profil → **403**.\n\nCe test cible un profil **sans** aucune des trois premières qualités pour vérifier le refus explicite plutôt qu'un retour vide silencieux."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 ou 403 — comportement dépend du profil retenu', () => {",
+              "  pm.expect([200, 403]).to.include(pm.response.code);",
+              "});",
+              "",
+              "if (pm.response.code === 403) {",
+              "  pm.test('403 — refus explicite', () => pm.expect(pm.response.json().error).to.include('Access Denied'));",
+              "} else {",
+              "  pm.test('200 — le profil PARENT voit les règlements de ses enfants', () => pm.expect(pm.response.json().data).to.be.an('array'));",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

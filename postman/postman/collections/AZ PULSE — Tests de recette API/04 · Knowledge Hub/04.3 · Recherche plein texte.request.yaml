@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/knowledge/documents?q=Recette&project_id={{projectId}}"
+method: GET
+queryParams:
+  q: Recette
+  project_id: "{{projectId}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — recherche renvoyée', () => pm.response.to.have.status(200));
+      const j = pm.response.json();
+      pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));
+
+      pm.test('le document déposé porte encore le statut DRAFT (donc invisible des lecteurs)', () => {
+        const draft = j.data.find(d => String(d.id) === String(pm.collectionVariables.get('documentId')));
+        // Un profil sans knowledge.read_all ne voit que les PUBLISHED : le brouillon ne doit pas
+        // apparaître, même si le filtre project_id correspond.
+        pm.expect(draft === undefined || draft.status === 'PUBLISHED', 'pas de fuite de brouillon').to.be.true;
+      });
+
+      console.log('🔎 Recherche « Recette » :', j.data.length, 'résultat(s).');
+    language: text/javascript
+order: 3000

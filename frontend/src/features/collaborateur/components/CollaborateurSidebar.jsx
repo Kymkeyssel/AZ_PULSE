@@ -16,7 +16,7 @@ import { useAuth } from '../../../contexts/AuthContext';
  */
 const CollaborateurSidebar = () => {
   const navigate = useNavigate();
-  const { fullName, initials, collaboratorProfileLabel, hasPermission } = useAuth();
+  const { fullName, initials, collaboratorProfileLabel, hasPermission, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   /**
@@ -101,7 +101,7 @@ const CollaborateurSidebar = () => {
       {/* ── Pied : déconnexion ─────────────────────────────────────────── */}
       <div className="p-3 bg-[#001026]/80 border-t border-white/10">
         <button
-          onClick={() => { localStorage.removeItem(TOKEN_KEY); navigate('/'); }}
+          onClick={logout}
           className="w-full flex items-center gap-2.5 px-2 py-2 rounded-xl text-[#b5c4ff] hover:text-[#ff6b6b] transition-colors"
         >
           <span className="material-symbols-outlined notranslate text-[18px]">logout</span>

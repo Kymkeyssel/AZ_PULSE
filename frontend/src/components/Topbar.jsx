@@ -42,7 +42,7 @@ const Topbar = () => {
   const [notifOpen,      setNotifOpen]      = useState(false);
   const [profileOpen,    setProfileOpen]    = useState(false);
   const navigate = useNavigate();
-  const { user, fullName, initials, primaryRole, primaryRoleLabel, sidebarStats } = useAuth();
+  const { user, fullName, initials, primaryRole, primaryRoleLabel, sidebarStats, logout } = useAuth();
 
   const searchRef  = useRef(null);
   const notifRef   = useRef(null);
@@ -113,8 +113,7 @@ const Topbar = () => {
   }, [notifOpen, loadNotifications]);
 
   const handleLogout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    navigate('/');
+    logout();
   };
 
   // Demandes d'accès en attente — compteur d'arbitrage, distinct de la cloche

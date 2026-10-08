@@ -1,0 +1,25 @@
+$kind: http-request
+description: |-
+  **Ce test échoue volontairement** : la résolution automatique du paramètre `Task $task` passe par le repository, qui n'existe pas.
+
+  Au-delà du bug, ce test documente une règle métier importante : l'événement `task.completed` n'est publié que sur le **franchissement** du statut vers `DONE`, jamais sur un simple ré-enregistrement. Le contrôleur relève le statut précédent avant écriture — sinon le chef de projet recevrait une notification à chaque sauvegarde.
+url: "{{baseUrl}}/workspace/tasks/{{taskId}}"
+method: PATCH
+scripts:
+  - type: afterResponse
+    code: |-
+      const status = pm.response.code;
+
+      if (status === 200) {
+        pm.test('200 — tâche mise à jour', () => pm.response.to.have.status(200));
+        pm.test('le même identifiant est renvoyé', () => pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get('taskId')));
+        console.log('✅ Tâche clôturée — l événement task.completed a été publié.');
+      } else {
+        console.warn('❌ BUG CONFIRMÉ — HTTP ' + status + ' (TaskRepository manquante)');
+        pm.test('BUG DOCUMENTÉ — TaskRepository manquante', () => {
+          pm.expect(status).to.eql(500);
+          pm.expect(pm.response.text()).to.include('TaskRepository');
+        });
+      }
+    language: text/javascript
+order: 5000

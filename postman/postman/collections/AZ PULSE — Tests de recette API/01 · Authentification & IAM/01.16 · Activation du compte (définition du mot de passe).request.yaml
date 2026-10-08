@@ -1,0 +1,26 @@
+$kind: http-request
+description: |-
+  Trois conditions cumulatives : le compte doit être `ACTIVE`, ne **jamais** s'être connecté (`lastLoginAt === null`) et le mot de passe doit faire au moins 8 caractères.
+
+  Accessible depuis la page `/activate` après approbation par e-mail.
+url: "{{baseUrl}}/auth/activate"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{candidateEmail}}",
+      "password": "Recette2026!"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — compte activé', () => pm.response.to.have.status(200));
+      pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);
+      pm.test('message de confirmation', () => pm.expect(pm.response.json().message).to.include('activé'));
+    language: text/javascript
+order: 16000

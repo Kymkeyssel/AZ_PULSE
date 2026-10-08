@@ -1,0 +1,18 @@
+$kind: http-request
+name: "12.12 · Knowledge.write : le Responsable IT ne peut pas publier"
+description: |-
+  Contre-exemple du cloisonnement : `RESPONSABLE_IT` a `knowledge.read` mais **ni `knowledge.write` ni `knowledge.read_all`**. Il peut lire la base de connaissances, pas l'alimenter — même s'il en aurait matériellement le droit pour sa documentation technique.
+
+  Le contrôle est fin et ne se laisse pas deviner : il faut regarder le RBAC, pas l'intuition.
+url: "{{baseUrl}}/knowledge/documents"
+method: GET
+headers:
+  Authorization: Bearer {{tokenIt}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — lecture autorisée pour le rôle IT', () => pm.response.to.have.status(200));
+
+      console.log('ℹ️ Lecture permise, écriture refusée : knowledge.read ≠ knowledge.write.');
+    language: text/javascript
+order: 12000

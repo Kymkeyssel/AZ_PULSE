@@ -1,0 +1,18 @@
+$kind: http-request
+description: "Corps vide : le contrôleur applique la question par défaut « Analyse générale du projet et de ses risques. ». Vérifie que le chemin par défaut fonctionne — c'est le cas réel du bouton « Analyser » de l'interface, qui n'envoie rien."
+url: "{{baseUrl}}/projects/{{projectId}}/ai-analysis"
+method: POST
+body:
+  type: text
+  content: "{}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 — analyse par défaut produite', () => pm.response.to.have.status(200));
+      pm.test('statut completed', () => pm.expect(pm.response.json().status).to.eql('completed'));
+    language: text/javascript
+order: 3000

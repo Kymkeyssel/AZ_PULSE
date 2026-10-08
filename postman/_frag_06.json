@@ -1,0 +1,232 @@
+{
+  "name": "06 · Formation — Académie",
+  "description": "Module **Formation** — espaces apprenant, parent et responsable.\n\n> ⚠️ **Prérequis** : la base doit contenir des données pédagogiques. Exécuter au préalable :\n> ```\n> cd Backend\n> php bin/console app:seed-dashboard-data\n> ```\n> Cet espace **en lecture seule** côté API : les cours, sessions, notes et inscriptions ne peuvent pas être créés ni modifiés par l'API. Les tests ci-dessous vérifient donc la consultation, l'upload de documents et les dashboards.\n\n**Captures d'écran suggérées** : `/apprenant`, `/apprenant/planning`, `/apprenant/evaluations`, `/apprenant/formations`, `/apprenant/paiements`, `/apprenant/documents`.",
+  "item": [
+    {
+      "name": "06.1 · Dashboard apprenant",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/dashboard/apprenant",
+        "description": "Retourne six blocs : `program` (parcours et progression), `financial` (échéancier), `schedule` (emploi du temps), `grades` (notes), `tasks` (devoirs), `documents` (supports).\n\n⚠️ **Deux limites connues** de cet endpoint, utiles à connaître lors de la démonstration :\n- `program.bordereauxPublished` est codé en dur à `false` — l'indicateur « bulletins publiés » n'est jamais calculé ;\n- `schedule` renvoie les sessions **globales**, pas celles de l'apprenant, et `documents` les 4 derniers supports du site.\n\nCes points sont documentés dans `ApprenantDashboardController`."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — dashboard renvoyé', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('les six blocs sont présents', () => {",
+              "  pm.expect(j).to.have.all.keys('program', 'financial', 'schedule', 'grades', 'tasks', 'documents');",
+              "});",
+              "pm.test('bloc formation renseigné', function () {",
+              "  pm.expect(j.program).to.not.be.null;",
+              "  pm.expect(j.program.progress).to.be.a('number');",
+              "  pm.expect(j.program.totalModules).to.be.a('number');",
+              "});",
+              "pm.test('bloc financier renseigné', function () {",
+              "  pm.expect(j.financial).to.not.be.null;",
+              "  pm.expect(j.financial.totalAmount).to.be.a('number');",
+              "  pm.expect(j.financial.paidTranches).to.be.a('number');",
+              "  pm.expect(j.financial.totalTranches).to.be.a('number');",
+              "});",
+              "pm.test('bloc emploi du temps renseigné', () => pm.expect(j.schedule).to.be.an('array').and.not.empty);",
+              "pm.test('bloc notes renseigné', () => pm.expect(j.grades).to.be.an('array').and.not.empty);",
+              "",
+              "console.log('🎓 Apprenant :', j.program.progress + '% du parcours,', j.grades.length, 'note(s),', j.schedule.length, 'séance(s).');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06.2 · Liste des cours",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/academy/courses"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — cours renvoyés', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('au moins un module est défini', () => pm.expect(j.data.length).to.be.above(0));",
+              "pm.test('chaque cours porte un titre', () => {",
+              "  j.data.forEach(c => pm.expect(c.title).to.be.a('string').and.not.empty);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06.3 · Emploi du temps",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/academy/schedule"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — emploi du temps renvoyé', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('au moins une séance est programmée', () => pm.expect(j.data.length).to.be.above(0));",
+              "pm.test('les séances sont triées par date de début', () => {",
+              "  for (let i = 1; i < j.data.length; i++) {",
+              "    pm.expect(j.data[i - 1].startTime <= j.data[i].startTime).to.be.true;",
+              "  }",
+              "});",
+              "pm.test('chaque séance expose salle et horaires', () => {",
+              "  j.data.forEach(s => {",
+              "    pm.expect(s.startTime).to.be.a('string');",
+              "    pm.expect(s.endTime).to.be.a('string');",
+              "  });",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06.4 · Notes de l'apprenant",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "url": "{{baseUrl}}/academy/grades"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — notes renvoyées', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('data est un tableau', () => pm.expect(j.data).to.be.an('array'));",
+              "pm.test('au moins une note est enregistrée', () => pm.expect(j.data.length).to.be.above(0));",
+              "pm.test('chaque note est chiffrée', () => {",
+              "  j.data.forEach(g => pm.expect(g.score).to.be.a('number'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06.5 · Déposer un support de cours",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenApprenant}}" }],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "./fixtures/document-test.txt" },
+            { "key": "type", "value": "document", "type": "text" }
+          ]
+        },
+        "url": "{{baseUrl}}/dashboard/apprenant/upload",
+        "description": "Envoi `multipart/form-data`. Le champ `type` qualifie le dépôt (`document`, `submission`, `tuition`).\n\n> ⚠️ **Limite connue** : le fichier est rattaché au **premier cours trouvé en base** (`findOneBy([])`), pas au module réellement concerné. Le même point d'entrée sert aujourd'hui à trois usages distincts (support, rendu de devoir, bordereau de paiement) sans les différencier en base."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — document déposé', () => pm.response.to.have.status(200));",
+              "pm.test('le dépôt est confirmé', () => {",
+              "  const j = pm.response.json();",
+              "  pm.expect(j.success !== false).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06.6 · Dashboard parent",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenParent}}" }],
+        "url": "{{baseUrl}}/dashboard/parent",
+        "description": "> ⚠️ **Important pour la démonstration.** Deux contrôleurs déclarent cette route : `ParentDashboardController` (données réelles par enfant) et `DashboardController::parentStats()` (valeurs codées en dur). C'est **le second qui l'emporte** à l'exécution : la réponse observée est `{ enrolledChildren: 1, balance: 0 }`.\n\nAutrement dit, l'espace Parent affiche aujourd'hui des **valeurs statiques**, alors que l'API détaillée existe et fonctionne. Le correctif consiste à supprimer la route `/parent` de `DashboardController` pour laisser la place à `ParentDashboardController`.\n\nCe test **consigne le comportement actuel** — il sert de point de comparaison après correction."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — endpoint accessible', () => pm.response.to.have.status(200));",
+              "pm.test('success = true', () => pm.expect(pm.response.json().success).to.be.true);",
+              "",
+              "const d = pm.response.json().data;",
+              "pm.test('constat — la route masque le contrôleur détaillé', () => {",
+              "  pm.expect(d).to.have.property('enrolledChildren');",
+              "  pm.expect(d).to.have.property('balance');",
+              "});",
+              "",
+              "console.warn('⚠️ Réponse STATIQUE : collision de route avec DashboardController::parentStats().');",
+              "console.warn('   Corriger en supprimant la route /parent de DashboardController pour');",
+              "console.warn('   rendre la main à ParentDashboardController (données réelles par enfant).');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06.7 · Périmètre — un apprenant ne peut pas lire les notes des autres",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{tokenParent}}" }],
+        "url": "{{baseUrl}}/academy/grades",
+        "description": "Contrôle d'accès du bloc Notes. Le périmètre dépend du rôle :\n\n| Rôle | Périmètre des notes |\n|---|---|\n| `formation.manage` (Responsable Formation, Admin, Super Admin) | **toutes** les notes |\n| `APPRENANT` | **ses** notes |\n| tout autre profil (dont `PARENT`) | **403 – accès refusé** |\n\nUn parent ne consulte donc pas les notes de son enfant par cette route ; il passe par le dashboard parent."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 — un parent n accède pas aux notes', () => pm.response.to.have.status(403));",
+              "",
+              "console.log('🔒 Cloisonnement vérifié : le profil PARENT est écarté du bloc notes.');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06.8 · Périmètre — le Responsable Formation voit toutes les notes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academy/grades"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 — accès encadrement accordé', () => pm.response.to.have.status(200));",
+              "pm.test('data est un tableau', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

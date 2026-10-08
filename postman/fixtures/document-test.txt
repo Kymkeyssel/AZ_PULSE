@@ -1,0 +1,16 @@
+AZ PULSE — Knowledge Hub
+Livrable de démonstration : cahier des charges
+================================================
+
+Document déposé via la collection de tests Postman AZPULSE.
+
+Projet        : Refonte du système de gestion documentaire
+Version       : 1.0
+Auteur        : Service Qualité
+Destinataire  : Direction Générale
+Statut        : Brouillon — en attente de publication
+
+Ce fichier sert de fixture à la requête « Déposer un document »
+du module Knowledge Hub. Il est volontairement en texte brut afin
+que le test reste exécutable sur toutes les machines, sans
+dépendance à un binaire.

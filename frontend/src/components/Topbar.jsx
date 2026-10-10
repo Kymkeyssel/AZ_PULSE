@@ -304,7 +304,7 @@ const Topbar = () => {
                 </span>
               </div>
               <div className="py-1 text-xs">
-                <button className="w-full flex items-center gap-2.5 px-4 py-2 text-[#181c1f] hover:bg-[#f0f4f8] hover:text-[#004ad1]">
+                <button onClick={() => { navigate('/profil'); setProfileOpen(false); }} className="w-full flex items-center gap-2.5 px-4 py-2 text-[#181c1f] hover:bg-[#f0f4f8] hover:text-[#004ad1]">
                   <span className="material-symbols-outlined notranslate text-[17px] text-[#74777f]">badge</span>
                   Mon Profil
                 </button>

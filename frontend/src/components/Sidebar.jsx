@@ -20,14 +20,16 @@ const Sidebar = () => {
   // parce que la permission `audit.read` est accordée à la fois au Super
   // Administrateur et à la Direction. Le lien suit le rôle de l'utilisateur.
   const auditPath = primaryRole === 'SUPER_ADMIN' ? '/superadmin/audit' : '/admin/audit';
+  const moduleRoot = primaryRole === 'SUPER_ADMIN' ? '/superadmin' : '/admin';
+  const usersPath = `${moduleRoot}/users`;
 
   return (
     <aside className="fixed left-2 top-2 bottom-2 h-[calc(100vh-1rem)] w-64 bg-[#0b2545] text-white z-50 flex flex-col shadow-xl rounded-2xl border border-[#001026]/40 select-none overflow-hidden">
 
       {/* ── Brand Header ─────────────────────────────────────────────── */}
       <div className="h-16 px-4 flex items-center justify-between bg-[#001026]/70 border-b border-white/10">
-        <NavLink className="flex items-center gap-2.5" to="/superadmin">
-          <img alt="AZ PULSE" className="h-8 w-auto object-contain brightness-110 drop-shadow" src="/AZ PULSE_logo.png" />
+        <NavLink className="flex items-center gap-2.5" to={moduleRoot}>
+          <img alt="Logo AZ Corporation" className="h-8 w-auto object-contain drop-shadow" src="/logo%20%20AZ.png" />
           <div className="flex flex-col">
             <span className="font-extrabold text-sm tracking-tight text-white leading-tight">AZ PULSE</span>
             <span className="text-[9px] uppercase font-bold tracking-widest text-[#fbbf24]">Enterprise OS</span>
@@ -51,7 +53,7 @@ const Sidebar = () => {
       <nav className="flex-1 overflow-y-auto py-2.5 px-3 space-y-0.5 text-xs font-medium">
 
         {/* 1. Dashboard */}
-        <NavLink to="/superadmin" end
+        <NavLink to={moduleRoot} end
           className={({ isActive }) =>
             `flex items-center justify-between px-3 py-2 rounded-lg transition-colors shadow-sm ${isActive ? 'bg-[#004ad1] text-white font-semibold' : 'text-[#b5c4ff] hover:bg-[#001026] hover:text-white'}`
           }>
@@ -86,7 +88,7 @@ const Sidebar = () => {
 
           <div className={`pl-6 pr-1 py-1 space-y-0.5 text-[11px] ${adminOpen ? 'block' : 'hidden'}`}>
             {/* Utilisateurs — chiffre réel */}
-            <NavLink to="/superadmin/users"
+            <NavLink to={usersPath}
               className="flex items-center justify-between py-1.5 px-2.5 rounded text-[#b5c4ff] hover:text-white hover:bg-white/5 transition-colors">
               <span>├ Utilisateurs</span>
               <span className="text-[10px] text-white/70">
@@ -95,15 +97,15 @@ const Sidebar = () => {
             </NavLink>
 
             {/* Rôles */}
-            <NavLink to="/superadmin/roles"
+            {primaryRole === 'SUPER_ADMIN' && <NavLink to={`${moduleRoot}/roles`}
               className={({ isActive }) =>
                 `w-full flex items-center justify-between py-1.5 px-2.5 rounded transition-colors ${isActive ? 'text-white font-semibold bg-white/5' : 'text-[#b5c4ff] hover:text-white hover:bg-white/5'}`
               }>
               <span>├ Rôles &amp; permissions</span>
-            </NavLink>
+            </NavLink>}
 
             {/* Demandes — chiffre réel */}
-            <NavLink to="/superadmin/requests"
+            <NavLink to={`${moduleRoot}/requests`}
               className={({ isActive }) =>
                 `flex items-center justify-between py-1.5 px-2.5 rounded transition-colors ${isActive ? 'text-[#fbbf24] font-semibold bg-white/5' : 'text-[#b5c4ff] hover:text-[#fbbf24] hover:bg-white/5'}`
               }>
@@ -132,8 +134,13 @@ const Sidebar = () => {
           </div>
         </div>
 
+        <NavLink to={`${moduleRoot}/ai-chat`} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
+          <span className="material-symbols-outlined notranslate text-[18px] text-[#fbbf24]">forum</span>
+          <span>Assistant IA système</span>
+        </NavLink>
+
         {/* 3. CRM — placeholder */}
-        <NavLink to="#crm" className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
+        <NavLink to={`${moduleRoot}/crm`} className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
           <div className="flex items-center gap-2.5">
             <span className="material-symbols-outlined notranslate text-[18px]">contacts</span>
             <span>CRM</span>
@@ -142,7 +149,7 @@ const Sidebar = () => {
         </NavLink>
 
         {/* 4. Formation — placeholder */}
-        <NavLink to="#formation" className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
+        <NavLink to={`${moduleRoot}/formation`} className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
           <div className="flex items-center gap-2.5">
             <span className="material-symbols-outlined notranslate text-[18px]">school</span>
             <span>Formation</span>
@@ -151,7 +158,7 @@ const Sidebar = () => {
         </NavLink>
 
         {/* 5. Workspace — placeholder */}
-        <NavLink to="#workspace" className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
+        <NavLink to={`${moduleRoot}/workspace`} className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
           <div className="flex items-center gap-2.5">
             <span className="material-symbols-outlined notranslate text-[18px]">folder_special</span>
             <span>Workspace</span>
@@ -160,7 +167,7 @@ const Sidebar = () => {
         </NavLink>
 
         {/* 6. Knowledge Hub — placeholder */}
-        <NavLink to="#knowledge-hub" className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
+        <NavLink to={`${moduleRoot}/knowledge`} className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
           <div className="flex items-center gap-2.5">
             <span className="material-symbols-outlined notranslate text-[18px]">menu_book</span>
             <span>Knowledge Hub</span>
@@ -169,7 +176,7 @@ const Sidebar = () => {
         </NavLink>
 
         {/* 7. Infrastructure & IT — placeholder */}
-        <NavLink to="#infra-it" className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
+        <NavLink to={`${moduleRoot}/infrastructure`} className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
           <div className="flex items-center gap-2.5">
             <span className="material-symbols-outlined notranslate text-[18px]">dns</span>
             <span>Infrastructure &amp; IT</span>
@@ -187,7 +194,7 @@ const Sidebar = () => {
         </NavLink>
 
         {/* 9. AI Workspace — placeholder */}
-        <NavLink to="#ai-workspace" className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
+        <NavLink to={`${moduleRoot}/ai`} className="flex items-center justify-between px-3 py-2 rounded-lg text-[#b5c4ff] hover:bg-[#001026] hover:text-white transition-colors">
           <div className="flex items-center gap-2.5">
             <span className="material-symbols-outlined notranslate text-[18px] text-[#fbbf24]">psychology</span>
             <span>AI Workspace</span>
@@ -207,7 +214,7 @@ const Sidebar = () => {
       {/* ── Sidebar Footer : Profil utilisateur réel ─────────────────── */}
       <div className="p-3 bg-[#001026]/80 border-t border-white/10">
         {/* Profil compact */}
-        <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer mb-2">
+        <div onClick={() => navigate('/profil')} className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer mb-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#004ad1] to-[#001026] text-white flex items-center justify-center font-extrabold text-xs ring-1 ring-[#fbbf24]/40 flex-shrink-0">
             {initials}
           </div>
@@ -217,7 +224,7 @@ const Sidebar = () => {
           </div>
           <button className="text-[#b5c4ff] hover:text-[#ba1a1a] transition-colors flex-shrink-0"
                   title="Déconnexion"
-                  onClick={logout}>
+                  onClick={(event) => { event.stopPropagation(); logout(); }}>
             <span className="material-symbols-outlined notranslate text-[16px]">logout</span>
           </button>
         </div>

@@ -5,6 +5,9 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { workspaceService, aiService } from '../../../services/api';
 
 const STATUS_CONFIG = {
+  ONGOING: { label: 'En cours', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+  TODO: { label: 'À planifier', color: 'bg-violet-50 text-violet-700 border-violet-200' },
+  PENDING: { label: 'À planifier', color: 'bg-violet-50 text-violet-700 border-violet-200' },
   PLANNED: { label: 'Planifié', color: 'bg-slate-100 text-slate-700 border-slate-200' },
   IN_PROGRESS: { label: 'En cours', color: 'bg-blue-100 text-blue-700 border-blue-200' },
   REVIEW: { label: 'En revue', color: 'bg-amber-100 text-amber-700 border-amber-200' },
@@ -12,11 +15,12 @@ const STATUS_CONFIG = {
 };
 
 const WorkspaceProjects = () => {
-  const { hasPermission } = useAuth();
+  const { hasPermission, primaryRole } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [analyzingProjectId, setAnalyzingProjectId] = useState(null);
 
@@ -30,9 +34,13 @@ const WorkspaceProjects = () => {
   const [projectTasks, setProjectTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskAssignee, setNewTaskAssignee] = useState('');
+  const [teamUsers, setTeamUsers] = useState([]);
+  const [memberToAdd, setMemberToAdd] = useState('');
 
-  const canReadWorkspace = hasPermission('workspace.read');
+  const canReadWorkspace = hasPermission('workspace.read') || primaryRole === 'RESPONSABLE_CRM';
   const canWriteWorkspace = hasPermission('workspace.write');
+  const canManageProject = canWriteWorkspace || primaryRole === 'RESPONSABLE_WORKSPACE';
 
   const fetchProjects = async () => {
     try {
@@ -40,8 +48,12 @@ const WorkspaceProjects = () => {
       const res = await workspaceService.listProjects();
       if (res.success && Array.isArray(res.data)) {
         setProjects(res.data);
+        setLoadError('');
+      } else {
+        throw new Error(res.error || 'Réponse inattendue du serveur');
       }
     } catch (err) {
+      setLoadError(err.message || 'Erreur serveur');
       toast.error("Erreur de chargement des projets: " + (err.message || "Erreur serveur"));
     } finally {
       setLoading(false);
@@ -54,16 +66,21 @@ const WorkspaceProjects = () => {
     }
   }, [canReadWorkspace]);
 
+  useEffect(() => {
+    if (!canManageProject) return;
+    workspaceService.listTeamMembers().then(response => setTeamUsers(response.data || [])).catch(() => setTeamUsers([]));
+  }, [canManageProject]);
+
   const handleOpenProject = async (project) => {
     setSelectedProject(project);
     setLoadingTasks(true);
     try {
-      const res = await workspaceService.listTasks(project.id);
-      if (res.success && Array.isArray(res.data)) {
-        setProjectTasks(res.data);
-      } else {
-        setProjectTasks([]);
-      }
+      const [detail, tasks] = await Promise.all([
+        workspaceService.getProject(project.id),
+        workspaceService.listTasks(project.id),
+      ]);
+      if (detail.success && detail.data) setSelectedProject(current => current?.id === project.id ? { ...current, ...detail.data } : current);
+      setProjectTasks(tasks.success && Array.isArray(tasks.data) ? tasks.data : []);
     } catch (err) {
       toast.error("Impossible de charger les tâches du projet");
       setProjectTasks([]);
@@ -101,11 +118,13 @@ const WorkspaceProjects = () => {
       const res = await workspaceService.createTask(selectedProject.id, {
         title: newTaskTitle.trim(),
         status: 'TODO',
-        priority: 'MEDIUM'
+        priority: 'MEDIUM',
+        assignee_id: newTaskAssignee || undefined,
       });
       if (res.success) {
         toast.success("Tâche ajoutée");
         setNewTaskTitle('');
+        setNewTaskAssignee('');
         handleOpenProject(selectedProject);
         fetchProjects();
       }
@@ -124,6 +143,18 @@ const WorkspaceProjects = () => {
       }
     } catch (err) {
       toast.error("Erreur de mise à jour de la tâche");
+    }
+  };
+
+  const handleAddMember = async () => {
+    if (!memberToAdd || !selectedProject) return;
+    try {
+      await workspaceService.addProjectMember(selectedProject.id, memberToAdd);
+      setMemberToAdd('');
+      await handleOpenProject(selectedProject);
+      toast.success('Collaborateur ajouté à l’équipe du projet.');
+    } catch (error) {
+      toast.error(error.message || 'Impossible d’ajouter ce collaborateur.');
     }
   };
 
@@ -255,6 +286,13 @@ const WorkspaceProjects = () => {
             <span className="material-symbols-outlined animate-spin text-3xl text-blue-600 mb-2">sync</span>
             <p className="text-sm font-medium">Chargement sécurisé des projets du Workspace...</p>
           </div>
+        ) : loadError ? (
+          <div className="col-span-full p-12 text-center bg-white rounded-2xl border border-rose-200">
+            <span className="material-symbols-outlined text-rose-500 text-4xl mb-2">cloud_off</span>
+            <p className="text-sm font-bold text-rose-800">Impossible de charger les projets</p>
+            <p className="text-xs text-rose-700 mt-1">{loadError}</p>
+            <button type="button" onClick={fetchProjects} className="mt-4 rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800">Réessayer</button>
+          </div>
         ) : filteredProjects.length === 0 ? (
           <div className="col-span-full p-12 text-center bg-white rounded-2xl border border-[#dde3ef]">
             <span className="material-symbols-outlined text-slate-300 text-4xl mb-2">folder_off</span>
@@ -373,19 +411,29 @@ const WorkspaceProjects = () => {
 
                 {/* Section Tâches */}
                 <div>
+                  <section className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/80 via-white to-cyan-50/70 p-4 mb-6">
+                    <div className="flex items-center justify-between gap-3 mb-3"><div><p className="text-xs font-extrabold uppercase tracking-wider text-blue-900">Équipe projet</p><p className="text-[11px] text-slate-500 mt-0.5">Responsable et collaborateurs assignés</p></div><span className="glass-chip text-blue-700">{selectedProject.members?.length || 0} membre(s)</span></div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProject.manager_name && <span className="inline-flex items-center gap-2 rounded-xl bg-white/80 border border-blue-100 px-3 py-2 text-xs font-bold text-slate-700"><span className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center text-[10px]">{selectedProject.manager_name.slice(0, 2).toUpperCase()}</span>{selectedProject.manager_name}<span className="text-[9px] uppercase tracking-wider text-blue-600">Chef de projet</span></span>}
+                      {(selectedProject.members || []).filter(member => member.name !== selectedProject.manager_name).map(member => <span key={member.id} className="inline-flex items-center gap-2 rounded-xl bg-white/80 border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"><span className="w-7 h-7 rounded-lg bg-gradient-to-br from-fuchsia-500 to-violet-500 text-white grid place-items-center text-[10px]">{member.name.slice(0, 2).toUpperCase()}</span>{member.name}</span>)}
+                      {!selectedProject.manager_name && !selectedProject.members?.length && <p className="text-xs text-slate-500">Aucun membre n’est encore assigné.</p>}
+                    </div>
+                    {canManageProject && <div className="mt-4 flex flex-col sm:flex-row gap-2"><select value={memberToAdd} onChange={event => setMemberToAdd(event.target.value)} className="glass-input !py-2 !text-xs"><option value="">Ajouter un collaborateur…</option>{teamUsers.filter(person => !(selectedProject.members || []).some(member => member.id === person.id)).map(person => <option key={person.id} value={person.id}>{person.name} · {person.email}</option>)}</select><button type="button" onClick={handleAddMember} disabled={!memberToAdd} className="glass-btn glass-btn-primary !py-2 !text-xs disabled:opacity-50">Ajouter à l’équipe</button></div>}
+                  </section>
                   <h3 className="text-sm font-extrabold text-[#001026] uppercase tracking-wider mb-4 flex items-center justify-between">
                     <span>Tâches du projet ({projectTasks.length})</span>
                   </h3>
 
-                  {canWriteWorkspace && (
-                    <form onSubmit={handleCreateTask} className="flex gap-2 mb-4">
+                  {canManageProject && (
+                    <form onSubmit={handleCreateTask} className="flex flex-col sm:flex-row gap-2 mb-4">
                       <input 
                         type="text" 
                         placeholder="Ajouter une nouvelle tâche..." 
                         value={newTaskTitle}
                         onChange={(e) => setNewTaskTitle(e.target.value)}
-                        className="flex-1 bg-slate-50 border border-slate-200 px-3 py-2 text-xs font-medium text-[#001026] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004ad1]/20"
+                        className="flex-1 glass-input !py-2 !text-xs"
                       />
+                      <select value={newTaskAssignee} onChange={event => setNewTaskAssignee(event.target.value)} className="glass-input !w-auto !py-2 !text-xs" aria-label="Assigner la tâche"><option value="">Sans assignation</option>{(selectedProject.members || []).map(member => <option key={member.id} value={member.id}>{member.name}</option>)}</select>
                       <button 
                         type="submit"
                         className="px-4 py-2 bg-[#004ad1] text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors"
@@ -417,7 +465,7 @@ const WorkspaceProjects = () => {
                             </span>
                           </div>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                            {t.status}
+                            {t.assignee_name ? `Assignée à ${t.assignee_name} · ` : ''}{t.status}
                           </span>
                         </div>
                       ))}

@@ -2,7 +2,7 @@ import React from 'react';
 
 const ServicesIT = () => {
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16" id="services-it">
+    <section className="max-w-7xl mx-auto px-6 py-12 sm:py-14" id="services-it">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         {/* Left Column: Search & Text */}
         <div className="lg:col-span-5 space-y-6">

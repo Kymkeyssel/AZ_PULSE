@@ -1,7 +1,15 @@
 import { formatAmountCompact, STAGE_STYLES } from '../../lib/format';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
-const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging, isWon, onAdvance }) => {
+const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging, isWon, onAdvance, isBusy, disabled }) => {
+  const location = useLocation();
+  const workspacePath = location.pathname.startsWith('/superadmin')
+    ? '/superadmin/workspace'
+    : location.pathname.startsWith('/admin')
+      ? '/admin/workspace'
+      : location.pathname.startsWith('/collaborateur')
+        ? '/collaborateur/projets'
+        : '/responsable/projets';
   const style = STAGE_STYLES[opportunity.stage] ?? STAGE_STYLES.PROSPECTING;
 
   // Find the next stage logic to implement the "Phase ->" button
@@ -19,7 +27,7 @@ const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging, isWon, 
 
   return (
     <div
-      draggable={draggable}
+      draggable={draggable && !disabled}
       onDragStart={e => {
         e.dataTransfer.setData('text/plain', String(opportunity.id));
         e.dataTransfer.effectAllowed = 'move';
@@ -28,6 +36,7 @@ const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging, isWon, 
         'p-space-sm rounded-lg shadow-sm transition-all border flex flex-col space-y-2',
         onSelect ? 'cursor-pointer hover:shadow-md' : 'cursor-grab',
         isDragging ? 'opacity-40' : '',
+        isBusy ? 'ring-2 ring-blue-400 shadow-blue-500/20' : '',
         isWon ? 'bg-surface-container-lowest border-emerald-300' : 'bg-surface-container-lowest border-outline-variant/20',
       ].join(' ')}
     >
@@ -74,7 +83,8 @@ const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging, isWon, 
           </span>
           {nextStage && opportunity.stage !== 'NEGOTIATION' && (
             <button 
-              className="px-2 py-0.5 rounded bg-surface-container hover:bg-secondary hover:text-on-secondary text-primary font-bold transition-colors"
+              disabled={disabled}
+              className="px-2 py-0.5 rounded bg-surface-container hover:bg-secondary hover:text-on-secondary text-primary font-bold transition-colors disabled:opacity-50"
               onClick={(e) => { e.stopPropagation(); onAdvance?.(nextStage); }}
             >
               Phase →
@@ -86,13 +96,15 @@ const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging, isWon, 
       {opportunity.stage === 'NEGOTIATION' && !isWon && (
         <div className="pt-2 border-t border-outline-variant/10 flex items-center justify-between gap-1 mt-1">
           <button 
-            className="flex-1 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-colors flex items-center justify-center gap-1 shadow-sm"
+            disabled={disabled}
+            className="flex-1 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-colors flex items-center justify-center gap-1 shadow-sm disabled:opacity-50"
             onClick={(e) => { e.stopPropagation(); onAdvance?.('WON'); }}
           >
             <span className="material-symbols-outlined text-[14px]">check</span> GAGNÉ
           </button>
           <button 
-            className="px-2 py-1 rounded bg-surface-container hover:bg-error-container text-on-surface-variant hover:text-error text-[11px]"
+            disabled={disabled}
+            className="px-2 py-1 rounded bg-surface-container hover:bg-error-container text-on-surface-variant hover:text-error text-[11px] disabled:opacity-50"
             onClick={(e) => { e.stopPropagation(); onAdvance?.('LOST'); }}
             title="Marquer Perdu"
           >
@@ -101,6 +113,8 @@ const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging, isWon, 
         </div>
       )}
 
+      {isBusy && <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-2.5 py-2 text-[11px] font-bold text-blue-700"><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600"/>Enregistrement de l’étape…</div>}
+
       {isWon && (
         <div className="p-2 rounded bg-surface-container-low border border-secondary/20 flex flex-col gap-1 mt-1">
           <div className="flex items-center gap-1 text-[11px] text-secondary font-bold">
@@ -108,7 +122,7 @@ const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging, isWon, 
           </div>
           <span className="text-[11px] text-on-surface-variant">Initié auto</span>
           <Link 
-            to="/responsable/projets"
+            to={workspacePath}
             className="mt-1 w-full py-1 text-center rounded bg-secondary text-on-secondary text-[11px] font-bold hover:bg-secondary-container transition-colors block"
           >
             Ouvrir dans Workspace →

@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Customer;
 use App\Repository\CustomerRepository;
 use App\Service\CustomerService;
+use App\Service\EmailSender;
+use Psr\Log\LoggerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -58,12 +60,15 @@ class CrmCustomerController extends AbstractController
 
     #[Route('', name: 'create', methods: ['POST'])]
     #[IsGranted('crm.create')]
-    public function create(Request $request, CustomerService $customerService): JsonResponse
+    public function create(Request $request, CustomerService $customerService, EmailSender $emails, LoggerInterface $logger): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
         
         if (empty($payload['name'])) {
-            return $this->json(['success' => false, 'error' => 'Missing "name" field'], 400);
+            return $this->json(['success' => false, 'error' => 'Le nom du client est obligatoire.'], 400);
+        }
+        if (!filter_var(trim((string) ($payload['email'] ?? '')), FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['success' => false, 'error' => 'Une adresse email valide est nécessaire pour assurer le suivi du prospect.'], 422);
         }
 
         $customer = new Customer();
@@ -77,6 +82,11 @@ class CrmCustomerController extends AbstractController
         $customer->setOwner($user);
 
         $customerService->createCustomer($customer);
+        try {
+            $emails->sendCrmJourneyUpdate($customer, 'Votre dossier AZ PULSE', 'Prise de contact', 'Vos coordonnées ont été enregistrées. Un interlocuteur AZ PULSE reviendra vers vous pour échanger sur votre besoin.');
+        } catch (\Throwable $error) {
+            $logger->warning('Email de création du prospect non mis en file', ['customer' => $customer->getId(), 'error' => $error->getMessage()]);
+        }
 
         return $this->json([
             'success' => true,
@@ -102,6 +112,10 @@ class CrmCustomerController extends AbstractController
     public function update(Customer $customer, Request $request, EntityManagerInterface $em): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
+
+        if (array_key_exists('email', $payload) && !filter_var(trim((string) $payload['email']), FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['success' => false, 'error' => 'Une adresse email valide est nécessaire pour assurer le suivi du prospect.'], 422);
+        }
 
         if (isset($payload['name'])) $customer->setName($payload['name']);
         if (isset($payload['email'])) $customer->setEmail($payload['email']);

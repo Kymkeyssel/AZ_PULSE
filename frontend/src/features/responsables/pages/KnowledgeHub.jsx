@@ -7,6 +7,7 @@ const KnowledgeHub = () => {
   const { hasPermission } = useAuth();
   const canRead = hasPermission('knowledge.read');
   const canWrite = hasPermission('knowledge.write');
+  const canPublish = hasPermission('knowledge.publish');
 
   const [documents, setDocuments] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -38,19 +39,15 @@ const KnowledgeHub = () => {
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file) return toast.error('Choisissez un fichier');
-    const form = new FormData();
-    form.append('file', file);
-    if (title) form.append('title', title);
-    if (projectId) form.append('project_id', projectId);
     setUploading(true);
     try {
-      await knowledgeService.uploadDocument(form);
-      toast.success('Document déposé (brouillon)');
+      await knowledgeService.uploadDocument(file, { title: title || file.name.replace(/\.[^.]+$/, ''), project_id: projectId || undefined });
+      toast.success('Document déposé en brouillon');
       setFile(null);
       setTitle('');
       await load();
     } catch {
-      toast.error('Dépôt refusé');
+      toast.error('Échec du dépôt');
     } finally {
       setUploading(false);
     }
@@ -82,7 +79,7 @@ const KnowledgeHub = () => {
     <div className="max-w-screen-xl mx-auto space-y-6">
       <header>
         <h1 className="text-2xl font-extrabold text-[#001026]">Knowledge Hub</h1>
-        <p className="text-sm text-[#6b7a99] mt-1">Documents, publication et recherche de base — source de vérité Symfony.</p>
+        <p className="text-sm text-[#6b7a99] mt-1">Documents, publication et recherche depuis la source Symfony.</p>
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -105,7 +102,7 @@ const KnowledgeHub = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && load(search)}
-          placeholder="Rechercher un titre, un fichier…"
+          placeholder="Rechercher un titre ou un nom de fichier…"
           className="flex-1 border border-[#dde3ef] rounded-lg px-3 py-2 text-sm"
         />
         <button type="button" onClick={() => load(search)} className="px-4 py-2 rounded-lg bg-[#0b2545] text-white text-sm font-bold">
@@ -142,7 +139,7 @@ const KnowledgeHub = () => {
         {loading ? (
           <p className="p-6 text-sm text-[#6b7a99]">Chargement…</p>
         ) : documents.length === 0 ? (
-          <p className="p-6 text-sm text-[#6b7a99]">Aucun document. Déposez un fichier puis publiez-le.</p>
+          <p className="p-6 text-sm text-[#6b7a99]">Aucun document. Déposez un fichier pour commencer.</p>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-[#f4f7fb] text-left text-xs uppercase text-[#6b7a99]">
@@ -162,7 +159,7 @@ const KnowledgeHub = () => {
                   <td className="p-3 text-[#6b7a99]">{d.project?.name || '—'}</td>
                   <td className="p-3 text-[#6b7a99]">{d.owner_name}</td>
                   <td className="p-3 text-right space-x-2">
-                    {d.status !== 'PUBLISHED' && canWrite && (
+                    {d.status !== 'PUBLISHED' && canPublish && (
                       <button type="button" onClick={() => handlePublish(d.id)} className="text-[#004ad1] font-bold">Publier</button>
                     )}
                   </td>

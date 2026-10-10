@@ -26,7 +26,7 @@ const FormationOverview = () => {
           <h1 className="text-2xl font-extrabold text-[#001026]">Formation</h1>
           <p className="text-sm text-[#6b7a99] mt-1">Cours et sessions issus du référentiel académique.</p>
         </div>
-        <a href="/formation/paiements" className="px-4 py-2 rounded-lg bg-[#004ad1] text-white text-sm font-bold">
+        <a href="/responsable/formations/paiements" className="px-4 py-2 rounded-lg bg-[#004ad1] text-white text-sm font-bold">
           Justificatifs de paiement
         </a>
       </header>

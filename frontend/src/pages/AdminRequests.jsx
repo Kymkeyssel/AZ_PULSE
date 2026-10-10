@@ -383,7 +383,7 @@ const AdminRequests = () => {
               <div>
                 <div className="flex items-center gap-1.5 mb-1">
                   <span className="material-symbols-outlined notranslate text-[14px] text-amber-400">auto_awesome</span>
-                  <p className="text-xs font-bold uppercase tracking-wider text-amber-400">IA Copilot</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-amber-400">Pulse AI</p>
                 </div>
                 <p className="text-lg font-extrabold leading-snug text-white">Analyse prédictive</p>
               </div>
@@ -407,7 +407,7 @@ const AdminRequests = () => {
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-sm text-white">AZ Copilot — Recommandations IA</span>
+                <span className="font-bold text-sm text-white">Pulse AI — Recommandations</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-amber-500/10 border border-amber-500/30 text-amber-400">
                   Bientôt disponible
                 </span>

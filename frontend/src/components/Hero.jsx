@@ -23,9 +23,9 @@ const Hero = () => {
           <a className="flex items-center gap-3 group" href="#">
             <div className="bg-white/95 backdrop-blur-md rounded-2xl px-3.5 py-1.5 shadow-lg border border-white/40 group-hover:scale-105 transition-all">
               <img 
-                alt="AZ PULSE Logo" 
+                alt="Logo AZ Corporation" 
                 className="h-9 w-auto object-contain" 
-                src="/AZ PULSE_logo.png"
+                src="/logo%20%20AZ.png"
               />
             </div>
             <div className="hidden sm:flex flex-col">

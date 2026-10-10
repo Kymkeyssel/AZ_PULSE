@@ -68,14 +68,14 @@ export default function AIInsightsWidget({ metrics = {}, scope = 'CRM & Performa
             <div>
               <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Indice de santé</div>
               <div className="text-xl font-extrabold text-[#003366] flex items-center gap-1.5 mt-0.5">
-                {data.score ?? 85} <span className="text-xs text-slate-400 font-normal">/ 100</span>
+                {data.score ?? '—'} <span className="text-xs text-slate-400 font-normal">{data.score != null ? '/ 100' : ''}</span>
               </div>
             </div>
             <div>
               <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Tendance observée</div>
               <div className="text-xs font-semibold text-emerald-700 flex items-center gap-1 mt-1">
                 <TrendingUp className="w-3.5 h-3.5" />
-                <span className="truncate">{data.trends || 'Dynamique positive'}</span>
+                <span className="truncate">{data.trends || 'Aucune tendance fournie'}</span>
               </div>
             </div>
           </div>

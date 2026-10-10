@@ -9,7 +9,7 @@ const AiWorkspace = () => {
     { 
       id: '1', 
       role: 'ai', 
-      content: 'Bonjour ! Je suis l\'assistant IA contextuel d\'AZ PULSE. Sélectionnez un projet ci-contre pour poser une question, évaluer les risques ou demander des recommandations stratégiques.', 
+      content: 'Bonjour ! Je suis Pulse AI, l’assistant de la plateforme AZ PULSE. Sélectionnez un projet pour analyser ses risques ou demandez-moi une recommandation.', 
       type: 'text' 
     }
   ]);
@@ -17,6 +17,7 @@ const AiWorkspace = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll
@@ -43,7 +44,7 @@ const AiWorkspace = () => {
   }, []);
 
   const handleSend = async () => {
-    if (!input.trim() || !selectedProject) return;
+    if (!input.trim()) return;
     
     const userMsg = input.trim();
     setInput('');
@@ -53,7 +54,10 @@ const AiWorkspace = () => {
     setIsLoading(true);
     
     try {
-      const res = await aiService.analyzeProject(selectedProject, userMsg);
+      const res = selectedProject
+        ? await aiService.analyzeProject(selectedProject, userMsg)
+        : await aiService.chat(userMsg, conversationId, { scope: 'AZ PULSE AI Workspace', project_context: 'Aucun projet sélectionné : répondre aux questions générales permises par le rôle.' });
+      if (res?.conversation_id) setConversationId(res.conversation_id);
       
       let aiContent = res;
       let aiType = 'text';
@@ -187,7 +191,7 @@ const AiWorkspace = () => {
               <Bot size={18} className="text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-slate-800 text-sm">AZ Pulse Agent IA — {currentProjectName}</h1>
+              <h1 className="font-bold text-slate-800 text-sm">Pulse AI · {currentProjectName}</h1>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span className="text-xs text-slate-500">Proxy Symfony Authentifié • Gemini Engine</span>
@@ -299,21 +303,21 @@ const AiWorkspace = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder={selectedProject ? "Posez une question sur le projet sélectionné..." : "Sélectionnez un projet pour commencer..."}
+              placeholder={selectedProject ? "Posez une question sur le projet sélectionné..." : "Posez une question à l’assistant AZ PULSE..."}
               className="w-full bg-white border border-slate-300 rounded-2xl py-3 pl-5 pr-16 text-xs font-medium text-slate-800 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
               rows={2}
-              disabled={!selectedProject || isLoading}
+              disabled={isLoading}
             />
             <button 
               onClick={handleSend}
-              disabled={!input.trim() || !selectedProject || isLoading}
+              disabled={!input.trim() || isLoading}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-colors"
             >
               <Send size={16} className="ml-0.5" />
             </button>
           </div>
           <div className="text-center mt-2 text-[10px] text-slate-400 font-semibold tracking-wide uppercase">
-            AZ Pulse AI Agent • Contexte sécurisé fourni par Symfony & Gemini Engine
+            Pulse AI • Assistant connecté aux services IA AZ PULSE
           </div>
         </div>
       </div>

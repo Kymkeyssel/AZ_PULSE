@@ -2,8 +2,8 @@ import React from 'react';
 
 const Newsletter = () => {
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12" id="demo">
-      <div className="bg-gradient-to-r from-[#0B2545] via-[#003366] to-[#0B2545] rounded-3xl py-16 px-6 sm:px-12 text-center text-white shadow-2xl border border-[#1D63FF]/30 relative overflow-hidden">
+    <section className="max-w-7xl mx-auto px-6 py-8 sm:py-10" id="demo">
+      <div className="bg-gradient-to-r from-[#0B2545] via-[#003366] to-[#0B2545] rounded-3xl py-12 sm:py-14 px-6 sm:px-12 text-center text-white shadow-2xl border border-[#1D63FF]/30 relative overflow-hidden">
         {/* Decorative background glow */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#1D63FF]/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#FFB800]/15 rounded-full blur-3xl pointer-events-none"></div>

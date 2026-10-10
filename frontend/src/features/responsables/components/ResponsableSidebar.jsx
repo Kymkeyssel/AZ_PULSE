@@ -1,8 +1,5 @@
-import { useState } from 'react';
-
-
-import { API_BASE_URL, TOKEN_KEY } from '../../../services/config';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -15,9 +12,13 @@ import { useAuth } from '../../../contexts/AuthContext';
  * besoin d'être codé en dur ici.
  */
 const ResponsableSidebar = () => {
-  const navigate = useNavigate();
-  const { fullName, initials, primaryRole, hasPermission, logout } = useAuth();
+  const { fullName, initials, primaryRole, primaryRoleLabel, hasPermission, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const toggle = () => setMenuOpen(open => !open);
+    window.addEventListener('azpulse:toggle-sidebar', toggle);
+    return () => window.removeEventListener('azpulse:toggle-sidebar', toggle);
+  }, []);
 
   /**
    * Règle de navigation : `perm` est la permission Symfony requise.
@@ -34,22 +35,46 @@ const ResponsableSidebar = () => {
     { to: '/responsable/documents',    icon: 'menu_book',       label: 'Documents',       perm: 'knowledge.read' },
     { to: '/responsable/analytics',    icon: 'insights',        label: 'Analytics',       perm: 'analytics.read' },
     { to: '/responsable/ia',           icon: 'psychology',      label: 'AI Workspace',    perm: 'ai.read' },
+    { to: '/profil',                    icon: 'manage_accounts', label: 'Mon profil',      perm: null },
   ];
 
-  const visibleLinks = LINKS.filter(l => !l.perm || hasPermission(l.perm));
+  const ROLE_MODULES = {
+    RESPONSABLE_CRM: ['crm', 'crm.read'],
+    RESPONSABLE_FORMATION: ['formations', 'formation.read'],
+    FORMATEUR: ['formations', 'formation.read'],
+    RESPONSABLE_IT: ['infrastructure', 'it.read'],
+    RESPONSABLE_KNOWLEDGE: ['documents', 'knowledge.read'],
+    RESPONSABLE_WORKSPACE: ['projets', 'workspace.read'],
+    RESPONSABLE_ANALYTICS: ['analytics', 'analytics.read'],
+  };
+  const [homePath] = ROLE_MODULES[primaryRole] || [];
+  const roleAllowlist = {
+    RESPONSABLE_CRM: ['/responsable', '/responsable/crm', '/responsable/clients', '/responsable/relances', '/responsable/ia', '/profil'],
+    RESPONSABLE_FORMATION: ['/responsable', '/responsable/formations', '/responsable/formations/paiements', '/responsable/ia', '/profil'],
+    FORMATEUR: ['/responsable', '/responsable/formations', '/responsable/ia', '/profil'],
+    RESPONSABLE_IT: ['/responsable', '/responsable/infrastructure', '/responsable/tickets', '/responsable/ia', '/profil'],
+    RESPONSABLE_KNOWLEDGE: ['/responsable', '/responsable/documents', '/responsable/ia', '/profil'],
+    RESPONSABLE_WORKSPACE: ['/responsable', '/responsable/projets', '/responsable/ia', '/profil'],
+    RESPONSABLE_ANALYTICS: ['/responsable', '/responsable/analytics', '/responsable/ia', '/profil'],
+  };
+  const allowed = roleAllowlist[primaryRole];
+  const visibleLinks = LINKS
+    .filter(l => !allowed || allowed.includes(l.to))
+    .filter(l => !(homePath && l.to === '/responsable'))
+    .filter(l => !l.perm || hasPermission(l.perm));
 
   return (
-    <aside className="fixed left-2 top-2 bottom-2 w-64 bg-[#0b2545] text-white z-50 flex flex-col shadow-xl rounded-2xl border border-[#001026]/40 select-none overflow-hidden">
+    <aside className={`responsable-sidebar fixed left-2 top-2 bottom-2 w-64 text-white z-50 flex flex-col shadow-xl rounded-2xl border border-white/15 select-none overflow-hidden transition-transform duration-300 ${menuOpen ? 'translate-x-0' : '-translate-x-[110%]'} lg:translate-x-0`}>
 
       {/* ── Brand ─────────────────────────────────────────────────────── */}
       <div className="h-16 px-4 flex items-center justify-between bg-[#001026]/70 border-b border-white/10">
         <div className="flex flex-col">
           <span className="font-extrabold text-sm tracking-tight text-white leading-tight">AZ PULSE</span>
-          <span className="text-[9px] uppercase font-bold tracking-widest text-[#fbbf24]">Espace Responsable</span>
+          <span className="text-[9px] uppercase font-bold tracking-widest text-cyan-200">{primaryRoleLabel || 'Espace Responsable'}</span>
         </div>
         <button
           onClick={() => setMenuOpen(o => !o)}
-          className="lg:hidden text-[#b5c4ff] hover:text-white transition-colors"
+          className="hidden text-[#b5c4ff] hover:text-white transition-colors"
           type="button"
           aria-label="Basculer le menu"
         >
@@ -65,7 +90,7 @@ const ResponsableSidebar = () => {
           </div>
           <div className="min-w-0">
             <p className="text-[11px] font-bold text-white truncate">{fullName ?? '…'}</p>
-            <p className="text-[10px] text-[#fbbf24] truncate">{primaryRole?.replace('RESPONSABLE_', 'Resp. ') || 'Responsable'}</p>
+          <p className="text-[10px] text-cyan-200 truncate">{primaryRoleLabel || primaryRole?.replace('RESPONSABLE_', 'Resp. ') || 'Responsable'}</p>
           </div>
         </div>
       </div>
@@ -79,10 +104,10 @@ const ResponsableSidebar = () => {
             end={l.end}
             onClick={() => setMenuOpen(false)}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+              `flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                 isActive
-                  ? 'bg-[#004ad1] text-white font-semibold shadow-sm'
-                  : 'text-[#b5c4ff] hover:bg-[#001026] hover:text-white'
+                  ? 'bg-white/15 text-white font-semibold shadow-lg ring-1 ring-white/15 translate-x-0.5'
+                  : 'text-white/70 hover:bg-white/10 hover:text-white hover:translate-x-0.5'
               }`
             }
           >

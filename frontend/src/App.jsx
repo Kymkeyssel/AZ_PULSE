@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 import { Routes, Route } from 'react-router-dom';
@@ -64,6 +65,13 @@ import KnowledgeHub from './features/collaborateur/pages/KnowledgeHub';
 import WorkspaceProjects from './features/responsables/pages/WorkspaceProjects';
 import Analytics from './features/responsables/pages/Analytics';
 import AiWorkspace from './features/responsables/pages/AiWorkspace';
+import ResponsableLayout from './features/responsables/layouts/ResponsableLayout';
+import ResponsableHome from './features/responsables/pages/ResponsableHome';
+import CrmClientDetail from './features/responsables/pages/CrmClientDetail';
+import FormationOverview from './features/responsables/pages/FormationOverview';
+import InfrastructureManager from './features/responsables/pages/InfrastructureManager';
+import ItTicketing from './features/responsables/pages/ItTicketing';
+import ResponsableKnowledgeHub from './features/responsables/pages/KnowledgeHub';
 
 import ProtectedRoute from './components/guards/ProtectedRoute';
 
@@ -173,18 +181,27 @@ function App() {
           <Route path="/collaborateur/analytics" element={<Analytics />} />
           <Route path="/collaborateur/ia" element={<AiWorkspace />} />
 
-          {/* Modules non encore livrés : placeholders explicites */}
-          <Route path="/collaborateur/formations" element={
-            <ModulePlaceholder icon="school" title="Formation — En construction"
-              permHint="formation.read"
-              description="Sessions, apprenants et évaluations pour les formateurs." />
-          } />
-          <Route path="/collaborateur/infrastructure" element={
-            <ModulePlaceholder icon="dns" title="Infrastructure & IT — En construction"
-              permHint="it.read"
-              description="Parc informatique, incidents et maintenance, alimenté par l'intégration GLPI." />
-          } />
+          <Route path="/collaborateur/clients/:id" element={<CrmClientDetail />} />
+          <Route path="/collaborateur/formations" element={<FormationOverview />} />
+          <Route path="/collaborateur/infrastructure" element={<InfrastructureManager />} />
+          <Route path="/collaborateur/tickets" element={<ItTicketing />} />
           <Route path="/collaborateur/documents" element={<KnowledgeHub />} />
+        </Route>
+
+        {/* Espace responsable : mêmes services, navigation et contrôles RBAC. */}
+        <Route element={<ResponsableLayout />}>
+          <Route path="/responsable" element={<ResponsableHome />} />
+          <Route path="/responsable/relances" element={<CrmReminders />} />
+          <Route path="/responsable/crm" element={<CrmPipeline />} />
+          <Route path="/responsable/clients" element={<CrmCustomers />} />
+          <Route path="/responsable/clients/:id" element={<CrmClientDetail />} />
+          <Route path="/responsable/projets" element={<WorkspaceProjects />} />
+          <Route path="/responsable/formations" element={<FormationOverview />} />
+          <Route path="/responsable/infrastructure" element={<InfrastructureManager />} />
+          <Route path="/responsable/tickets" element={<ItTicketing />} />
+          <Route path="/responsable/documents" element={<ResponsableKnowledgeHub />} />
+          <Route path="/responsable/analytics" element={<Analytics />} />
+          <Route path="/responsable/ia" element={<AiWorkspace />} />
         </Route>
 
           {/* ── Erreurs explicites ───────────────────────────────────── */}

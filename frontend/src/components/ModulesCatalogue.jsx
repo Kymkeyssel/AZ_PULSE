@@ -2,7 +2,7 @@ import React from 'react';
 
 const ModulesCatalogue = () => {
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16" id="ia-workspace">
+    <section className="max-w-7xl mx-auto px-6 py-12 sm:py-14" id="ia-workspace">
       {/* Header with split text */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
         <p className="text-xs sm:text-sm text-gray-600 max-w-md leading-relaxed">
@@ -14,7 +14,7 @@ const ModulesCatalogue = () => {
       </div>
       
       {/* Filter Bar Component */}
-      <div className="bg-[#0B2545] rounded-2xl p-4 sm:p-5 text-white mb-12 shadow-xl border border-[#1D63FF]/30">
+      <div className="bg-[#0B2545] rounded-2xl p-4 sm:p-5 text-white mb-8 sm:mb-10 shadow-xl border border-[#1D63FF]/30">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 items-center">
           {/* Field 1 */}
           <div>

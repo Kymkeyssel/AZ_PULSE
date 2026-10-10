@@ -70,11 +70,13 @@ export const ApprenantPlanning = () => {
     });
 
     if (scheduleSessions.length > 0) {
-      scheduleSessions.forEach((session, idx) => {
-        // Associer les sessions aux jours de la semaine
-        const dayIdx = idx % 7;
-        map[dayIdx].push(session);
+      scheduleSessions.forEach((session) => {
+        if (!session.startTime) return;
+        const sessionDate = new Date(session.startTime);
+        const dayIdx = weekDays.findIndex((day) => day.dateObj.toDateString() === sessionDate.toDateString());
+        if (dayIdx >= 0) map[dayIdx].push(session);
       });
+      Object.values(map).forEach((sessions) => sessions.sort((a, b) => new Date(a.startTime) - new Date(b.startTime)));
     }
 
     return map;
@@ -109,13 +111,6 @@ export const ApprenantPlanning = () => {
       }
     });
 
-    if (list.length === 0) {
-      return [
-        { name: 'Dr. Marc Dubois', course: 'Architectures Logicielles & Cloud', status: 'En ligne', avatarBg: 'bg-blue-600' },
-        { name: 'Prof. Sarah Cohen', course: 'Intelligence Artificielle & Data', status: 'Disponible', avatarBg: 'bg-purple-600' },
-        { name: 'Ing. Thomas Martin', course: 'Sécurité & Infrastructure', status: 'En cours', avatarBg: 'bg-emerald-600' },
-      ];
-    }
     return list;
   }, [scheduleSessions, grades]);
 
@@ -172,6 +167,14 @@ export const ApprenantPlanning = () => {
 
   // Session en direct si disponible
   const liveSession = scheduleSessions.find((s) => s.isLive) || scheduleSessions[0];
+  const openClassroom = () => {
+    if (!liveSession?.meetingUrl) {
+      toast.info('Le formateur doit publier le lien de la classe virtuelle avant son ouverture.');
+      return;
+    }
+    setSelectedSession(liveSession);
+    setIsClassRoomModalOpen(true);
+  };
 
   return (
     <div className="flex-1 pb-12 space-y-6">
@@ -202,12 +205,13 @@ export const ApprenantPlanning = () => {
           {/* Quick Action Cluster */}
           <div className="flex flex-wrap sm:flex-nowrap gap-2.5 shrink-0">
             <button
-              onClick={() => setIsClassRoomModalOpen(true)}
+              onClick={openClassroom}
+              disabled={!liveSession?.meetingUrl}
               className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#fbbf24] text-[#001026] font-bold text-xs shadow-md hover:bg-[#f59e0b] active:scale-95 transition-all"
               type="button"
             >
               <span className="material-symbols-outlined notranslate text-[18px]">videocam</span>
-              <span>Classe Virtuelle</span>
+              <span>{liveSession?.meetingUrl ? 'Classe Virtuelle' : 'Classe virtuelle · lien à venir'}</span>
             </button>
 
             <button
@@ -733,6 +737,7 @@ export const ApprenantPlanning = () => {
             </div>
 
             <div className="py-5 space-y-4">
+              <div className="mb-4 flex items-center gap-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4"><span className="material-symbols-outlined text-4xl text-slate-400">qr_code_2</span><div><p className="text-sm font-bold">QR code de connexion</p><p className="text-xs text-slate-500">Fonctionnalité en attente de l’API Google Meet.</p></div></div>
               <div className="aspect-video bg-[#001026] rounded-2xl flex flex-col items-center justify-center text-white relative overflow-hidden border border-slate-700 shadow-inner">
                 <span className="material-symbols-outlined notranslate text-[48px] text-blue-400 animate-pulse">
                   smart_display
@@ -756,13 +761,13 @@ export const ApprenantPlanning = () => {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => {
-                  toast.success('Connexion établie avec le flux audio/vidéo !');
+                  if (selectedSession?.meetingUrl) window.open(selectedSession.meetingUrl, '_blank', 'noopener,noreferrer');
                   setIsClassRoomModalOpen(false);
                 }}
                 className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm"
               >
                 <span className="material-symbols-outlined notranslate text-[18px]">meeting_room</span>
-                Entrer dans la session
+                Ouvrir le lien publié
               </button>
               <button
                 onClick={() => setIsClassRoomModalOpen(false)}

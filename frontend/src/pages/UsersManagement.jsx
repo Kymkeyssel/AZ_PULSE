@@ -1,260 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { fetchApi } from '../services/api';
 
+const ROLES = ['COLLABORATEUR', 'APPRENANT', 'FORMATEUR', 'PARENT', 'CLIENT', 'RESPONSABLE_CRM', 'RESPONSABLE_FORMATION', 'RESPONSABLE_IT', 'RESPONSABLE_KNOWLEDGE', 'RESPONSABLE_WORKSPACE', 'ADMIN'];
+const initialForm = { firstName: '', lastName: '', email: '', phone: '', role: 'COLLABORATEUR', sendInvite: true };
+
 export default function UsersManagement() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    role: 'COLLABORATEUR',
-    domain: 'Général',
-    sendInvite: true
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [users, setUsers] = useState([]); const [loading, setLoading] = useState(true); const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL'); const [modal, setModal] = useState(false); const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(initialForm); const [saving, setSaving] = useState(false);
+  const load = useCallback(async () => { setLoading(true); try { const r = await fetchApi('/admin/users'); setUsers(r.data ?? []); } catch (e) { toast.error(e.message || 'Impossible de charger les utilisateurs'); } finally { setLoading(false); } }, []);
+  useEffect(() => { load(); }, [load]);
+  const filtered = useMemo(() => users.filter(u => (statusFilter === 'ALL' || u.status === statusFilter) && `${u.firstName} ${u.lastName} ${u.email} ${u.role}`.toLowerCase().includes(query.toLowerCase())), [users, query, statusFilter]);
+  const openCreate = () => { setEditing(null); setForm(initialForm); setModal(true); };
+  const openEdit = (u) => { setEditing(u); setForm({ ...initialForm, firstName: u.firstName, lastName: u.lastName, email: u.email, phone: u.phone || '', role: u.role }); setModal(true); };
+  const save = async (e) => { e.preventDefault(); setSaving(true); try {
+    if (editing) { const r = await fetchApi(`/admin/users/${editing.id}`, { method: 'PATCH', body: JSON.stringify({ role: form.role }) }); setUsers(prev => prev.map(u => u.id === editing.id ? r.data : u)); toast.success('Rôle mis à jour.'); }
+    else { await fetchApi('/admin/users', { method: 'POST', body: JSON.stringify(form) }); await load(); toast.success('Compte créé. Un lien de définition du mot de passe a été envoyé si l’email est configuré.'); }
+    setModal(false);
+  } catch (e) { toast.error(e.message || 'Enregistrement impossible'); } finally { setSaving(false); } };
+  const setStatus = async (u, status) => { try { const r = await fetchApi(`/admin/users/${u.id}`, { method: 'PATCH', body: JSON.stringify({ status }) }); setUsers(prev => prev.map(x => x.id === u.id ? r.data : x)); toast.success(`Compte ${status === 'ACTIVE' ? 'activé' : status === 'BLOCKED' ? 'bloqué' : 'désactivé'}.`); } catch (e) { toast.error(e.message || 'Action impossible'); } };
+  const statusLabel = s => ({ ACTIVE: 'Actif', INACTIVE: 'Inactif', BLOCKED: 'Bloqué', PENDING_APPROVAL: 'En attente', REJECTED: 'Refusé' }[s] || s);
 
-  useEffect(() => {
-    // Dans une vraie application, on appellerait : fetchApi('/admin/users')
-    // Pour l'instant, on simule des données puisqu'on bâtit l'UI de gestion
-    setTimeout(() => {
-      setUsers([
-        { id: '1', firstName: 'Alice', lastName: 'Dupont', email: 'alice@az-corporation.com', role: 'ADMIN', status: 'ACTIVE', lastLogin: '2026-10-03T10:00:00Z' },
-        { id: '2', firstName: 'Jean', lastName: 'Martin', email: 'j.martin@az-corporation.com', role: 'COLLABORATEUR', status: 'ACTIVE', lastLogin: '2026-10-02T14:30:00Z' },
-        { id: '3', firstName: 'Sophie', lastName: 'Durand', email: 's.durand@az-corporation.com', role: 'APPRENANT', status: 'INACTIVE', lastLogin: null }
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleCreateUser = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      // Simulation d'un ajout direct (sans passer par la demande d'accès)
-      // await fetchApi('/admin/users', { method: 'POST', body: JSON.stringify(formData) });
-      
-      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API call
-      
-      const newUser = {
-        id: Date.now().toString(),
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        role: formData.role,
-        status: 'ACTIVE',
-        lastLogin: null
-      };
-      
-      setUsers(prev => [newUser, ...prev]);
-      setShowAddModal(false);
-      toast.success(`Utilisateur ${formData.firstName} ${formData.lastName} créé avec succès.`);
-      setFormData({ firstName: '', lastName: '', email: '', phone: '', role: 'COLLABORATEUR', domain: 'Général', sendInvite: true });
-    } catch (err) {
-      toast.error('Erreur lors de la création de l\'utilisateur.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const getRoleBadge = (role) => {
-    const badges = {
-      'SUPER_ADMIN': 'bg-purple-100 text-purple-800 border-purple-200',
-      'ADMIN': 'bg-red-100 text-red-800 border-red-200',
-      'COLLABORATEUR': 'bg-blue-100 text-blue-800 border-blue-200',
-      'APPRENANT': 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    };
-    const style = badges[role] || 'bg-slate-100 text-slate-800 border-slate-200';
-    return <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold border ${style}`}>{role}</span>;
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 glass-panel p-6 rounded-3xl">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20 mb-3">
-            <span className="material-symbols-outlined notranslate text-[14px]">group</span>
-            Gestion des Utilisateurs
-          </div>
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight">Utilisateurs</h1>
-          <p className="mt-2 text-sm text-slate-500 font-medium max-w-2xl">
-            Gérez les comptes actifs, ajoutez de nouveaux collaborateurs directement et contrôlez l'accès global au système AZ PULSE.
-          </p>
-        </div>
-
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-lg shadow-blue-600/20"
-        >
-          <span className="material-symbols-outlined notranslate text-[18px]">person_add</span>
-          Ajout direct
-        </button>
-      </div>
-
-      {/* Users Table */}
-      <div className="glass-panel rounded-3xl p-6">
-        {loading ? (
-          <div className="py-20 flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-slate-500 font-medium">Chargement des utilisateurs...</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200/60">
-                  <th className="pb-3 text-xs font-bold text-slate-400 uppercase tracking-wider pl-2">Utilisateur</th>
-                  <th className="pb-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Email</th>
-                  <th className="pb-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Rôle principal</th>
-                  <th className="pb-3 text-xs font-bold text-slate-400 uppercase tracking-wider">Statut</th>
-                  <th className="pb-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right pr-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {users.map(user => (
-                  <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="py-4 pl-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 text-white flex items-center justify-center font-extrabold text-xs shadow-md">
-                          {user.firstName[0]}{user.lastName[0]}
-                        </div>
-                        <div className="font-bold text-slate-800">{user.firstName} {user.lastName}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 text-sm text-slate-600 font-medium">{user.email}</td>
-                    <td className="py-4">{getRoleBadge(user.role)}</td>
-                    <td className="py-4">
-                      {user.status === 'ACTIVE' ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100/50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Actif
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold border border-slate-200">
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Inactif
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-4 text-right pr-2">
-                      <button className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                        <span className="material-symbols-outlined notranslate text-[20px]">edit</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Add User Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowAddModal(false)}></div>
-          <div className="relative glass-panel w-full max-w-2xl rounded-3xl shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner">
-                  <span className="material-symbols-outlined notranslate text-[24px]">person_add</span>
-                </div>
-                <div>
-                  <h2 className="text-xl font-extrabold text-slate-800">Ajouter un utilisateur</h2>
-                  <p className="text-xs text-slate-500 font-medium">Création directe d'un compte actif avec attribution de rôle.</p>
-                </div>
-              </div>
-              <button onClick={() => setShowAddModal(false)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-red-100 hover:text-red-600 transition-colors">
-                <span className="material-symbols-outlined notranslate text-[18px]">close</span>
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateUser} className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Prénom</label>
-                  <input required type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="Ex: Jean" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Nom</label>
-                  <input required type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="Ex: Dupont" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Adresse email</label>
-                  <input required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="jean.dupont@az-corporation.com" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Téléphone (Optionnel)</label>
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="+33 6 00 00 00 00" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Rôle attribué</label>
-                  <select name="role" value={formData.role} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
-                    <option value="COLLABORATEUR">Collaborateur (Standard)</option>
-                    <option value="APPRENANT">Apprenant</option>
-                    <option value="FORMATEUR">Formateur</option>
-                    <option value="ADMIN">Administrateur</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Domaine / Pôle</label>
-                  <select name="domain" value={formData.domain} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
-                    <option value="Général">Général</option>
-                    <option value="Direction">Direction Générale</option>
-                    <option value="IT">Infrastructure & IT</option>
-                    <option value="Commercial">Commercial & CRM</option>
-                    <option value="Formation">Pôle Formation</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-200/60">
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className="relative flex items-center justify-center">
-                    <input type="checkbox" name="sendInvite" checked={formData.sendInvite} onChange={handleInputChange} className="peer sr-only" />
-                    <div className="w-5 h-5 rounded border border-slate-300 bg-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
-                    <span className="material-symbols-outlined notranslate text-white text-[14px] absolute opacity-0 peer-checked:opacity-100 pointer-events-none">check</span>
-                  </div>
-                  <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
-                    Envoyer l'email d'invitation avec le mot de passe temporaire
-                  </span>
-                </label>
-              </div>
-
-              <div className="pt-6 flex items-center justify-end gap-3">
-                <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-colors">
-                  Annuler
-                </button>
-                <button type="submit" disabled={isSubmitting} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-lg shadow-blue-600/20 disabled:opacity-70">
-                  {isSubmitting ? (
-                    <span className="material-symbols-outlined notranslate text-[18px] animate-spin">progress_activity</span>
-                  ) : (
-                    <span className="material-symbols-outlined notranslate text-[18px]">check_circle</span>
-                  )}
-                  {isSubmitting ? 'Création...' : 'Créer l\'utilisateur'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+  return <section className="space-y-6">
+    <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex md:items-center md:justify-between">
+      <div><p className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700"><span className="material-symbols-outlined text-sm">group</span>Administration</p><h1 className="text-3xl font-black text-slate-900">Gestion des utilisateurs</h1><p className="mt-2 text-sm text-slate-500">Comptes réels, rôles et accès à la plateforme.</p></div>
+      <button onClick={openCreate} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 md:mt-0"><span className="material-symbols-outlined">person_add</span>Ajouter un compte</button>
+    </header>
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-5 flex flex-col gap-3 md:flex-row"><label className="relative flex-1"><span className="material-symbols-outlined absolute left-3 top-3 text-slate-400">search</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Rechercher un nom, email ou rôle…" className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 outline-none focus:border-blue-500" /></label><select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="rounded-xl border border-slate-200 px-4 py-3"><option value="ALL">Tous les statuts</option>{['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING_APPROVAL'].map(s => <option key={s} value={s}>{statusLabel(s)}</option>)}</select><button onClick={load} aria-label="Actualiser la liste" className="rounded-xl border border-slate-200 px-3 text-slate-600 hover:bg-slate-50"><span className="material-symbols-outlined">refresh</span></button></div>
+      {loading ? <div className="py-20 text-center text-slate-500">Chargement des comptes…</div> : filtered.length === 0 ? <div className="py-16 text-center text-slate-500">Aucun compte ne correspond à cette recherche.</div> : <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left"><thead><tr className="border-b text-xs uppercase tracking-wide text-slate-400"><th className="pb-3">Utilisateur</th><th className="pb-3">Rôle</th><th className="pb-3">Statut</th><th className="pb-3">Dernière connexion</th><th className="pb-3 text-right">Actions rapides</th></tr></thead><tbody className="divide-y divide-slate-100">{filtered.map(u => <tr key={u.id} className="hover:bg-slate-50/70"><td className="py-4"><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">{u.firstName?.[0]}{u.lastName?.[0]}</div><div><div className="font-bold text-slate-800">{u.firstName} {u.lastName}</div><div className="text-sm text-slate-500">{u.email}</div></div></div></td><td><span className="rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">{u.role}</span></td><td><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${u.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : u.status === 'BLOCKED' ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-600'}`}>{statusLabel(u.status)}</span></td><td className="text-sm text-slate-500">{u.lastLogin ? new Date(u.lastLogin).toLocaleDateString('fr-FR') : 'Jamais'}</td><td><div className="flex justify-end gap-1"><button title="Modifier le rôle" aria-label={`Modifier ${u.firstName}`} onClick={() => openEdit(u)} className="rounded-lg p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-700"><span className="material-symbols-outlined">edit</span></button>{u.status !== 'ACTIVE' ? <button title="Activer le compte" aria-label="Activer le compte" onClick={() => setStatus(u, 'ACTIVE')} className="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50"><span className="material-symbols-outlined">person_check</span></button> : <button title="Désactiver le compte" aria-label="Désactiver le compte" onClick={() => setStatus(u, 'INACTIVE')} className="rounded-lg p-2 text-amber-600 hover:bg-amber-50"><span className="material-symbols-outlined">person_off</span></button>}<button title="Bloquer le compte" aria-label="Bloquer le compte" onClick={() => setStatus(u, u.status === 'BLOCKED' ? 'ACTIVE' : 'BLOCKED')} className="rounded-lg p-2 text-rose-600 hover:bg-rose-50"><span className="material-symbols-outlined">{u.status === 'BLOCKED' ? 'lock_open' : 'block'}</span></button></div></td></tr>)}</tbody></table></div>}
+      <p className="mt-4 text-xs text-slate-400">{filtered.length} compte{filtered.length > 1 ? 's' : ''} affiché{filtered.length > 1 ? 's' : ''}</p>
     </div>
-  );
+    {modal && <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/50 p-4" onMouseDown={e => e.target === e.currentTarget && setModal(false)}><form onSubmit={save} className="w-full max-w-xl space-y-5 rounded-3xl bg-white p-6 shadow-2xl"><div className="flex items-start justify-between"><div><h2 className="text-xl font-black">{editing ? 'Modifier le compte' : 'Créer un compte'}</h2><p className="mt-1 text-sm text-slate-500">{editing ? 'Mettez à jour son rôle principal.' : 'Le compte est ajouté à la base et un email de définition du mot de passe peut être envoyé.'}</p></div><button type="button" onClick={() => setModal(false)} className="rounded-lg p-2 hover:bg-slate-100"><span className="material-symbols-outlined">close</span></button></div><div className="grid gap-4 sm:grid-cols-2">{[['firstName','Prénom'],['lastName','Nom'],['email','Email'],['phone','Téléphone']].map(([key,label]) => <label key={key} className="space-y-1 text-sm font-semibold text-slate-700">{label}<input required={!editing && key !== 'phone'} disabled={!!editing} type={key === 'email' ? 'email' : 'text'} value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} className="w-full rounded-xl border border-slate-200 px-3 py-2.5 disabled:bg-slate-100" /></label>)}</div><label className="block space-y-1 text-sm font-semibold text-slate-700">Rôle<select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="w-full rounded-xl border border-slate-200 px-3 py-2.5">{ROLES.map(r => <option key={r}>{r}</option>)}</select></label>{!editing && <label className="flex items-center gap-2 text-sm text-slate-600"><input type="checkbox" checked={form.sendInvite} onChange={e => setForm({ ...form, sendInvite: e.target.checked })} />Envoyer le lien de définition du mot de passe</label>}<div className="flex justify-end gap-2"><button type="button" onClick={() => setModal(false)} className="rounded-xl px-4 py-2.5 font-bold text-slate-600 hover:bg-slate-100">Annuler</button><button disabled={saving} className="rounded-xl bg-blue-600 px-5 py-2.5 font-bold text-white disabled:opacity-60">{saving ? 'Enregistrement…' : editing ? 'Enregistrer' : 'Créer le compte'}</button></div></form></div>}
+  </section>;
 }

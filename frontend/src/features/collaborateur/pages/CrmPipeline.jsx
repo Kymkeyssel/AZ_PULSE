@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crmService } from '../../../services/api';
 import PipelineBoard from '../components/crm/PipelineBoard';
@@ -17,6 +18,8 @@ const EMPTY = {
 
 const CrmPipeline = () => {
   const { hasPermission, user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const canUpdate = hasPermission('crm.update');
   const canCreate = hasPermission('crm.create');
@@ -29,6 +32,7 @@ const CrmPipeline = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [pendingOpportunityId, setPendingOpportunityId] = useState(null);
 
   const loading = !loaded;
 
@@ -53,18 +57,24 @@ const CrmPipeline = () => {
    * Déplacement d'une affaire. Le serveur applique les règles métier
    * (gagné → conversion client, probabilité à 100).
    */
-  const handleMove = async (opportunityId, stage) => {
+  const handleMove = async (opportunityId, stage, transition) => {
+    if (pendingOpportunityId) return false;
+    setPendingOpportunityId(opportunityId);
     try {
-      await crmService.changeStage(opportunityId, stage);
-      toast.success(
-        stage === 'WON'
-          ? 'Affaire gagnée : le client est converti et le projet créé.'
-          : 'Affaire déplacée.'
-      );
-      load();
+      const result = await crmService.changeStage(opportunityId, stage, transition);
+      if (stage === 'WON' && !result?.data?.project?.id) throw new Error('Le serveur n’a pas confirmé la création du projet Workspace.');
+      if (stage === 'WON') {
+        setIncludeClosed(true);
+        toast.success(`Affaire gagnée · projet « ${result.data.project.name} » créé.`, { action: { label: 'Ouvrir le projet', onClick: () => navigate(location.pathname.startsWith('/admin') ? '/admin/workspace' : location.pathname.startsWith('/superadmin') ? '/superadmin/workspace' : '/collaborateur/projets') } });
+      } else toast.success(stage === 'LOST' ? 'Affaire clôturée. Le motif est enregistré.' : 'Étape validée. Une relance a été ajoutée à votre agenda.');
+      await load();
+      return true;
     } catch (err) {
       toast.error(err.message || 'Déplacement impossible.');
-      load();
+      await load();
+      return false;
+    } finally {
+      setPendingOpportunityId(null);
     }
   };
 
@@ -155,7 +165,7 @@ const CrmPipeline = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[13px] font-bold text-white">Synthèse Prédictive AZ Copilot</span>
+                <span className="text-[13px] font-bold text-white">Pulse AI · Synthèse prédictive</span>
                 <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold tracking-wide">
                   En ligne
                 </span>
@@ -340,6 +350,7 @@ const CrmPipeline = () => {
           <PipelineBoard
             columns={data?.columns ?? []}
             canUpdate={canUpdate}
+            pendingOpportunityId={pendingOpportunityId}
             onSelect={opp => { setEditing(opp); setFormOpen(true); }}
             onMove={handleMove}
           />

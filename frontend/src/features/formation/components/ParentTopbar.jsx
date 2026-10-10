@@ -41,6 +41,7 @@ export const ParentTopbar = () => {
           </div>
         </div>
         
+        <button onClick={() => navigate('/profil')} className="p-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high" title="Mon profil" type="button"><span className="material-symbols-outlined">manage_accounts</span></button>
         <button 
           onClick={handleLogout}
           className="p-space-xs rounded-lg text-error hover:bg-error-container hover:text-on-error-container transition-colors" 

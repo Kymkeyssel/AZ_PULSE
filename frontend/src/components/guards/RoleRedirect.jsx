@@ -27,6 +27,7 @@ const RoleRedirect = () => {
   const SPACE_BY_ROLE = {
     SUPER_ADMIN:   '/superadmin',
     ADMIN:         '/admin',
+    CLIENT:        '/client',
     APPRENANT:     '/apprenant',
     PARENT:        '/parent',
     COLLABORATEUR: '/collaborateur',

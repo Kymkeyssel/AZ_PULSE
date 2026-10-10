@@ -1,0 +1,9 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block body %}
+    <h2>Bonjour {{ customerName }},</h2>
+    <p>Votre dossier <strong>{{ opportunityTitle }}</strong> a progressé dans notre suivi commercial.</p>
+    <p><strong>Étape :</strong> {{ milestone }}</p>
+    <p>{{ details|nl2br }}</p>
+    <p>Votre interlocuteur AZ PULSE reste disponible pour répondre à vos questions.</p>
+{% endblock %}

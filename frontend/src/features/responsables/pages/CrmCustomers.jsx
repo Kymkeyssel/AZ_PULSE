@@ -312,8 +312,8 @@ const CrmCustomers = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wide text-[#6b7a99] mb-1.5">Email</label>
-                    <input name="email" type="email" defaultValue={editing?.email ?? ''} className={field} />
+                    <label className="block text-[11px] font-bold uppercase tracking-wide text-[#6b7a99] mb-1.5">Email · nécessaire au suivi</label>
+                    <input name="email" type="email" defaultValue={editing?.email ?? ''} className={field} required />
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wide text-[#6b7a99] mb-1.5">Téléphone</label>

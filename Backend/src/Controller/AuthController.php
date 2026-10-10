@@ -12,6 +12,8 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/api/auth')]
 class AuthController extends AbstractController
@@ -91,6 +93,30 @@ class AuthController extends AbstractController
             'success' => true,
             'user' => $this->authService->formatUserPayload($user),
         ]);
+    }
+
+    #[Route('/profile', name: 'api_auth_profile_update', methods: ['PATCH'])]
+    public function updateProfile(Request $request, #[CurrentUser] ?User $user, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): JsonResponse
+    {
+        if (!$user) return $this->json(['success' => false, 'message' => 'Non authentifié.'], Response::HTTP_UNAUTHORIZED);
+        $data = json_decode($request->getContent(), true) ?? [];
+        $firstName = trim((string) ($data['firstName'] ?? ''));
+        $lastName = trim((string) ($data['lastName'] ?? ''));
+        $email = strtolower(trim((string) ($data['email'] ?? '')));
+        if ($firstName === '' || $lastName === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['success' => false, 'message' => 'Nom, prénom et adresse email valides obligatoires.'], 422);
+        }
+        $existing = $em->getRepository(User::class)->findOneByEmail($email);
+        if ($existing && !$existing->getId()->equals($user->getId())) return $this->json(['success' => false, 'message' => 'Cette adresse email est déjà utilisée.'], 409);
+        if (isset($data['newPassword']) && $data['newPassword'] !== '') {
+            if (strlen($data['newPassword']) < 10 || !$hasher->isPasswordValid($user, (string) ($data['currentPassword'] ?? ''))) {
+                return $this->json(['success' => false, 'message' => 'Mot de passe actuel incorrect ou nouveau mot de passe trop court (10 caractères minimum).'], 422);
+            }
+            $user->setPassword($hasher->hashPassword($user, $data['newPassword']));
+        }
+        $user->setFirstName($firstName)->setLastName($lastName)->setEmail($email)->setPhone(isset($data['phone']) ? trim((string) $data['phone']) : null);
+        $em->flush();
+        return $this->json(['success' => true, 'user' => $this->authService->formatUserPayload($user)]);
     }
 
     #[Route('/activate', name: 'api_auth_activate', methods: ['POST'])]

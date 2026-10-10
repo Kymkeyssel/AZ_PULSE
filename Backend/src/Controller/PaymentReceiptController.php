@@ -10,6 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -126,6 +128,35 @@ class PaymentReceiptController extends AbstractController
         $em->flush();
 
         return $this->json(['success' => true, 'data' => $this->serialize($receipt)]);
+    }
+
+    #[Route('/{id}/download', name: 'download', methods: ['GET'])]
+    public function download(PaymentReceipt $receipt): BinaryFileResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $student = $receipt->getTuition()?->getStudent();
+        $isManager = $this->isGranted('formation.manage');
+        $isOwner = $student && $student->getId()->equals($user->getId());
+        $isParent = $user->hasRoleCode('PARENT') && $student && $user->getChildren()->contains($student);
+
+        if (!$isManager && !$isOwner && !$isParent) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $filename = $receipt->getDocumentUrl();
+        if (!$filename) {
+            throw $this->createNotFoundException('Aucun fichier associé à ce justificatif.');
+        }
+
+        $path = $this->getParameter('kernel.project_dir') . '/var/storage/payments/' . basename($filename);
+        if (!is_file($path)) {
+            throw $this->createNotFoundException('Le justificatif est introuvable.');
+        }
+
+        $response = new BinaryFileResponse($path);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, basename($filename));
+        return $response;
     }
 
     private function serialize(PaymentReceipt $receipt): array

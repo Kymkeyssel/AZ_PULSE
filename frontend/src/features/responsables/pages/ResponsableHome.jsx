@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crmService } from '../../../services/api';
 import { formatAmountCompact } from '../lib/format';
@@ -14,6 +14,17 @@ import { formatAmountCompact } from '../lib/format';
  */
 const ResponsableHome = () => {
   const { fullName, primaryRole, hasPermission, primaryRoleLabel } = useAuth();
+
+  const dedicatedHome = {
+    RESPONSABLE_CRM: '/responsable/crm',
+    RESPONSABLE_FORMATION: '/responsable/formations',
+    FORMATEUR: '/responsable/formations',
+    RESPONSABLE_IT: '/responsable/infrastructure',
+    RESPONSABLE_KNOWLEDGE: '/responsable/documents',
+    RESPONSABLE_WORKSPACE: '/responsable/projets',
+    RESPONSABLE_ANALYTICS: '/responsable/analytics',
+  }[primaryRole];
+  if (dedicatedHome) return <Navigate to={dedicatedHome} replace />;
 
   const canReadCrm = hasPermission('crm.read');
   const [stats, setStats] = useState(null);

@@ -179,7 +179,7 @@ const Auth = () => {
         <section className="lg:col-span-6 xl:col-span-5 flex flex-col justify-between p-6 sm:p-9 xl:p-12 bg-white relative z-10" data-purpose="auth-panel-container">
           <header className="flex items-center justify-between mb-6 sm:mb-8" data-purpose="brand-header">
             <a className="inline-flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-az-blue/40 rounded-xl p-1 -m-1" href="/">
-              <img alt="AZ Pulse Logo" className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105" src="/AZ PULSE_logo.png" />
+              <img alt="Logo AZ Corporation" className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105" src="/logo%20%20AZ.png" />
               <div className="flex flex-col">
                 <span className="text-xs font-bold uppercase tracking-widest text-az-blue">Portail Interne</span>
                 <span className="text-sm font-semibold text-slate-800 -mt-0.5">AZ Corporation</span>
@@ -520,7 +520,7 @@ const Auth = () => {
                 <div className="relative w-64 h-56 flex items-center justify-center pulse-glow-anim">
                   <div className="relative flex items-center justify-center w-full h-full">
                     <div className="absolute inset-0 bg-az-blue/20 blur-2xl rounded-full scale-90 pointer-events-none"></div>
-                    <img src="/AZ PULSE_logo.png" alt="AZ Pulse Official Emblem" className="max-h-44 w-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.8)] filter transition-transform duration-500 hover:scale-105 relative z-10" />
+                    <img src="/logo%20%20AZ.png" alt="Logo AZ Corporation" className="max-h-44 w-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.8)] filter transition-transform duration-500 hover:scale-105 relative z-10" />
                   </div>
                 </div>
               </div>

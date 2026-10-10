@@ -11,14 +11,26 @@ import ChatBot from '../components/ChatBot';
 
 const Landing = () => {
   return (
-    <div className="w-full bg-[#f4f7fb]">
+    <div className="relative isolate min-h-screen w-full bg-[#f4f7fb]">
       <Hero />
-      <DiscoverExcellence />
-      <ServicesIT />
-      <ModulesCatalogue />
-      <Testimonials />
-      <BestSelling />
-      <Newsletter />
+
+      <main
+        className="relative isolate"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(247, 247, 247, 0.84)), rgba(127, 177, 241, 0.66)), url("/AZ%20facade.jpg")',
+          backgroundAttachment: 'fixed',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+        }}
+      >
+        <DiscoverExcellence />
+        <ModulesCatalogue />
+        <Testimonials />
+        <BestSelling />
+        <Newsletter />
+      </main>
+
       <Footer />
       <ChatBot />
     </div>

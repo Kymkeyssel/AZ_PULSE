@@ -40,7 +40,7 @@ class WorkspaceTaskController extends AbstractController
             'priority' => $t->getPriority(),
             'progress' => $t->getProgress(),
             'dueDate' => $t->getDueDate()?->format(\DateTimeInterface::ATOM),
-            'assignee_id' => $t->getAssignee()?->getId(),
+            'assignee_id' => $t->getAssignee()?->getId()->toRfc4122(),
             'assignee_name' => $t->getAssignee() ? $t->getAssignee()->getFirstName() . ' ' . $t->getAssignee()->getLastName() : null,
         ], $tasks);
 
@@ -58,7 +58,7 @@ class WorkspaceTaskController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         // Le manager ou un admin ou quelqu'un avec workspace.write peut créer une tâche
-        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write')) {
+        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write') && !$user->hasRoleCode('RESPONSABLE_WORKSPACE')) {
             if ($project->getManager() !== $user) {
                 return $this->json(['success' => false, 'error' => 'Seul le manager peut créer des tâches'], 403);
             }
@@ -111,7 +111,7 @@ class WorkspaceTaskController extends AbstractController
         $project = $task->getProject();
         
         // Seul l'assigné, le manager ou un admin peut modifier la tâche
-        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write')) {
+        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write') && !$user->hasRoleCode('RESPONSABLE_WORKSPACE')) {
             if ($project->getManager() !== $user && $task->getAssignee() !== $user) {
                 return $this->json(['success' => false, 'error' => 'Access Denied'], 403);
             }

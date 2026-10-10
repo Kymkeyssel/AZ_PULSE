@@ -94,8 +94,10 @@ class ApprenantDashboardController extends AbstractController
         $scheduleData = [];
         foreach ($sessions as $session) {
             $scheduleData[] = [
+                'id' => (string) $session->getId(),
                 'course' => $session->getCourse()->getTitle(),
                 'room' => $session->getRoom(),
+                'meetingUrl' => filter_var($session->getRoom(), FILTER_VALIDATE_URL) ? $session->getRoom() : null,
                 'teacher' => $session->getCourse()->getTeacher() ? $session->getCourse()->getTeacher()->getFirstName() . ' ' . $session->getCourse()->getTeacher()->getLastName() : 'N/A',
                 'startTime' => $session->getStartTime()->format('Y-m-d H:i'),
                 'endTime' => $session->getEndTime()->format('H:i'),
@@ -130,7 +132,7 @@ class ApprenantDashboardController extends AbstractController
         }
 
         // 6. Documents récents (CourseDocument)
-        $documents = $em->getRepository(CourseDocument::class)->findBy([], ['createdAt' => 'DESC'], 4);
+        $documents = $em->getRepository(CourseDocument::class)->findBy([], ['createdAt' => 'DESC']);
         $docsData = [];
         foreach ($documents as $doc) {
             $docsData[] = [

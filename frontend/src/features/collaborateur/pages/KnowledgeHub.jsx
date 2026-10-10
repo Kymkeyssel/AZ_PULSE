@@ -10,7 +10,7 @@ import { Sparkles } from 'lucide-react';
 export default function KnowledgeHub() {
   const { hasPermission, user } = useAuth();
   const canWrite = hasPermission('knowledge.write');
-  const canPublish = hasPermission('knowledge.publish');
+  const canPublish = hasPermission('knowledge.write') || hasPermission('knowledge.manage');
 
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -324,4 +324,3 @@ export default function KnowledgeHub() {
     </div>
   );
 }
-

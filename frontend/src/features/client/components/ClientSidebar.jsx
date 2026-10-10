@@ -1,17 +1,13 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Home, FolderKanban, GraduationCap, FileText, Receipt, HeadphonesIcon, LogOut, ChevronDown } from 'lucide-react';
+import { Home, FolderKanban, LogOut, UserRound } from 'lucide-react';
 
 const ClientSidebar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, fullName, initials } = useAuth();
 
   const navItems = [
     { name: 'Tableau de bord', to: '/client', icon: Home, end: true },
-    { name: 'Mes Projets', to: '/client/projets', icon: FolderKanban, badge: '3' },
-    { name: 'Suivi Formations', to: '/client/formations', icon: GraduationCap, badge: '2' },
-    { name: 'Documents & Contrats', to: '/client/documents', icon: FileText },
-    { name: 'Facturation & Paiements', to: '/client/facturation', icon: Receipt, badge: '1 ATT', warning: true },
-    { name: 'Support & Tickets', to: '/client/support', icon: HeadphonesIcon, badge: '1' },
+    { name: 'Mes projets', to: '/client/projets', icon: FolderKanban },
   ];
 
   return (
@@ -33,13 +29,12 @@ const ClientSidebar = () => {
 
       {/* Client Entity Selector */}
       <div className="px-4 py-5 border-b border-[#1a365d]">
-        <button className="w-full flex items-center justify-between bg-[#133058] hover:bg-[#1a3f70] transition-colors p-3 rounded-lg border border-[#1d4d8a] text-left">
+        <div className="w-full flex items-center bg-[#133058] p-3 rounded-lg border border-[#1d4d8a] text-left">
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-white truncate">Global Tech SARL</span>
-            <span className="text-xs text-[#b1c7f0] truncate mt-0.5">Compte #CLI-2025-08</span>
+            <span className="text-sm font-bold text-white truncate">{user?.email || 'Compte client'}</span>
+            <span className="text-xs text-[#b1c7f0] truncate mt-0.5">Portail sécurisé</span>
           </div>
-          <ChevronDown className="w-4 h-4 text-[#b1c7f0]" />
-        </button>
+        </div>
       </div>
 
       {/* Navigation Menu */}
@@ -62,15 +57,9 @@ const ClientSidebar = () => {
               <item.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span>{item.name}</span>
             </div>
-            {item.badge && (
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                item.warning ? 'bg-[#ffb800]/20 text-[#ffb800] border border-[#ffb800]/30' : 'bg-[#1d63ff]/20 text-[#b1c7f0]'
-              }`}>
-                {item.badge}
-              </span>
-            )}
           </NavLink>
         ))}
+        <NavLink to="/profil" className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${isActive ? 'bg-[#1d63ff]/10 text-white' : 'text-[#b1c7f0] hover:bg-[#133058] hover:text-white'}`}><UserRound className="h-5 w-5"/>Mon profil</NavLink>
       </nav>
 
       {/* User Footer */}
@@ -78,11 +67,11 @@ const ClientSidebar = () => {
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 px-2">
             <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#1d63ff] to-[#003cac] flex items-center justify-center font-bold text-sm shadow-md">
-              ME
+              {initials}
             </div>
             <div className="flex flex-col flex-1 min-w-0">
-              <span className="text-sm font-bold text-white truncate">M. Marc Essomba</span>
-              <span className="text-[11px] text-[#778db2] truncate">DSI • Global Tech SARL</span>
+              <span className="text-sm font-bold text-white truncate">{fullName || user?.email}</span>
+              <span className="text-[11px] text-[#778db2] truncate">{user?.primaryRole || 'Client'}</span>
             </div>
           </div>
           <button

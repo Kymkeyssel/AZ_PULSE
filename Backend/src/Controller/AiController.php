@@ -50,6 +50,27 @@ class AiController extends AbstractController
         }
     }
 
+    #[Route('/system-chat', name: 'api_ai_system_chat', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function systemChat(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $message = trim((string) ($data['message'] ?? ''));
+        if ($message === '') return $this->json(['error' => 'Le message est obligatoire.'], 400);
+        try {
+            $result = $this->aiService->chat($message, $data['conversation_id'] ?? null, [
+                'scope' => 'AZ PULSE — assistance interne administration et pilotage système',
+                'user_id' => (string) $this->getUser()->getId(),
+                'user_email' => $this->getUser()->getUserIdentifier(),
+                'user_role' => $this->getUser()->hasRoleCode('SUPER_ADMIN') ? 'SUPER_ADMIN' : 'ADMIN',
+                'system_context' => 'Répondre uniquement sur les opérations, modules et données AZ PULSE. Ne pas inventer de métriques ; demander le contexte manquant.',
+            ]);
+            return $this->json($result);
+        } catch (\Throwable $e) {
+            return $this->json(['error' => 'Le service IA est indisponible.', 'details' => $e->getMessage()], 503);
+        }
+    }
+
     #[Route('/insights', name: 'api_ai_insights', methods: ['POST'])]
     public function insights(Request $request): JsonResponse
     {

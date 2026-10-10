@@ -16,6 +16,21 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Route('/api/workspace/projects', name: 'api_workspace_projects_')]
 class WorkspaceProjectController extends AbstractController
 {
+    #[Route('/team', name: 'team', methods: ['GET'])]
+    public function team(EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write') && !$user?->hasRoleCode('RESPONSABLE_WORKSPACE')) {
+            return $this->json(['success' => false, 'error' => 'Access Denied'], 403);
+        }
+        $members = $em->getRepository(User::class)->findBy(['status' => User::STATUS_ACTIVE], ['lastName' => 'ASC']);
+        return $this->json(['success' => true, 'data' => array_map(static fn(User $member) => [
+            'id' => $member->getId()->toRfc4122(),
+            'name' => $member->getFirstName() . ' ' . $member->getLastName(),
+            'email' => $member->getEmail(),
+        ], $members)]);
+    }
+
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(EntityManagerInterface $em): JsonResponse
     {
@@ -25,6 +40,15 @@ class WorkspaceProjectController extends AbstractController
 
         $seesAll = $this->isGranted('SUPER_ADMIN')
             || $this->isGranted('workspace.manage')
+            // Les responsables CRM ont un droit de lecture transverse sur
+            // Workspace : ils doivent pouvoir suivre les projets créés après
+            // la signature d'une affaire, même si un autre commercial en est
+            // le chef de projet.
+            || $user->hasRoleCode('RESPONSABLE_CRM')
+            // Le responsable Workspace pilote l'ensemble du portefeuille, y
+            // compris les projets générés depuis le CRM et gérés au quotidien
+            // par leur propriétaire commercial.
+            || $user->hasRoleCode('RESPONSABLE_WORKSPACE')
             || $user->hasRoleCode('ADMIN');
 
         if ($user->hasRoleCode('CLIENT')) {
@@ -50,6 +74,10 @@ class WorkspaceProjectController extends AbstractController
             'endDate' => $p->getEndDate()?->format(\DateTimeInterface::ATOM),
             'customer_name' => $p->getCustomer()?->getName(),
             'manager_name' => $p->getManager()?->getFirstName() . ' ' . $p->getManager()?->getLastName(),
+            'members' => $p->getMembers()->map(fn($m) => [
+                'id' => $m->getId()->toRfc4122(),
+                'name' => $m->getFirstName() . ' ' . $m->getLastName(),
+            ])->toArray(),
             'tasks_count' => $p->getTasks()->count(),
             'description' => $p->getDescription(),
         ], $projects);
@@ -63,7 +91,7 @@ class WorkspaceProjectController extends AbstractController
         EntityManagerInterface $em,
         EventDispatcherInterface $eventDispatcher
     ): JsonResponse {
-        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write')) {
+        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write') && !$this->getUser()?->hasRoleCode('RESPONSABLE_WORKSPACE')) {
             return $this->json(['success' => false, 'error' => 'Access Denied'], 403);
         }
 
@@ -134,10 +162,10 @@ class WorkspaceProjectController extends AbstractController
             'endDate' => $project->getEndDate()?->format(\DateTimeInterface::ATOM),
             'customer_id' => $project->getCustomer()?->getId(),
             'customer_name' => $project->getCustomer()?->getName(),
-            'manager_id' => $project->getManager()?->getId(),
+            'manager_id' => $project->getManager()?->getId()->toRfc4122(),
             'manager_name' => $project->getManager()?->getFirstName() . ' ' . $project->getManager()?->getLastName(),
             'members' => $project->getMembers()->map(fn($m) => [
-                'id' => $m->getId(),
+                'id' => $m->getId()->toRfc4122(),
                 'name' => $m->getFirstName() . ' ' . $m->getLastName()
             ])->toArray(),
             'tasks_count' => $project->getTasks()->count(),
@@ -151,7 +179,7 @@ class WorkspaceProjectController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write')) {
+        if (!$this->isGranted('SUPER_ADMIN') && !$this->isGranted('workspace.write') && !$user->hasRoleCode('RESPONSABLE_WORKSPACE')) {
             if ($project->getManager() !== $user) {
                 return $this->json(['success' => false, 'error' => 'Seul le manager ou un admin peut modifier ce projet'], 403);
             }
@@ -170,5 +198,27 @@ class WorkspaceProjectController extends AbstractController
         $em->flush();
 
         return $this->json(['success' => true, 'data' => ['id' => $project->getId()]]);
+    }
+
+    #[Route('/{id}/members', name: 'members_add', methods: ['POST'])]
+    public function addMember(Project $project, Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $canManage = $this->isGranted('SUPER_ADMIN') || $this->isGranted('workspace.write')
+            || $user->hasRoleCode('RESPONSABLE_WORKSPACE') || $project->getManager() === $user;
+        if (!$canManage) return $this->json(['success' => false, 'error' => 'Access Denied'], 403);
+
+        $payload = json_decode($request->getContent(), true) ?: [];
+        $member = $em->getRepository(User::class)->find($payload['user_id'] ?? null);
+        if (!$member || $member->getStatus() !== User::STATUS_ACTIVE) {
+            return $this->json(['success' => false, 'error' => 'Utilisateur actif introuvable'], 404);
+        }
+        $project->addMember($member);
+        $em->flush();
+        return $this->json(['success' => true, 'data' => [
+            'id' => $member->getId()->toRfc4122(),
+            'name' => $member->getFirstName() . ' ' . $member->getLastName(),
+        ]], 201);
     }
 }

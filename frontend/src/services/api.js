@@ -1,7 +1,6 @@
 import { API_BASE_URL, TOKEN_KEY } from './config';
 
 /**
- * Fonction générique pour effectuer des requêtes à l'API
  */
 export async function fetchApi(endpoint, options = {}) {
   const token = localStorage.getItem(TOKEN_KEY);
@@ -16,7 +15,6 @@ export async function fetchApi(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // Si on envoie un FormData (upload de fichier), on laisse le navigateur gérer le Content-Type
   // (il va ajouter le boundary multipart/form-data automatiquement)
   if (options.body instanceof FormData) {
     delete headers['Content-Type'];
@@ -103,6 +101,37 @@ export const authService = {
 };
 
 export const academyService = {
+  listCourses: () => fetchApi('/academy/courses'),
+  listSchedule: () => fetchApi('/academy/schedule'),
+  listAssignments: () => fetchApi('/academy/assignments'),
+  listSubmissions: () => fetchApi('/academy/submissions'),
+  listCourseDocuments: () => fetchApi('/academy/documents'),
+  createAssignment: (data) => fetchApi('/academy/assignments', { method: 'POST', body: JSON.stringify(data) }),
+  uploadCourseDocument: (file, courseId) => { const body = new FormData(); body.append('file', file); body.append('courseId', courseId); return fetchApi('/academy/documents', { method: 'POST', body }); },
+  submitAssignment: (assignmentId, file) => { const body = new FormData(); body.append('file', file); return fetchApi(`/academy/assignments/${assignmentId}/submissions`, { method: 'POST', body }); },
+  publishMeetingLink: (sessionId, url) => fetchApi(`/academy/schedule/${sessionId}/meeting`, { method: 'PATCH', body: JSON.stringify({ url }) }),
+  downloadSubmission: async (id) => { const token = localStorage.getItem(TOKEN_KEY); const response = await fetch(`${API_BASE_URL}/academy/submissions/${id}/download`, { headers: token ? { Authorization: `Bearer ${token}` } : {} }); if (!response.ok) throw new Error('Téléchargement impossible'); return response.blob(); },
+  listGrades: () => fetchApi('/academy/grades'),
+  listPayments: () => fetchApi('/academy/payments'),
+  downloadPayment: async (id) => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const response = await fetch(`${API_BASE_URL}/academy/payments/${id}/download`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(body.message || body.error || `Erreur ${response.status}`);
+    }
+    return response.blob();
+  },
+  depositPayment: (file, payload = {}) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    Object.entries(payload).forEach(([key, value]) => value !== undefined && value !== null && formData.append(key, value));
+    return fetchApi('/academy/payments', { method: 'POST', body: formData });
+  },
+  validatePayment: (id) => fetchApi(`/academy/payments/${id}/validate`, { method: 'POST' }),
+  rejectPayment: (id) => fetchApi(`/academy/payments/${id}/reject`, { method: 'POST' }),
   getApprenantDashboard: () => {
     return fetchApi('/dashboard/apprenant', {
       method: 'GET'
@@ -122,14 +151,10 @@ export const academyService = {
 };
 
 /**
- * CRM — prospects, opportunités et relances.
  *
- * Rappel : l'interface n'est pas la sécurité. Elle masque ce que
- * l'administrateur n'a pas accordé, mais c'est Symfony qui refuse réellement
  * l'appel (403) si la permission manque.
  */
 export const crmService = {
-  // ── Pipeline ──────────────────────────────────────────────────────────
   getPipeline: ({ scope = 'mine', includeClosed = false } = {}) => {
     const params = new URLSearchParams({ scope });
     if (includeClosed) params.set('includeClosed', '1');
@@ -139,7 +164,9 @@ export const crmService = {
 
   getStats: () => fetchApi('/crm/stats'),
 
-  // ── Clients ───────────────────────────────────────────────────────────
+  getCustomer: (id) => fetchApi(`/customers/${id}`),
+  listCustomerActivities: (id) => fetchApi(`/customers/${id}/activities`),
+  createActivity: (payload) => fetchApi('/activities', { method: 'POST', body: JSON.stringify(payload) }),
   searchCustomers: (q, limit = 20) => {
     return fetchApi(`/customers/search?q=${encodeURIComponent(q)}&limit=${limit}`);
   },
@@ -161,7 +188,6 @@ export const crmService = {
     return fetchApi(`/customers/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
   },
 
-  // ── Opportunités ──────────────────────────────────────────────────────
   listOpportunities: ({ stage, customer, owner } = {}) => {
     const params = new URLSearchParams();
     if (stage) params.set('stage', stage);
@@ -181,17 +207,14 @@ export const crmService = {
   },
 
   /**
-   * Déplace une affaire d'étape. Le serveur applique les règles métier
-   * (gagné → client, probabilité à 100, création du projet).
    */
-  changeStage: (id, stage) => {
+  changeStage: (id, stage, transition = {}) => {
     return fetchApi(`/opportunities/${id}/stage`, {
       method: 'PATCH',
-      body: JSON.stringify({ stage }),
+      body: JSON.stringify({ stage, transition }),
     });
   },
 
-  // ── Relances ──────────────────────────────────────────────────────────
   listReminders: (filters = {}) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
@@ -230,14 +253,10 @@ export const crmService = {
 /**
  * File de notifications.
  *
- * Le serveur n'expose que de la lecture et du « marquer comme lu » : il n'y a
- * volontairement aucune méthode de création ni de suppression. Une notification
- * est un effet de bord d'un fait métier, pas un message que l'on composerait
  * depuis l'interface.
  */
 export const notificationService = {
   /**
-   * `unread` filtre sur les non lues ; sans lui, on récupère tout l'historique.
    */
   list: ({ page = 1, limit = 20, unread = false } = {}) => {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
@@ -249,8 +268,6 @@ export const notificationService = {
   /**
    * Compteur de la cloche.
    *
-   * Appelé sur toutes les pages, d'où une route dédiée qui renvoie un simple
-   * nombre : charger la file entière à chaque navigation serait du gaspillage.
    */
   getUnreadCount: () => fetchApi('/notifications/unread-count'),
 
@@ -260,11 +277,7 @@ export const notificationService = {
 };
 
 /**
- * Journal d'audit — consultation seule.
  *
- * L'API ne propose ni création, ni modification, ni suppression : une trace
- * s'écrit depuis le code qui a commis l'action. Exposer une écriture ici
- * reviendrait à laisser un administrateur fabriquer une trace contre un collègue.
  */
 export const auditService = {
   list: ({ page = 1, limit = 50, category, severity, action, actor, since } = {}) => {
@@ -283,7 +296,6 @@ export const auditService = {
 };
 
 /**
- * Knowledge Hub — gestion documentaire
  */
 export const knowledgeService = {
   listDocuments: ({ q, project_id } = {}) => {
@@ -326,10 +338,11 @@ export const roleService = {
 };
 
 /**
- * Workspace — projets et tâches
  */
 export const workspaceService = {
   listProjects: () => fetchApi('/workspace/projects'),
+  listTeamMembers: () => fetchApi('/workspace/projects/team'),
+  addProjectMember: (projectId, userId) => fetchApi(`/workspace/projects/${projectId}/members`, { method: 'POST', body: JSON.stringify({ user_id: userId }) }),
   getProject: (id) => fetchApi(`/workspace/projects/${id}`),
   createProject: (payload) => fetchApi('/workspace/projects', { method: 'POST', body: JSON.stringify(payload) }),
   updateProject: (id, payload) => fetchApi(`/workspace/projects/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
@@ -340,17 +353,26 @@ export const workspaceService = {
 };
 
 /**
- * Analytics — indicateurs et KPIs
  */
+export const incidentService = {
+  list: () => fetchApi('/it/incidents'),
+  create: (payload) => fetchApi('/it/incidents', { method: 'POST', body: JSON.stringify(payload) }),
+  update: (id, payload) => fetchApi(`/it/incidents/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+};
+
 export const analyticsService = {
   getKpis: () => fetchApi('/analytics/kpis'),
 };
 
+export const itService = {
+  getComputers: () => fetchApi('/it/inventory/computers'),
+  getComputerDetails: (id) => fetchApi(`/it/inventory/computers/${id}/details`),
+};
+
 /**
- * Service IA — analyse contextuelle de projets via proxy Symfony
  */
 export const aiService = {
-  analyzeProject: (projectId, question = 'Analyse générale du projet et de ses risques.') => {
+  analyzeProject: (projectId, question = 'General project and risk analysis.') => {
     return fetchApi(`/projects/${projectId}/ai-analysis`, {
       method: 'POST',
       body: JSON.stringify({ question }),
@@ -371,12 +393,10 @@ export const aiService = {
     });
   },
 
-  getRecommendations: (context = {}, scope = 'Opérations & CRM') => {
+  getRecommendations: (context = {}, scope = 'Operations & CRM') => {
     return fetchApi('/ai/recommendations', {
       method: 'POST',
       body: JSON.stringify({ ...context, scope }),
     });
   },
 };
-
-

@@ -5,12 +5,12 @@ import { formatAmount, STAGE_STYLES } from '../../lib/format';
  * Surface : surface-container-lowest (blanc), bordure surface-variant.
  * Accent de couleur via la bande d'étape et le chip de probabilité.
  */
-const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging }) => {
+const OpportunityCard = ({ opportunity, onSelect, onAdvance, canUpdate, draggable, isDragging, isBusy, disabled }) => {
   const style = STAGE_STYLES[opportunity.stage] ?? STAGE_STYLES.PROSPECTING;
 
   return (
     <article
-      draggable={draggable}
+      draggable={draggable && !disabled}
       onDragStart={e => {
         e.dataTransfer.setData('text/plain', String(opportunity.id));
         e.dataTransfer.effectAllowed = 'move';
@@ -32,6 +32,7 @@ const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging }) => {
           ? 'cursor-pointer hover:border-[#004ad1] hover:shadow-md hover:-translate-y-0.5'
           : 'cursor-grab',
         isDragging ? 'opacity-40 scale-95 rotate-1' : '',
+        isBusy ? 'ring-2 ring-blue-400 shadow-blue-500/20' : '',
       ].join(' ')}
     >
       {/* ── Bande accent d'étape ───────────────────── */}
@@ -80,6 +81,11 @@ const OpportunityCard = ({ opportunity, onSelect, draggable, isDragging }) => {
           {opportunity.expectedCloseDate}
         </p>
       )}
+      {canUpdate && !['WON', 'LOST'].includes(opportunity.stage) && <div className="mt-3 flex gap-2">
+        {opportunity.stage === 'NEGOTIATION' ? <button type="button" disabled={disabled} onClick={e => { e.stopPropagation(); onAdvance?.('WON'); }} className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-2 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"><span className="material-symbols-outlined text-[16px]">task_alt</span>Gagner l’affaire</button> : <button type="button" disabled={disabled} onClick={e => { e.stopPropagation(); onAdvance?.(({ PROSPECTING: 'QUALIFICATION', QUALIFICATION: 'PROPOSAL', PROPOSAL: 'NEGOTIATION' })[opportunity.stage]); }} className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg bg-blue-50 px-2.5 py-2 text-[11px] font-bold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"><span className="material-symbols-outlined text-[16px]">arrow_forward</span>Étape suivante</button>}
+        <button type="button" disabled={disabled} onClick={e => { e.stopPropagation(); onAdvance?.('LOST'); }} className="grid w-9 place-items-center rounded-lg bg-rose-50 text-rose-700 transition hover:bg-rose-100 disabled:opacity-50" title="Clôturer comme perdue"><span className="material-symbols-outlined text-[16px]">close</span></button>
+      </div>}
+      {isBusy && <div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-blue-700"><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600"/>Enregistrement…</div>}
     </article>
   );
 };

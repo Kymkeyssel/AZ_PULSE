@@ -1,206 +1,50 @@
-import { useState } from 'react';
-import { motion } from 'motion/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { incidentService } from '../../../services/api';
+import { useAuth } from '../../../contexts/AuthContext';
 
-const MOCK_TICKETS = [
-  {
-    id: 'INC-2026-001',
-    title: 'Panne serveur de base de données (Prod)',
-    status: 'OPEN',
-    priority: 'CRITICAL',
-    author: 'Serge N.',
-    date: '2026-09-29T08:30:00Z',
-    category: 'Serveurs',
-    assignedTo: 'Equipe SysOps'
-  },
-  {
-    id: 'INC-2026-002',
-    title: 'Problème de connexion VPN',
-    status: 'IN_PROGRESS',
-    priority: 'HIGH',
-    author: 'Marie L.',
-    date: '2026-09-29T09:15:00Z',
-    category: 'Réseau',
-    assignedTo: 'Support N1'
-  },
-  {
-    id: 'INC-2026-003',
-    title: 'Renouvellement licence Office 365',
-    status: 'CLOSED',
-    priority: 'LOW',
-    author: 'Jean P.',
-    date: '2026-09-28T14:20:00Z',
-    category: 'Logiciel',
-    assignedTo: 'Support N1'
-  }
-];
+const statusNames = { OPEN: 'Ouvert', IN_PROGRESS: 'En cours', RESOLVED: 'Résolu', CLOSED: 'Fermé' };
+const priorityNames = { CRITICAL: 'Critique', HIGH: 'Haute', MEDIUM: 'Normale', LOW: 'Basse' };
 
-const STATUS_CONFIG = {
-  OPEN: { label: 'Ouvert', bg: 'bg-error-container', text: 'text-on-error-container' },
-  IN_PROGRESS: { label: 'En cours', bg: 'bg-amber-100', text: 'text-amber-800' },
-  CLOSED: { label: 'Fermé', bg: 'bg-emerald-100', text: 'text-emerald-800' }
-};
+export default function ItTicketing() {
+  const { hasPermission } = useAuth();
+  const canManage = hasPermission('it.manage');
+  const [incidents, setIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState('ALL');
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title: '', description: '', category: 'OTHER', priority: 'MEDIUM' });
+  const [busy, setBusy] = useState(false);
 
-const PRIORITY_CONFIG = {
-  CRITICAL: { icon: 'warning', color: 'text-error' },
-  HIGH: { icon: 'keyboard_double_arrow_up', color: 'text-orange-500' },
-  MEDIUM: { icon: 'keyboard_arrow_up', color: 'text-amber-500' },
-  LOW: { icon: 'keyboard_arrow_down', color: 'text-blue-500' }
-};
+  const load = useCallback(async () => {
+    setLoading(true);
+    try { const result = await incidentService.list(); setIncidents(result.data || []); }
+    catch (error) { toast.error(error.message || 'Impossible de charger les incidents'); }
+    finally { setLoading(false); }
+  }, []);
+  useEffect(() => { load(); }, [load]);
 
-const ItTicketing = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const rows = useMemo(() => incidents.filter((item) => (status === 'ALL' || item.status === status) && `${item.id} ${item.title} ${item.reporter || ''}`.toLowerCase().includes(query.toLowerCase())), [incidents, query, status]);
+  const changeStatus = async (item, next) => {
+    try { await incidentService.update(item.id, { status: next }); toast.success('Incident mis à jour'); await load(); }
+    catch (error) { toast.error(error.message || 'Mise à jour impossible'); }
+  };
+  const create = async (event) => {
+    event.preventDefault(); setBusy(true);
+    try { await incidentService.create(form); setShowForm(false); setForm({ title: '', description: '', category: 'OTHER', priority: 'MEDIUM' }); toast.success('Incident créé'); await load(); }
+    catch (error) { toast.error(error.message || 'Création impossible'); }
+    finally { setBusy(false); }
+  };
 
-  return (
-    <div className="max-w-screen-xl mx-auto space-y-6 pb-20">
-      {/* ── En-tête ───────────────────────────────────────────────────────── */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-[#001026] tracking-tight">Support & Ticketing IT</h1>
-          <p className="text-sm text-[#6b7a99] mt-1">
-            Gérez les incidents, les demandes de service et assurez le suivi des interventions.
-          </p>
-        </div>
-        <button className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white shadow-md shadow-blue-500/20 hover:-translate-y-0.5 transition-all bg-[#004ad1]">
-          <span className="material-symbols-outlined text-[20px]">add</span>
-          Nouveau Ticket
-        </button>
-      </header>
-
-      {/* ── KPIs ──────────────────────────────────────────────────────────── */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-[#dde3ef] p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 text-blue-600">
-            <span className="material-symbols-outlined text-[24px]">confirmation_number</span>
-          </div>
-          <div>
-            <p className="text-2xl font-black text-[#001026]">124</p>
-            <p className="text-xs font-semibold text-[#6b7a99] uppercase tracking-wider mt-0.5">Total (Mois)</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-[#dde3ef] p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-red-50 text-red-600">
-            <span className="material-symbols-outlined text-[24px]">warning</span>
-          </div>
-          <div>
-            <p className="text-2xl font-black text-[#001026]">3</p>
-            <p className="text-xs font-semibold text-[#6b7a99] uppercase tracking-wider mt-0.5">Critiques</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-[#dde3ef] p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-50 text-amber-600">
-            <span className="material-symbols-outlined text-[24px]">pending_actions</span>
-          </div>
-          <div>
-            <p className="text-2xl font-black text-[#001026]">12</p>
-            <p className="text-xs font-semibold text-[#6b7a99] uppercase tracking-wider mt-0.5">En cours</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-[#dde3ef] p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600">
-            <span className="material-symbols-outlined text-[24px]">task_alt</span>
-          </div>
-          <div>
-            <p className="text-2xl font-black text-[#001026]">94%</p>
-            <p className="text-xs font-semibold text-[#6b7a99] uppercase tracking-wider mt-0.5">Résolus &lt; 24h</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Recherche et Filtres ────────────────────────────────────────── */}
-      <section className="flex flex-col md:flex-row items-center gap-4 bg-white p-3 rounded-xl border border-[#dde3ef] shadow-sm">
-        <div className="relative flex-1 w-full">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7a99]">search</span>
-          <input 
-            type="text" 
-            placeholder="Rechercher par ID, titre, demandeur..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 pl-10 pr-4 py-2 text-sm font-medium text-[#001026] placeholder-[#6b7a99] focus:outline-none focus:ring-2 focus:ring-[#004ad1]/20 rounded-lg"
-          />
-        </div>
-        <div className="flex gap-2 w-full md:w-auto">
-          <select className="bg-slate-50 text-sm font-medium text-[#001026] py-2 px-3 rounded-lg focus:outline-none border border-transparent focus:border-[#004ad1]/20">
-            <option>Tous les statuts</option>
-            <option>Ouverts</option>
-            <option>En cours</option>
-            <option>Fermés</option>
-          </select>
-          <select className="bg-slate-50 text-sm font-medium text-[#001026] py-2 px-3 rounded-lg focus:outline-none border border-transparent focus:border-[#004ad1]/20">
-            <option>Toutes les catégories</option>
-            <option>Matériel</option>
-            <option>Logiciel</option>
-            <option>Réseau</option>
-            <option>Accès</option>
-          </select>
-        </div>
-      </section>
-
-      {/* ── Liste des Tickets ───────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-[#dde3ef] shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-slate-50 text-[#6b7a99] font-medium border-b border-[#dde3ef]">
-              <tr>
-                <th className="px-6 py-4">ID Ticket</th>
-                <th className="px-6 py-4 min-w-[300px]">Sujet / Description</th>
-                <th className="px-6 py-4">Statut</th>
-                <th className="px-6 py-4">Priorité</th>
-                <th className="px-6 py-4">Demandeur</th>
-                <th className="px-6 py-4">Assigné à</th>
-                <th className="px-6 py-4 text-right">Création</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#dde3ef]">
-              {MOCK_TICKETS.map((ticket, idx) => (
-                <motion.tr 
-                  key={ticket.id} 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
-                >
-                  <td className="px-6 py-4 font-mono font-bold text-[#004ad1]">
-                    {ticket.id}
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="font-bold text-[#001026]">{ticket.title}</p>
-                    <p className="text-xs text-[#6b7a99] mt-0.5">{ticket.category}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${STATUS_CONFIG[ticket.status].bg} ${STATUS_CONFIG[ticket.status].text}`}>
-                      {STATUS_CONFIG[ticket.status].label}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="flex items-center gap-1.5 font-bold text-[#001026]">
-                      <span className={`material-symbols-outlined text-[18px] ${PRIORITY_CONFIG[ticket.priority].color}`}>
-                        {PRIORITY_CONFIG[ticket.priority].icon}
-                      </span>
-                      {ticket.priority}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-[#6b7a99]">
-                        {ticket.author.substring(0, 2).toUpperCase()}
-                      </div>
-                      <span className="text-[#001026] font-medium">{ticket.author}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-[#6b7a99]">
-                    {ticket.assignedTo}
-                  </td>
-                  <td className="px-6 py-4 text-right text-[#6b7a99]">
-                    {new Date(ticket.date).toLocaleDateString()}
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default ItTicketing;
+  const openCount = incidents.filter((item) => item.status === 'OPEN').length;
+  const activeCount = incidents.filter((item) => item.status === 'IN_PROGRESS').length;
+  const criticalCount = incidents.filter((item) => item.priority === 'CRITICAL' && !['RESOLVED', 'CLOSED'].includes(item.status)).length;
+  return <div className="max-w-screen-xl mx-auto space-y-6 pb-12">
+    <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4"><div><p className="text-xs uppercase tracking-widest font-bold text-blue-700">Infrastructure · Support</p><h1 className="text-3xl font-black text-slate-900 mt-2">Incidents IT</h1><p className="text-sm text-slate-500 mt-2">Suivez les incidents issus du système AZ Pulse.</p></div>{canManage && <button onClick={() => setShowForm((value) => !value)} className="rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white">{showForm ? 'Fermer' : 'Nouvel incident'}</button>}</header>
+    {showForm && <form onSubmit={create} className="bg-white border border-slate-200 rounded-2xl p-5 grid sm:grid-cols-2 gap-4"><label className="text-sm font-semibold">Titre<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="block w-full mt-1 rounded-lg border px-3 py-2"/></label><label className="text-sm font-semibold">Catégorie<select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="block w-full mt-1 rounded-lg border px-3 py-2"><option value="HARDWARE">Matériel</option><option value="SOFTWARE">Logiciel</option><option value="NETWORK">Réseau</option><option value="OTHER">Autre</option></select></label><label className="text-sm font-semibold">Priorité<select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="block w-full mt-1 rounded-lg border px-3 py-2"><option value="LOW">Basse</option><option value="MEDIUM">Normale</option><option value="HIGH">Haute</option><option value="CRITICAL">Critique</option></select></label><label className="text-sm font-semibold">Description<textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="block w-full mt-1 rounded-lg border px-3 py-2" rows="2"/></label><div className="sm:col-span-2 flex justify-end"><button disabled={busy} className="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50">{busy ? 'Création…' : 'Créer l’incident'}</button></div></form>}
+    <div className="grid sm:grid-cols-3 gap-4">{[['Incidents ouverts', openCount], ['En cours', activeCount], ['Critiques à traiter', criticalCount]].map(([label, value]) => <div key={label} className="bg-white rounded-2xl border border-slate-200 p-5"><p className="text-xs uppercase font-bold text-slate-400">{label}</p><p className="text-3xl font-black mt-2 text-slate-900">{value}</p></div>)}</div>
+    <section className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col sm:flex-row gap-3"><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher un incident…" className="flex-1 rounded-xl border px-4 py-2.5 text-sm"/><select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-xl border px-4 py-2.5 text-sm"><option value="ALL">Tous les statuts</option>{Object.entries(statusNames).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select><button onClick={load} className="rounded-xl border px-4 py-2.5 text-sm font-semibold">Actualiser</button></section>
+    <section className="bg-white rounded-2xl border border-slate-200 overflow-hidden"><div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="px-5 py-4">Incident</th><th className="px-5 py-4">Catégorie</th><th className="px-5 py-4">Priorité</th><th className="px-5 py-4">Demandeur</th><th className="px-5 py-4">Créé le</th><th className="px-5 py-4">Statut</th></tr></thead><tbody className="divide-y">{loading ? <tr><td colSpan="6" className="p-8 text-center text-slate-500">Chargement des incidents…</td></tr> : rows.length ? rows.map((item) => <tr key={item.id} className="hover:bg-slate-50"><td className="px-5 py-4"><p className="font-bold text-slate-900">{item.title}</p><p className="text-xs text-slate-500 mt-1">#{item.id} · {item.description}</p></td><td className="px-5 py-4 text-slate-600">{item.category}</td><td className="px-5 py-4 font-semibold">{priorityNames[item.priority] || item.priority}</td><td className="px-5 py-4 text-slate-600">{item.reporter || '—'}</td><td className="px-5 py-4 text-slate-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString('fr-FR') : '—'}</td><td className="px-5 py-4">{canManage ? <select aria-label={`Statut incident ${item.id}`} value={item.status} onChange={(e) => changeStatus(item, e.target.value)} className="rounded-lg border px-2 py-1.5 text-xs font-semibold">{Object.entries(statusNames).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select> : <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold">{statusNames[item.status] || item.status}</span>}</td></tr>) : <tr><td colSpan="6" className="p-10 text-center text-sm text-slate-500">Aucun incident correspondant.</td></tr>}</tbody></table></div></section>
+  </div>;
+}

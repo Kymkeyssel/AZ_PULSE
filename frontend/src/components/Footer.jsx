@@ -8,7 +8,7 @@ const Footer = () => {
         {/* Brand & Contact Details */}
         <div className="md:col-span-5 space-y-4">
           <a className="flex items-center gap-3" href="#">
-            <img alt="AZ PULSE by AZ CORPORATION" className="h-10 w-auto object-contain" src="/AZ PULSE_logo.png"/>
+            <img alt="Logo AZ Corporation" className="h-10 w-auto object-contain" src="/logo%20%20AZ.png"/>
             <div>
               <span className="font-syne text-xl font-extrabold text-[#0B2545] block">AZ CORPORATION SARL</span>
               <span className="text-[11px] text-[#FFB800] font-bold">La technologie, tout simplement</span>

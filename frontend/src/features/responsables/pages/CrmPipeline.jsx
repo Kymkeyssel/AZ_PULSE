@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crmService } from '../../../services/api';
 import PipelineBoard from '../components/crm/PipelineBoard';
@@ -12,6 +13,9 @@ const EMPTY = { scope: 'mine', columns: [], totals: { count: 0, totalAmount: 0, 
 
 const CrmPipeline = () => {
   const { hasPermission } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const workspacePath = location.pathname.startsWith('/superadmin') ? '/superadmin/workspace' : location.pathname.startsWith('/admin') ? '/admin/workspace' : location.pathname.startsWith('/collaborateur') ? '/collaborateur/projets' : '/responsable/projets';
 
   const canUpdate = hasPermission('crm.update');
   const canCreate = hasPermission('crm.create');
@@ -23,6 +27,7 @@ const CrmPipeline = () => {
   const [includeClosed, setIncludeClosed] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [pendingOpportunityId, setPendingOpportunityId] = useState(null);
 
   const loading = !loaded;
 
@@ -42,18 +47,25 @@ const CrmPipeline = () => {
     load();
   }, [load]);
 
-  const handleMove = async (opportunityId, stage) => {
+  const handleMove = async (opportunityId, stage, transition) => {
+    if (pendingOpportunityId) return false;
+    setPendingOpportunityId(opportunityId);
     try {
-      await crmService.changeStage(opportunityId, stage);
-      toast.success(
-        stage === 'WON'
-          ? 'Affaire gagnée : le client est converti et le projet créé.'
-          : 'Affaire déplacée.'
-      );
-      load();
+      const result = await crmService.changeStage(opportunityId, stage, transition);
+      if (stage === 'WON') {
+        if (!result?.data?.project?.id) throw new Error('Le serveur n’a pas confirmé la création du projet Workspace.');
+        setIncludeClosed(true);
+        toast.success(`Affaire gagnée · projet « ${result.data.project.name} » créé.`, { action: { label: 'Ouvrir le projet', onClick: () => navigate(workspacePath) } });
+      } else if (stage === 'LOST') toast.success('Affaire clôturée. Le motif est conservé dans son historique.');
+      else toast.success('Étape validée. Une relance a été ajoutée à votre agenda CRM.');
+      await load();
+      return true;
     } catch (err) {
       toast.error(err.message || 'Déplacement impossible.');
-      load();
+      await load();
+      return false;
+    } finally {
+      setPendingOpportunityId(null);
     }
   };
 
@@ -84,7 +96,7 @@ const CrmPipeline = () => {
             <div className="flex items-center gap-space-xs">
               <span className="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Cockpit Responsable Commercial</span>
               <span className="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
-              <span className="font-body-sm text-body-sm text-on-surface-variant">CrmCustomer & CrmOpportunity Live Engine</span>
+              <span className="font-body-sm text-body-sm text-on-surface-variant">Gestion des opportunités · synchronisée</span>
             </div>
             <h1 className="font-headline-xl text-headline-xl text-primary font-extrabold tracking-tight">
               Espace Responsable Commercial & Workspace Projets
@@ -114,6 +126,26 @@ const CrmPipeline = () => {
           </div>
         </div>
 
+        <section className="rounded-2xl border border-blue-100/80 bg-gradient-to-r from-white/90 via-blue-50/80 to-cyan-50/80 backdrop-blur-xl p-4 sm:p-5 shadow-[0_12px_40px_rgba(29,99,255,.08)]">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-blue-600">Parcours commercial</p><h2 className="text-sm sm:text-base font-extrabold text-slate-900 mt-1">Du premier contact au projet livré</h2></div>
+            <span className="hidden sm:inline-flex glass-chip text-emerald-700"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"/> Flux connecté</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3">
+            {[
+              ['01', 'Prospect', 'Créer le contact', 'person_add', 'from-sky-500 to-blue-600'],
+              ['02', 'Qualification', 'Évaluer le besoin', 'manage_search', 'from-blue-500 to-indigo-600'],
+              ['03', 'Proposition', 'Partager une offre', 'request_quote', 'from-violet-500 to-fuchsia-600'],
+              ['04', 'Négociation', 'Suivre la décision', 'handshake', 'from-amber-400 to-orange-500'],
+              ['05', 'Gagnée → projet', 'Workspace créé automatiquement', 'rocket_launch', 'from-emerald-400 to-teal-600'],
+            ].map(([number, title, caption, icon, color], index) => <div key={number} className="relative min-h-[106px] rounded-xl border border-white/80 bg-white/70 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${color} text-white grid place-items-center shadow-md`}><span className="material-symbols-outlined text-[17px]">{icon}</span></div>
+              <p className="text-[11px] font-extrabold text-slate-900 mt-2">{number}. {title}</p><p className="text-[10px] text-slate-500 mt-0.5 leading-snug">{caption}</p>
+              {index < 4 && <span className="hidden md:block absolute -right-3 top-7 z-10 material-symbols-outlined text-blue-300 text-[18px]">arrow_forward</span>}
+            </div>)}
+          </div>
+        </section>
+
         {/* KPI METIER CRM */}
         <CrmKpiCards totals={totals} scope={scope} onScopeChange={setScope} />
 
@@ -127,9 +159,9 @@ const CrmPipeline = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="font-headline-md text-headline-md text-primary font-bold">Pipeline Commercial Dealflow</h2>
-                  <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11px] font-bold">Live Synced</span>
+                  <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11px] font-bold">Données en direct</span>
                 </div>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">Progression des opportunités, montants pondérés et transition vers projet</p>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">Chaque changement demande les informations propres à l’étape et crée une trace dans l’historique.</p>
               </div>
             </div>
 
@@ -165,6 +197,7 @@ const CrmPipeline = () => {
           <PipelineBoard
             columns={data?.columns ?? []}
             canUpdate={canUpdate}
+            pendingOpportunityId={pendingOpportunityId}
             onSelect={opp => { setEditing(opp); setFormOpen(true); }}
             onMove={handleMove}
           />

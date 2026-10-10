@@ -1,10 +1,26 @@
 import { useState } from 'react';
 import OpportunityCard from './OpportunityCard';
 import { formatAmountCompact, STAGE_STYLES } from '../../lib/format';
+import StageTransitionDialog from './StageTransitionDialog';
+import { toast } from 'sonner';
 
-const PipelineBoard = ({ columns, canUpdate, onSelect, onMove }) => {
+const PipelineBoard = ({ columns, canUpdate, onSelect, onMove, pendingOpportunityId = null }) => {
   const [dragging, setDragging] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
+  const [pendingTransition, setPendingTransition] = useState(null);
+
+  const openTransition = (opportunity, stage) => {
+    if (!canUpdate || pendingOpportunityId) return;
+    if (opportunity.stage === stage) return;
+    const order = ['PROSPECTING', 'QUALIFICATION', 'PROPOSAL', 'NEGOTIATION', 'WON'];
+    const currentIndex = order.indexOf(opportunity.stage);
+    if (stage !== 'LOST' && order.indexOf(stage) !== currentIndex + 1) {
+      toast.error('Une affaire avance une étape à la fois. Complétez d’abord les informations de l’étape suivante.');
+      return;
+    }
+    if (['WON', 'LOST'].includes(opportunity.stage)) return;
+    setPendingTransition({ opportunity, fromStage: opportunity.stage, toStage: stage });
+  };
 
   const handleDrop = (opportunityId, stage) => {
     setDropTarget(null);
@@ -12,10 +28,9 @@ const PipelineBoard = ({ columns, canUpdate, onSelect, onMove }) => {
 
     if (!opportunityId || !canUpdate) return;
 
-    const source = columns.find(c => c.opportunities.some(o => String(o.id) === opportunityId));
-    if (!source || source.code === stage) return;
-
-    onMove?.(opportunityId, stage);
+    const opportunity = columns.flatMap(column => column.opportunities).find(item => String(item.id) === opportunityId);
+    if (!opportunity || opportunity.stage === stage) return;
+    openTransition(opportunity, stage);
   };
 
   return (
@@ -91,13 +106,27 @@ const PipelineBoard = ({ columns, canUpdate, onSelect, onMove }) => {
                   draggable={canUpdate}
                   isDragging={dragging === String(opportunity.id)}
                   isWon={isWon}
-                  onAdvance={(stage) => onMove?.(opportunity.id, stage)}
+                  onAdvance={(stage) => openTransition(opportunity, stage)}
+                  isBusy={String(pendingOpportunityId) === String(opportunity.id)}
+                  disabled={Boolean(pendingOpportunityId)}
                 />
               ))}
             </div>
           </div>
         );
       })}
+      {pendingTransition && <StageTransitionDialog
+        key={`${pendingTransition.opportunity.id}-${pendingTransition.toStage}`}
+        opportunity={pendingTransition.opportunity}
+        fromStage={pendingTransition.fromStage}
+        toStage={pendingTransition.toStage}
+        busy={String(pendingOpportunityId) === String(pendingTransition.opportunity.id)}
+        onCancel={() => { if (!pendingOpportunityId) setPendingTransition(null); }}
+        onConfirm={async transition => {
+          const succeeded = await onMove?.(pendingTransition.opportunity.id, pendingTransition.toStage, transition);
+          if (succeeded) setPendingTransition(null);
+        }}
+      />}
     </div>
   );
 };

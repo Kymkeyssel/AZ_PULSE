@@ -79,7 +79,7 @@ export default function AIChatDrawer({ isOpen, onClose, currentContext = {} }) {
           </div>
           <div>
             <div className="font-semibold text-sm tracking-wide text-white flex items-center gap-1.5">
-              AZ Hermes AI
+              Pulse AI
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             </div>
             <div className="text-[10px] text-slate-300">Agent connecté • LLM Gemini 2.5</div>

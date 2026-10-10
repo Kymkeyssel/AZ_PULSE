@@ -34,6 +34,7 @@ const CollaborateurSidebar = () => {
     { to: '/collaborateur/documents',    icon: 'menu_book',       label: 'Documents',       perm: 'knowledge.read' },
     { to: '/collaborateur/analytics',    icon: 'insights',        label: 'Analytics',       perm: 'analytics.read' },
     { to: '/collaborateur/ia',           icon: 'psychology',      label: 'AI Workspace',    perm: 'ai.read' },
+    { to: '/profil',                     icon: 'manage_accounts', label: 'Mon profil',      perm: null },
   ];
 
   const visibleLinks = LINKS.filter(l => !l.perm || hasPermission(l.perm));

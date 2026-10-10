@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crmService } from '../../../services/api';
 import ReminderForm from '../components/crm/ReminderForm';
@@ -29,6 +29,8 @@ const STATUS_STYLES = {
  * moment où il décide de rappeler.
  */
 const CrmCustomers = () => {
+  const location = useLocation();
+  const detailBase = location.pathname.startsWith('/responsable') ? '/responsable/clients' : '/collaborateur/clients';
   const { hasPermission } = useAuth();
   const canCreate = hasPermission('crm.create');
   const canUpdate = hasPermission('crm.update');
@@ -304,7 +306,14 @@ const CrmCustomers = () => {
                     </p>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                      <Link
+                        to={`${detailBase}/${customer.id}`}
+                        title="Ouvrir le dossier client"
+                        className="p-2 rounded-lg text-[#74777f] hover:bg-[#dce1ff] hover:text-[#004ad1] transition-colors"
+                      >
+                        <span className="material-symbols-outlined notranslate text-[18px]">open_in_new</span>
+                      </Link>
                       {canCreate && (
                         <button
                           onClick={() => setReminderFor(customer)}
@@ -382,9 +391,9 @@ const CrmCustomers = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wide text-[#44474e] mb-1.5">
-                    Email
+                    Email · nécessaire au suivi
                   </label>
-                  <input name="email" type="email" defaultValue={editing?.email ?? ''} className={field} />
+                  <input name="email" type="email" defaultValue={editing?.email ?? ''} className={field} required />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wide text-[#44474e] mb-1.5">

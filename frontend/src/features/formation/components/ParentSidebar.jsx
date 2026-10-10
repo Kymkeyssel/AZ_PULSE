@@ -5,6 +5,15 @@ const NAV_ITEMS = [
   { path: '/parent', label: 'Suivi Académique', icon: 'monitoring', end: true },
 ];
 
+NAV_ITEMS.push(
+  { path: '/parent/mes-enfants', label: 'Mes enfants', icon: 'supervisor_account' },
+  { path: '/parent/formations-suivi', label: 'Formations et suivi', icon: 'timeline' },
+  { path: '/parent/planning', label: 'Planning', icon: 'event_available' },
+  { path: '/parent/bulletins-notes', label: 'Bulletins et notes', icon: 'grade' },
+  { path: '/parent/inscriptions', label: 'Inscriptions', icon: 'how_to_reg' },
+  { path: '/parent/paiements-recus', label: 'Paiements et recus', icon: 'receipt_long' },
+);
+
 export const ParentSidebar = () => {
   const { fullName } = useAuth();
 
@@ -13,7 +22,7 @@ export const ParentSidebar = () => {
       <div className="flex flex-col">
         {/* Brand */}
         <div className="h-16 px-space-md flex items-center gap-space-sm">
-          <img alt="AZ PULSE Logo" className="h-8 w-auto object-contain" src="/AZ PULSE_logo.png" />
+          <img alt="Logo AZ Corporation" className="h-8 w-auto object-contain" src="/logo%20%20AZ.png" />
           <div className="flex flex-col">
             <span className="font-headline-sm text-headline-sm text-primary leading-tight font-bold tracking-tight">AZ PULSE</span>
             <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Formation &amp; Académie</span>
